@@ -1,0 +1,27 @@
+{
+  "name": "@transit/server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Transit API (Next.js route handlers) deployed to Vercel.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@transit/contracts": "workspace:*",
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@transit/config": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

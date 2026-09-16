@@ -1,0 +1,4 @@
+{
+  "extends": "@transit/config/tsconfig/library.json",
+  "include": ["src", "test"]
+}

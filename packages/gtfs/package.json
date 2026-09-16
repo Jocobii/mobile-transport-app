@@ -1,0 +1,18 @@
+{
+  "name": "@transit/gtfs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GTFS static and GTFS-Realtime adapters plus the catalog builder. Node.js only.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": { "@transit/core": "workspace:*" },
+  "devDependencies": {
+    "@transit/config": "workspace:*"
+  }
+}
