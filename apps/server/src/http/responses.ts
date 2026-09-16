@@ -11,7 +11,10 @@ const STATUS_BY_ERROR_CODE: Record<ApiErrorCode, number> = {
   internal_error: 500,
 };
 
-export function jsonResponse<T>(body: T, options: { status?: number; cacheControl: string }): Response {
+export function jsonResponse<T>(
+  body: T,
+  options: { status?: number; cacheControl: string },
+): Response {
   return Response.json(body, {
     status: options.status ?? 200,
     headers: { "cache-control": options.cacheControl },

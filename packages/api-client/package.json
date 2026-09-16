@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
-  "dependencies": { "@transit/contracts": "workspace:*" },
+  "dependencies": {
+    "@transit/contracts": "workspace:*"
+  },
   "devDependencies": {
     "@transit/config": "workspace:*"
   }

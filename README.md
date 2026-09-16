@@ -32,4 +32,5 @@ pnpm typecheck
 pnpm test
 pnpm lint       # Biome
 pnpm format
+pnpm verify     # lint + typecheck + tests (run before every commit)
 ```
