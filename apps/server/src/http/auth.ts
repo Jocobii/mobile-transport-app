@@ -16,3 +16,16 @@ export function hasValidApiKey(request: Request, expectedApiKey: string): boolea
 function sha256(value: string): Buffer {
   return createHash("sha256").update(value).digest();
 }
+
+/**
+ * Checks the `Authorization: Bearer <token>` header in constant time.
+ * Used by the cron route, which authenticates with `CRON_SECRET` instead of an API key.
+ */
+export function hasValidBearerToken(request: Request, expectedToken: string): boolean {
+  const header = request.headers.get("authorization");
+  if (!header || !header.startsWith("Bearer ")) {
+    return false;
+  }
+  const providedToken = header.slice("Bearer ".length);
+  return timingSafeEqual(sha256(providedToken), sha256(expectedToken));
+}

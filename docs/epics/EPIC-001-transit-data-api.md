@@ -919,7 +919,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests per endpoint: 200 happy path, 400 validation, 401, 404 where applicable, 503 when the catalog is unavailable, headers per section 11.
   - Commit: `feat(server): add v1 transit endpoints`
 
-- [ ] **E001-T16 — Catalog build script and Vercel configuration**
+- [x] **E001-T16 — Catalog build script and Vercel configuration**
   - `apps/server/scripts/build-catalog.ts`: for each feed in `FEEDS` download the static zip, build with `buildCatalog`, output `generated/catalog.sqlite`. Flag `--source=raw` builds from `../../data/raw` instead of downloading (Metro Transit from the directory, MVTA from `gtfs.zip`).
   - `apps/server/package.json` scripts: `"catalog:build": "tsx scripts/build-catalog.ts"`, `"catalog:build:raw": "tsx scripts/build-catalog.ts --source=raw"`, `"build": "pnpm run catalog:build && next build"`.
   - `apps/server/next.config.ts`: `outputFileTracingIncludes: { "/api/**": ["./generated/catalog.sqlite"] }`. Verify the key pattern against the Next.js 16 docs in `node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/output.md`.

@@ -5,10 +5,12 @@
   "description": "Transit API (Next.js route handlers) deployed to Vercel.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm run catalog:build && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "catalog:build": "tsx scripts/build-catalog.ts",
+    "catalog:build:raw": "tsx scripts/build-catalog.ts --source=raw"
   },
   "dependencies": {
     "@transit/contracts": "workspace:*",
