@@ -64,6 +64,35 @@ network, clock or device. When principles conflict, prefer **readability and sim
   when a data source fails, fall back (schedule) instead of breaking the screen.
 - **Boy Scout rule, scoped.** Leave touched code a bit cleaner, but keep refactors in separate commits.
 
+## Performance (data and computation paths)
+
+The catalog and every merge/normalization step run over real GTFS volumes (Metro Transit alone:
+~8k stops, ~20k trips, ~880k stop_times rows). Code that touches these paths is held to a
+performance-conscious standard, without abandoning readability or KISS/YAGNI:
+
+- **Know the complexity you're writing.** For any loop over feed-sized data (stops, trips,
+  stop_times, patterns, vehicles, predictions), state or reason about its Big-O. Prefer O(n) or
+  O(n log n) over O(n^2); a nested loop across two feed-sized collections is a red flag unless one
+  side is small and bounded (e.g. iterating 2 feeds, not 2 stop lists).
+- **Index before you loop.** Build a `Map`/`Set` once for repeated lookups (by id, by key) instead
+  of `Array.find`/`Array.includes` inside a loop. This is the single most common win in this codebase
+  (e.g. `Map<stopId, StopRecord>` in the catalog builder, prepared statements + SQL indexes in the
+  SQLite provider instead of full scans).
+- **Let SQLite do set work.** Bounding-box + indexed columns (`stops(lat, lon)`, `stop_times(stop_id)`,
+  `service_dates(service_date)`) narrow candidates in SQL; only the final, already-small candidate set
+  is scored/filtered in JS (e.g. exact haversine distance after a bounding-box prefilter).
+- **Avoid redundant work across a request or a build.** Compute a value once and reuse it (per-request
+  realtime snapshot fetched once and shared across stops in `getNearby`, single-flight realtime cache)
+  rather than recomputing or refetching per item.
+- **Avoid unnecessary allocations in hot loops.** Don't rebuild arrays/strings per iteration when a
+  single pass or a pre-sized structure will do; this matters most in the catalog builder (runs over
+  every row of every feed) and in per-request merge/ranking code.
+- **This still isn't premature optimization.** Only optimize paths that scale with feed size or
+  request volume (builder, catalog queries, merge, search). Small, bounded, one-off code (config
+  parsing, a handful of settings) stays as simple as possible even if technically suboptimal.
+- **Measure when in doubt.** If a chosen approach's cost is unclear, log or note the timing (the
+  catalog builder already logs per-feed row counts and duration) rather than guessing.
+
 ## Clean Code
 
 ### Naming
@@ -109,3 +138,4 @@ network, clock or device. When principles conflict, prefer **readability and sim
 - [ ] Any duplication of a business rule?
 - [ ] Anything built "for later"?
 - [ ] Names, units and errors are explicit?
+- [ ] Any loop over feed-sized data that is O(n^2) or does repeated `Array.find`/`includes` where a `Map`/`Set` or SQL index would do?
