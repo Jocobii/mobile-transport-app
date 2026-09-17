@@ -7,4 +7,4 @@
  *
  * Normalization rules are generic GTFS/GTFS-RT rules. Never add logic for a specific route.
  */
-export {};
+export * from "./time/gtfs-time";

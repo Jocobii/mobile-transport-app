@@ -825,7 +825,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
 
 ### Phase B — Static catalog (`@transit/gtfs`)
 
-- [ ] **E001-T05 — Time helpers**
+- [x] **E001-T05 — Time helpers**
   - `src/time/gtfs-time.ts`: `parseGtfsTime`, `epochFor`, `localServiceDate`, `addDays(serviceDate, n)` (section 10.1).
   - Tests: the four cases of 10.1, invalid time string.
   - Commit: `feat(gtfs): add gtfs time and service date helpers`
