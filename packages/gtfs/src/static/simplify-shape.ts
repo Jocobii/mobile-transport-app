@@ -1,21 +1,7 @@
 import type { LatLon } from "@transit/core";
 
-const EARTH_RADIUS_METERS = 6371000;
-
 function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
-}
-
-/** Great-circle distance between two points, in meters. */
-export function haversineMeters(a: LatLon, b: LatLon): number {
-  const dLat = toRadians(b.lat - a.lat);
-  const dLon = toRadians(b.lon - a.lon);
-  const lat1 = toRadians(a.lat);
-  const lat2 = toRadians(b.lat);
-  const sinLat = Math.sin(dLat / 2);
-  const sinLon = Math.sin(dLon / 2);
-  const h = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLon * sinLon;
-  return 2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
 /**

@@ -877,7 +877,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
 
 ### Phase D — Domain (`@transit/core`)
 
-- [ ] **E001-T11 — Pure domain functions**
+- [x] **E001-T11 — Pure domain functions**
   - Files in `packages/core/src/domain/`: `geo.ts` (haversine, bounding box), `freshness.ts` (10.8 stale rules), `merge-arrivals.ts` (10.9), `approaching-vehicles.ts` (10.10), `direction.ts` (10.12 selection), `search.ts` (10.6 normalization, ranking, variant suffix rule), `natural-order.ts`.
   - Tests: one `describe` per rule in sections 10.6, 10.8–10.10 and 10.12, with in-memory data (no fixtures needed).
   - Commit: `feat(core): add arrival merge, freshness and ranking rules`

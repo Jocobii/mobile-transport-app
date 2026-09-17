@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { VARIANT_SUFFIX_PATTERN, boundingBox, haversineMeters } from "@transit/core";
 import type {
   CatalogProvider,
   EpochSeconds,
@@ -15,7 +16,6 @@ import type {
   TripId,
 } from "@transit/core";
 import { addDays, epochFor, localServiceDate } from "../time/gtfs-time";
-import { haversineMeters } from "../static/simplify-shape";
 
 export class CatalogUnavailableError extends Error {
   constructor(message: string, options?: { cause?: unknown }) {
@@ -53,21 +53,6 @@ function ftsPrefixAnd(column: string, words: string[]): string | undefined {
 }
 
 const NATURAL_COLLATOR = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
-
-function boundingBox(
-  center: LatLon,
-  radiusMeters: number,
-): { minLat: number; maxLat: number; minLon: number; maxLon: number } {
-  const latDeltaDeg = radiusMeters / 111_320;
-  const cosLat = Math.max(Math.cos((center.lat * Math.PI) / 180), 0.01);
-  const lonDeltaDeg = radiusMeters / (111_320 * cosLat);
-  return {
-    minLat: center.lat - latDeltaDeg,
-    maxLat: center.lat + latDeltaDeg,
-    minLon: center.lon - lonDeltaDeg,
-    maxLon: center.lon + lonDeltaDeg,
-  };
-}
 
 function datesBetween(start: ServiceDate, end: ServiceDate): ServiceDate[] {
   const dates: ServiceDate[] = [];
@@ -111,7 +96,6 @@ function compareStopsForSearch(
   return NATURAL_COLLATOR.compare(a.stop.name, b.stop.name);
 }
 
-const VARIANT_SUFFIX_PATTERN = /^\d+[a-z]$/;
 
 export function createSqliteCatalogProvider(
   options: SqliteCatalogProviderOptions,
