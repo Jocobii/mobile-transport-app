@@ -10,6 +10,7 @@ engineering docs that apply to the code you are touching.
 - Implement only what is decided there. Items listed as "open" or "possible" are **not** requirements.
 - If a task requires a new product decision, or the code would contradict the document, stop and ask.
   Never invent requirements, endpoints, data fields or feed capabilities.
+- When you update the decisions document, **edit or append the relevant sections only**. Never replace the whole document with a partial summary.
 
 ## 2. Golden rules
 
