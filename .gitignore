@@ -35,3 +35,6 @@ apps/server/generated/
 .DS_Store
 *.log
 .idea/
+
+# scratch self-verification harness (rebuilt fresh per task, never committed)
+.smoke/
