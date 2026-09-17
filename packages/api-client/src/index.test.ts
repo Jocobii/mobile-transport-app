@@ -157,7 +157,7 @@ describe("createApiClient", () => {
 
       await client.getHealth();
 
-      const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
+      const [, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
       expect((init.headers as Record<string, string>)[API_KEY_HEADER]).toBe("secret");
     });
 
@@ -167,7 +167,7 @@ describe("createApiClient", () => {
 
       await client.getHealth();
 
-      const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
+      const [, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
       expect(API_KEY_HEADER in (init.headers as Record<string, string>)).toBe(false);
     });
   });

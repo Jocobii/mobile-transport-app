@@ -1,0 +1,129 @@
+route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowed
+436,27-v64,t2DC-b1FC-sl1B-v64,South to Eagan TS via Viking Lakes,1,508-v64,27934_shp-v64,0,0
+436,27-v64,t2EC-b202-sl1B-v64,North to 46th St Station/MSP,0,514-v64,28035_shp-v64,0,0
+436,27-v64,t340-b202-sl1B-v64,South to Eagan TS via Viking Lakes,1,514-v64,27934_shp-v64,0,0
+436,27-v64,t350-b1FE-sl1B-v64,North to 46th St Station/MSP,0,510-v64,28035_shp-v64,0,0
+436,27-v64,t3A4-b1FE-sl1B-v64,South to Eagan TS via Viking Lakes,1,510-v64,27934_shp-v64,0,0
+436,27-v64,t3B4-b1FC-sl1B-v64,North to 46th St Station/MSP,0,508-v64,28035_shp-v64,0,0
+436,27-v64,t408-b1FC-sl1B-v64,South to Eagan TS via Viking Lakes,1,508-v64,27934_shp-v64,0,0
+436,27-v64,t418-b1FE-sl1B-v64,North to 46th St Station/MSP,0,510-v64,28035_shp-v64,0,0
+436,27-v64,t46C-b1FE-sl1B-v64,South to Eagan TS via Viking Lakes,1,510-v64,27934_shp-v64,0,0
+436,27-v64,t47C-b1FC-sl1B-v64,North to 46th St Station/MSP,0,508-v64,28035_shp-v64,0,0
+436,27-v64,t4D0-b1FC-sl1B-v64,South to Eagan TS via Viking Lakes,1,508-v64,27934_shp-v64,0,0
+436,27-v64,t4E0-b202-sl1B-v64,North to 46th St Station/MSP,0,514-v64,28035_shp-v64,0,0
+436,27-v64,t534-b202-sl1B-v64,South to Eagan TS via Viking Lakes,1,514-v64,27934_shp-v64,0,0
+436,27-v64,t544-b22B-sl1B-v64,North to 46th St Station/MSP,0,555-v64,28035_shp-v64,0,0
+436,27-v64,t598-b22B-sl1B-v64,South to Eagan TS via Viking Lakes,1,555-v64,27934_shp-v64,0,0
+436,27-v64,t5A8-b230-sl1B-v64,North to 46th St Station/MSP,0,560-v64,28035_shp-v64,0,0
+436,27-v64,t5FC-b230-sl1B-v64,South to Eagan TS via Viking Lakes,1,560-v64,27934_shp-v64,0,0
+436,27-v64,t60C-b22E-sl1B-v64,North to 46th St Station/MSP,0,558-v64,28035_shp-v64,0,0
+436,27-v64,t660-b22E-sl1B-v64,South to Eagan TS via Viking Lakes,1,558-v64,27934_shp-v64,0,0
+436,27-v64,t670-b237-sl1B-v64,North to 46th St Station/MSP,0,567-v64,28035_shp-v64,0,0
+436,27-v64,t6C4-b237-sl1B-v64,South to Eagan TS via Viking Lakes,1,567-v64,27934_shp-v64,0,0
+436,27-v64,t6D4-b22E-sl1B-v64,North to 46th St Station/MSP,0,558-v64,28035_shp-v64,0,0
+436,27-v64,t728-b22E-sl1B-v64,South to Eagan TS via Viking Lakes,1,558-v64,27934_shp-v64,0,0
+436,27-v64,t736-b22B-sl1B-v64,North to 46th St Station/MSP,0,555-v64,28035_shp-v64,0,0
+436,27-v64,t78C-b22B-sl1B-v64,South to Eagan TS via Viking Lakes,1,555-v64,27934_shp-v64,0,0
+436,27-v64,t79A-b237-sl1B-v64,North to 46th St Station/MSP,0,567-v64,28035_shp-v64,0,0
+436,28-v64,t21E-b1-sl1C-v64,South to Eagan TS via Opperman,1,1-v64,27496_shp-v64,0,0
+436,28-v64,t267-b22-sl1C-v64,South to Eagan TS via Opperman,1,34-v64,27496_shp-v64,0,0
+436,28-v64,t285-b34-sl1C-v64,South to Eagan TS via Viking Lakes,1,52-v64,27502_shp-v64,0,0
+436,28-v64,t2D0-b1-sl1C-v64,South to Eagan TS via Opperman,1,1-v64,27496_shp-v64,0,0
+436,28-v64,t2E9-b22-sl1C-v64,South to Eagan TS via Viking Lakes,1,34-v64,27502_shp-v64,0,0
+436,28-v64,t2EE-b34-sl1C-v64,46th St Station/MSP,0,52-v64,27499_shp-v64,0,0
+436,28-v64,t349-b34-sl1C-v64,South to Eagan TS via Viking Lakes,1,52-v64,27502_shp-v64,0,0
+436,28-v64,t352-b22-sl1C-v64,46th St Station/MSP,0,34-v64,27499_shp-v64,0,0
+436,28-v64,t3AD-b22-sl1C-v64,South to Eagan TS via Viking Lakes,1,34-v64,27502_shp-v64,0,0
+436,28-v64,t3B8-b34-sl1C-v64,46th St Station/MSP,0,52-v64,27499_shp-v64,0,0
+436,28-v64,t411-b34-sl1C-v64,South to Eagan TS via Viking Lakes,1,52-v64,27502_shp-v64,0,0
+436,28-v64,t41C-b22-sl1C-v64,46th St Station/MSP,0,34-v64,27499_shp-v64,0,0
+436,28-v64,t475-b22-sl1C-v64,South to Eagan TS via Viking Lakes,1,34-v64,27502_shp-v64,0,0
+436,28-v64,t480-b34-sl1C-v64,46th St Station/MSP,0,52-v64,27499_shp-v64,0,0
+436,28-v64,t4D9-b34-sl1C-v64,South to Eagan TS via Viking Lakes,1,52-v64,27502_shp-v64,0,0
+436,28-v64,t4E4-b22-sl1C-v64,46th St Station/MSP,0,34-v64,27499_shp-v64,0,0
+436,28-v64,t53D-b13E-sl1C-v64,South to Eagan TS via Viking Lakes,1,318-v64,27502_shp-v64,0,0
+436,28-v64,t54C-b144-sl1C-v64,46th St Station/MSP,0,324-v64,27499_shp-v64,0,0
+436,28-v64,t5A5-b144-sl1C-v64,South to Eagan TS via Viking Lakes,1,324-v64,27502_shp-v64,0,0
+436,28-v64,t5B0-b13E-sl1C-v64,46th St Station/MSP,0,318-v64,27499_shp-v64,0,0
+436,28-v64,t5F6-b160-sl1C-v64,North to 46th St Station,0,352-v64,27495_shp-v64,0,0
+436,28-v64,t609-b13E-sl1C-v64,South to Eagan TS via Viking Lakes,1,318-v64,27502_shp-v64,0,0
+436,28-v64,t613-b144-sl1C-v64,46th St Station/MSP,0,324-v64,27499_shp-v64,0,0
+436,28-v64,t65A-b174-sl1C-v64,North to 46th St Station,0,372-v64,27495_shp-v64,0,0
+436,28-v64,t66D-b144-sl1C-v64,South to Eagan TS via Viking Lakes,1,324-v64,27502_shp-v64,0,0
+436,28-v64,t673-b13E-sl1C-v64,46th St Station/MSP,0,318-v64,27499_shp-v64,0,0
+436,28-v64,t6BE-b160-sl1C-v64,North to 46th St Station,0,352-v64,27495_shp-v64,0,0
+436,28-v64,t6CD-b13E-sl1C-v64,South to Eagan TS via Viking Lakes,1,318-v64,27502_shp-v64,0,0
+436,28-v64,t6D7-b144-sl1C-v64,46th St Station/MSP,0,324-v64,27499_shp-v64,0,0
+436,28-v64,t722-b174-sl1C-v64,North to 46th St Station,0,372-v64,27495_shp-v64,0,0
+436,28-v64,t731-b144-sl1C-v64,South to Eagan TS via Viking Lakes,1,324-v64,27502_shp-v64,0,0
+436,28-v64,t73B-b13E-sl1C-v64,46th St Station/MSP,0,318-v64,27499_shp-v64,0,0
+436,28-v64,t795-b13E-sl1C-v64,South to Eagan TS via Viking Lakes,1,318-v64,27502_shp-v64,0,0
+436,28-v64,t7A0-b144-sl1C-v64,46th St Station/MSP,0,324-v64,27499_shp-v64,0,0
+436,43-v64,t21E-b1-sl2B-v64,South to Eagan TS via Opperman,1,1-v64,27991_shp-v64,0,0
+436,43-v64,t267-b22-sl2B-v64,South to Eagan TS via Opperman,1,34-v64,27991_shp-v64,0,0
+436,43-v64,t285-b34-sl2B-v64,South to Eagan TS via Viking Lakes,1,52-v64,28006_shp-v64,0,0
+436,43-v64,t2D0-b1-sl2B-v64,South to Eagan TS via Opperman,1,1-v64,27991_shp-v64,0,0
+436,43-v64,t2E9-b22-sl2B-v64,South to Eagan TS via Viking Lakes,1,34-v64,28006_shp-v64,0,0
+436,43-v64,t2EE-b34-sl2B-v64,46th St Station/MSP,0,52-v64,28025_shp-v64,0,0
+436,43-v64,t349-b34-sl2B-v64,South to Eagan TS via Viking Lakes,1,52-v64,28006_shp-v64,0,0
+436,43-v64,t352-b22-sl2B-v64,46th St Station/MSP,0,34-v64,28025_shp-v64,0,0
+436,43-v64,t3AD-b22-sl2B-v64,South to Eagan TS via Viking Lakes,1,34-v64,28006_shp-v64,0,0
+436,43-v64,t3B8-b34-sl2B-v64,46th St Station/MSP,0,52-v64,28025_shp-v64,0,0
+436,43-v64,t411-b34-sl2B-v64,South to Eagan TS via Viking Lakes,1,52-v64,28006_shp-v64,0,0
+436,43-v64,t41C-b22-sl2B-v64,46th St Station/MSP,0,34-v64,28025_shp-v64,0,0
+436,43-v64,t475-b22-sl2B-v64,South to Eagan TS via Viking Lakes,1,34-v64,28006_shp-v64,0,0
+436,43-v64,t480-b34-sl2B-v64,46th St Station/MSP,0,52-v64,28025_shp-v64,0,0
+436,43-v64,t4D9-b34-sl2B-v64,South to Eagan TS via Viking Lakes,1,52-v64,28006_shp-v64,0,0
+436,43-v64,t4E4-b22-sl2B-v64,46th St Station/MSP,0,34-v64,28025_shp-v64,0,0
+436,43-v64,t53D-b13E-sl2B-v64,South to Eagan TS via Viking Lakes,1,318-v64,28006_shp-v64,0,0
+436,43-v64,t54C-b144-sl2B-v64,46th St Station/MSP,0,324-v64,28025_shp-v64,0,0
+436,43-v64,t5A5-b144-sl2B-v64,South to Eagan TS via Viking Lakes,1,324-v64,28006_shp-v64,0,0
+436,43-v64,t5B0-b13E-sl2B-v64,46th St Station/MSP,0,318-v64,28025_shp-v64,0,0
+436,43-v64,t5F6-b160-sl2B-v64,North to 46th St Station,0,352-v64,27928_shp-v64,0,0
+436,43-v64,t609-b13E-sl2B-v64,South to Eagan TS via Viking Lakes,1,318-v64,28006_shp-v64,0,0
+436,43-v64,t613-b144-sl2B-v64,46th St Station/MSP,0,324-v64,28025_shp-v64,0,0
+436,43-v64,t65A-b174-sl2B-v64,North to 46th St Station,0,372-v64,27928_shp-v64,0,0
+436,43-v64,t66D-b144-sl2B-v64,South to Eagan TS via Viking Lakes,1,324-v64,28006_shp-v64,0,0
+436,43-v64,t673-b13E-sl2B-v64,46th St Station/MSP,0,318-v64,28025_shp-v64,0,0
+436,43-v64,t6BE-b160-sl2B-v64,North to 46th St Station,0,352-v64,27928_shp-v64,0,0
+436,43-v64,t6CD-b13E-sl2B-v64,South to Eagan TS via Viking Lakes,1,318-v64,28006_shp-v64,0,0
+436,43-v64,t6D7-b144-sl2B-v64,46th St Station/MSP,0,324-v64,28025_shp-v64,0,0
+436,43-v64,t722-b174-sl2B-v64,North to 46th St Station,0,372-v64,27928_shp-v64,0,0
+436,43-v64,t731-b144-sl2B-v64,South to Eagan TS via Viking Lakes,1,324-v64,28006_shp-v64,0,0
+436,43-v64,t73B-b13E-sl2B-v64,46th St Station/MSP,0,318-v64,28025_shp-v64,0,0
+436,43-v64,t795-b13E-sl2B-v64,South to Eagan TS via Viking Lakes,1,318-v64,28006_shp-v64,0,0
+436,43-v64,t7A0-b144-sl2B-v64,46th St Station/MSP,0,324-v64,28025_shp-v64,0,0
+436,28-v63,t21E-b1-sl1C-v63,South to Eagan TS via Opperman,1,1-v63,27496_shp-v63,0,0
+436,28-v63,t267-b22-sl1C-v63,South to Eagan TS via Opperman,1,34-v63,27496_shp-v63,0,0
+436,28-v63,t285-b34-sl1C-v63,South to Eagan TS via Viking Lakes,1,52-v63,27502_shp-v63,0,0
+436,28-v63,t2D0-b1-sl1C-v63,South to Eagan TS via Opperman,1,1-v63,27496_shp-v63,0,0
+436,28-v63,t2E9-b22-sl1C-v63,South to Eagan TS via Viking Lakes,1,34-v63,27502_shp-v63,0,0
+436,28-v63,t2EE-b34-sl1C-v63,46th St Station/MSP,0,52-v63,27499_shp-v63,0,0
+436,28-v63,t349-b34-sl1C-v63,South to Eagan TS via Viking Lakes,1,52-v63,27502_shp-v63,0,0
+436,28-v63,t352-b22-sl1C-v63,46th St Station/MSP,0,34-v63,27499_shp-v63,0,0
+436,28-v63,t3AD-b22-sl1C-v63,South to Eagan TS via Viking Lakes,1,34-v63,27502_shp-v63,0,0
+436,28-v63,t3B8-b34-sl1C-v63,46th St Station/MSP,0,52-v63,27499_shp-v63,0,0
+436,28-v63,t411-b34-sl1C-v63,South to Eagan TS via Viking Lakes,1,52-v63,27502_shp-v63,0,0
+436,28-v63,t41C-b22-sl1C-v63,46th St Station/MSP,0,34-v63,27499_shp-v63,0,0
+436,28-v63,t475-b22-sl1C-v63,South to Eagan TS via Viking Lakes,1,34-v63,27502_shp-v63,0,0
+436,28-v63,t480-b34-sl1C-v63,46th St Station/MSP,0,52-v63,27499_shp-v63,0,0
+436,28-v63,t4D9-b34-sl1C-v63,South to Eagan TS via Viking Lakes,1,52-v63,27502_shp-v63,0,0
+436,28-v63,t4E4-b22-sl1C-v63,46th St Station/MSP,0,34-v63,27499_shp-v63,0,0
+436,28-v63,t53D-b13E-sl1C-v63,South to Eagan TS via Viking Lakes,1,318-v63,27502_shp-v63,0,0
+436,28-v63,t54C-b144-sl1C-v63,46th St Station/MSP,0,324-v63,27499_shp-v63,0,0
+436,28-v63,t5A5-b144-sl1C-v63,South to Eagan TS via Viking Lakes,1,324-v63,27502_shp-v63,0,0
+436,28-v63,t5B0-b13E-sl1C-v63,46th St Station/MSP,0,318-v63,27499_shp-v63,0,0
+436,28-v63,t5F6-b160-sl1C-v63,North to 46th St Station,0,352-v63,27495_shp-v63,0,0
+436,28-v63,t609-b13E-sl1C-v63,South to Eagan TS via Viking Lakes,1,318-v63,27502_shp-v63,0,0
+436,28-v63,t613-b144-sl1C-v63,46th St Station/MSP,0,324-v63,27499_shp-v63,0,0
+436,28-v63,t65A-b174-sl1C-v63,North to 46th St Station,0,372-v63,27495_shp-v63,0,0
+436,28-v63,t66D-b144-sl1C-v63,South to Eagan TS via Viking Lakes,1,324-v63,27502_shp-v63,0,0
+436,28-v63,t673-b13E-sl1C-v63,46th St Station/MSP,0,318-v63,27499_shp-v63,0,0
+436,28-v63,t6BE-b160-sl1C-v63,North to 46th St Station,0,352-v63,27495_shp-v63,0,0
+436,28-v63,t6CD-b13E-sl1C-v63,South to Eagan TS via Viking Lakes,1,318-v63,27502_shp-v63,0,0
+436,28-v63,t6D7-b144-sl1C-v63,46th St Station/MSP,0,324-v63,27499_shp-v63,0,0
+436,28-v63,t722-b174-sl1C-v63,North to 46th St Station,0,372-v63,27495_shp-v63,0,0
+436,28-v63,t731-b144-sl1C-v63,South to Eagan TS via Viking Lakes,1,324-v63,27502_shp-v63,0,0
+436,28-v63,t73B-b13E-sl1C-v63,46th St Station/MSP,0,318-v63,27499_shp-v63,0,0
+436,28-v63,t795-b13E-sl1C-v63,South to Eagan TS via Viking Lakes,1,318-v63,27502_shp-v63,0,0
+436,28-v63,t7A0-b144-sl1C-v63,46th St Station/MSP,0,324-v63,27499_shp-v63,0,0

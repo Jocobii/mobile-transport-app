@@ -818,7 +818,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests (`packages/api-client/src/index.test.ts`, fake `fetch`): URL building for every method, `x-api-key` header, error mapping to `ApiError`.
   - Commit: `feat(contracts): define v1 transit endpoints and client methods`
 
-- [ ] **E001-T04 — Fixtures**
+- [x] **E001-T04 — Fixtures**
   - Implement section 12. Commit the script and generated fixtures.
   - Acceptance: fixtures exist for both feeds, total < 3 MB, each with `SOURCE.md`.
   - Commit: `test(gtfs): add real feed fixtures for metrotransit and mvta`

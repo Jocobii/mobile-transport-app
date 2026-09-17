@@ -1,0 +1,2 @@
+route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color,route_sort_order
+54,0,54,,Ltd Stop - W 7 St - Airport - MOA - Maplewood Mall,3,https://www.metrotransit.org/route/54,771473,ffffff,35

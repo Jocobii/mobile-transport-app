@@ -1,0 +1,459 @@
+route_id,service_id,trip_id,trip_headsign,direction_id,direction,block_id,shape_id,wheelchair_accessible,branch_letter,boarding_type
+54,1,1130922,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185725,650054006,1,,0
+54,6,1130999,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182261,650054005,1,,0
+54,6,1131018,Ltd Stop / Mall Amer / Via Airport,1,WB,186756,650054010,1,,0
+54,6,1131070,Ltd Stop / Mall Amer / Via Airport,1,WB,187017,650054010,1,,0
+54,1,1131145,Ltd Stop / Mall Amer / Via Airport,1,WB,186013,650054010,1,,0
+54,6,1131161,Ltd Stop / Mall Amer / Via Airport,1,WB,182558,650054010,1,,0
+54,1,1131218,Ltd Stop / Mall Amer / Via Airport,1,WB,186984,650054010,1,,0
+54,1,1131230,Ltd Stop / Mall Amer / Via Airport,1,WB,186850,650054010,1,,0
+54,1,1131234,Ltd Stop / Mall Amer / Via Airport,1,WB,186733,650054010,1,,0
+54,1,1131250,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,179388,650054006,1,,0
+54,6,1131309,Ltd Stop / Mall Amer / Via Airport,1,WB,178391,650054010,1,,0
+54,1,1131451,Ltd Stop / Mall Amer / Via Airport,1,WB,185725,650054010,1,,0
+54,1,1131532,Ltd Stop / Mall Amer / Via Airport,1,WB,185792,650054010,1,,0
+54,6,1131575,Ltd Stop / Mall Amer / Via Airport,1,WB,182558,650054010,1,,0
+54,1,1131632,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186013,650054006,1,,0
+54,1,1131720,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186905,650054006,1,,0
+54,6,1131784,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182558,650054005,1,,0
+54,1,1131815,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178450,650054006,1,,0
+54,1,1131864,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,175924,650054006,1,,0
+54,1,1131917,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,184890,650054006,1,,0
+54,1,1131920,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186881,650054006,1,,0
+54,6,1131980,Ltd Stop / Mall Amer / Via Airport,1,WB,182261,650054010,1,,0
+54,2,1131992,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,180208,650054005,1,,0
+54,1,1132139,Ltd Stop / Mall Amer / Via Airport,1,WB,186013,650054010,1,,0
+54,1,1132150,Ltd Stop / Mall Amer / Via Airport,1,WB,179454,650054010,1,,0
+54,1,1132169,Ltd Stop / Mall Amer / Via Airport,1,WB,178450,650054010,1,,0
+54,6,1132220,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178468,650054005,1,,0
+54,1,1132240,Ltd Stop / Mall Amer / Via Airport,1,WB,185623,650054010,1,,0
+54,1,1132360,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177964,650054006,1,,0
+54,1,1132421,Ltd Stop / Mall Amer / Via Airport,1,WB,185792,650054010,1,,0
+54,1,1132456,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178437,650054006,1,,0
+54,2,1132519,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177754,650054005,1,,0
+54,1,1132557,Ltd Stop / Mall Amer / Via Airport,1,WB,183156,650054010,1,,0
+54,1,1132565,Ltd Stop / Mall Amer / Via Airport,1,WB,186960,650054010,1,,0
+54,1,1132574,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186117,650054006,1,,0
+54,6,1132606,Ltd Stop / Mall Amer / Via Airport,1,WB,182261,650054010,1,,0
+54,1,1132633,Ltd Stop / Mall Amer / Via Airport,1,WB,187029,650054010,1,,0
+54,1,1132635,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186938,650054006,1,,0
+54,1,1132674,Ltd Stop / Mall Amer / Via Airport,1,WB,186733,650054010,1,,0
+54,1,1132748,Ltd Stop / Mall Amer / Via Airport,1,WB,186917,650054010,1,,0
+54,6,1132790,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187152,650054005,1,,0
+54,6,1132796,Ltd Stop / Mall Amer / Via Airport,1,WB,176181,650054010,1,,0
+54,1,1132809,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185725,650054006,1,,0
+54,1,1132822,Ltd Stop / Mall Amer / Via Airport,1,WB,175924,650054010,1,,0
+54,1,1132928,Ltd Stop / Mall Amer / Via Airport,1,WB,178437,650054010,1,,0
+54,1,1133002,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176213,650054006,1,,0
+54,1,1133010,Ltd Stop / Mall Amer / Via Airport,1,WB,176194,650054009,1,,0
+54,1,1133153,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185623,650054006,1,,0
+54,1,1133167,Ltd Stop / Mall Amer / Via Airport,1,WB,186938,650054010,1,,0
+54,1,1133169,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186733,650054006,1,,0
+54,2,1133222,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176870,650054005,1,,0
+54,1,1133350,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185502,650054006,1,,0
+54,1,1133536,Ltd Stop / Mall Amer / Via Airport,1,WB,179454,650054009,1,,0
+54,6,1133608,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185341,650054005,1,,0
+54,2,1133630,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177754,650054005,1,,0
+54,1,1133638,Ltd Stop / Mall Amer / Via Airport,1,WB,186905,650054010,1,,0
+54,1,1133688,Ltd Stop / Mall Amer / Via Airport,1,WB,186984,650054010,1,,0
+54,1,1133713,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186917,650054006,1,,0
+54,1,1133786,Ltd Stop / Mall Amer / Via Airport,1,WB,179723,650054010,1,,0
+54,1,1133803,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178450,650054006,1,,0
+54,1,1133943,Ltd Stop / Mall Amer / Via Airport,1,WB,185725,650054010,1,,0
+54,1,1134037,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185953,650054006,1,,0
+54,1,1134079,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185953,650054006,1,,0
+54,6,1134085,Ltd Stop / Mall Amer / Via Airport,1,WB,178391,650054010,1,,0
+54,1,1134129,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186897,650054006,1,,0
+54,1,1134135,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186822,650054006,1,,0
+54,6,1134150,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182261,650054005,1,,0
+54,1,1134153,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178450,650054006,1,,0
+54,6,1134212,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178391,650054005,1,,0
+54,1,1134278,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186850,650054006,1,,0
+54,1,1134435,Ltd Stop / Mall Amer / Via Airport,1,WB,186903,650054010,1,,0
+54,1,1134439,Ltd Stop / Mall Amer / Via Airport,1,WB,186897,650054010,1,,0
+54,1,1134457,Ltd Stop / Mall Amer / Via Airport,1,WB,176213,650054010,1,,0
+54,1,1134512,Ltd Stop / Mall Amer / Via Airport,1,WB,186013,650054010,1,,0
+54,1,1134531,Ltd Stop / Mall Amer / Via Airport,1,WB,184796,650054010,1,,0
+54,1,1134539,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,183156,650054006,1,,0
+54,1,1134552,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176194,650054006,1,,0
+54,1,1134593,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,179454,650054006,1,,0
+54,6,1134618,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186729,650054005,1,,0
+54,6,1134662,Ltd Stop / Mall Amer / Via Airport,1,WB,185844,650054010,1,,0
+54,1,1134716,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185792,650054006,1,,0
+54,1,1134725,Ltd Stop / Mall Amer / Via Airport,1,WB,176194,650054009,1,,0
+54,1,1134775,Ltd Stop / Mall Amer / Via Airport,1,WB,186822,650054010,1,,0
+54,1,1134795,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186917,650054006,1,,0
+54,6,1134799,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178391,650054005,1,,0
+54,1,1134840,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186903,650054006,1,,0
+54,2,1134895,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176870,650054005,1,,0
+54,6,1134955,Ltd Stop / Mall Amer / Via Airport,1,WB,185247,650054010,1,,0
+54,1,1135003,Ltd Stop / Mall Amer / Via Airport,1,WB,186881,650054010,1,,0
+54,1,1135016,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178450,650054006,1,,0
+54,1,1135021,Ltd Stop / Mall Amer / Via Airport,1,WB,184890,650054010,1,,0
+54,1,1135040,Ltd Stop / Mall Amer / Via Airport,1,WB,179388,650054010,1,,0
+54,1,1135160,Ltd Stop / Mall Amer / Via Airport,1,WB,178450,650054010,1,,0
+54,20,1135169,Ltd Stop / Mall Amer / Via Airport,1,WB,187436,650054010,1,,0
+54,6,1135186,Ltd Stop / Mall Amer / Via Airport,1,WB,178391,650054010,1,,0
+54,1,1135194,Ltd Stop / Mall Amer / Via Airport,1,WB,178450,650054010,1,,0
+54,1,1135216,Ltd Stop / Mall Amer / Via Airport,1,WB,187029,650054010,1,,0
+54,2,1135230,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185848,650054005,1,,0
+54,1,1135249,Ltd Stop / Mall Amer / Via Airport,1,WB,179454,650054009,1,,0
+54,6,1135276,Ltd Stop / Mall Amer / Via Airport,1,WB,178391,650054010,1,,0
+54,2,1135280,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177524,650054005,1,,0
+54,1,1135366,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178450,650054006,1,,0
+54,1,1135446,Ltd Stop / Mall Amer / Via Airport,1,WB,183156,650054010,1,,0
+54,1,1135489,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186960,650054006,1,,0
+54,1,1135503,Ltd Stop / Mall Amer / Via Airport,1,WB,186117,650054010,1,,0
+54,1,1135538,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185792,650054006,1,,0
+54,1,1135544,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178437,650054006,1,,0
+54,1,1135552,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186013,650054006,1,,0
+54,1,1135573,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186984,650054006,1,,0
+54,1,1135574,Ltd Stop / Mall Amer / Via Airport,1,WB,178450,650054010,1,,0
+54,1,1135617,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186938,650054006,1,,0
+54,1,1135660,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,183156,650054006,1,,0
+54,1,1135671,Ltd Stop / Mall Amer / Via Airport,1,WB,185953,650054010,1,,0
+54,1,1135699,Ltd Stop / Mall Amer / Via Airport,1,WB,185953,650054010,1,,0
+54,1,1135733,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,175332,650054006,1,,0
+54,1,1135825,Ltd Stop / Mall Amer / Via Airport,1,WB,177964,650054010,1,,0
+54,1,1135829,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186905,650054006,1,,0
+54,1,1135866,Ltd Stop / Mall Amer / Via Airport,1,WB,187451,650054010,1,,0
+54,1,1135910,Ltd Stop / Mall Amer / Via Airport,1,WB,185725,650054010,1,,0
+54,6,1135934,Ltd Stop / Mall Amer / Via Airport,1,WB,178468,650054010,1,,0
+54,1,1136092,Ltd Stop / Mall Amer / Via Airport,1,WB,178437,650054010,1,,0
+54,1,1136125,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185953,650054006,1,,0
+54,1,1136131,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186013,650054006,1,,0
+54,6,1136182,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182558,650054005,1,,0
+54,2,1138589,Ltd Stop / Mall Amer / Via Airport,1,WB,186759,650054008,1,,0
+54,2,1138625,Ltd Stop / Mall Amer / Via Airport,1,WB,180208,650054008,1,,0
+54,2,1138666,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177981,650054005,1,,0
+54,2,1138686,Ltd Stop / Mall Amer / Via Airport,1,WB,186873,650054008,1,,0
+54,2,1138754,Ltd Stop / Mall Amer / Via Airport,1,WB,185480,650054008,1,,0
+54,2,1138768,Ltd Stop / Mall Amer / Via Airport,1,WB,187945,650054008,1,,0
+54,2,1138809,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186778,650054005,1,,0
+54,2,1138847,Ltd Stop / Mall Amer / Via Airport,1,WB,185480,650054008,1,,0
+54,2,1138860,Ltd Stop / Mall Amer / Via Airport,1,WB,182042,650054008,1,,0
+54,2,1139042,Ltd Stop / Mall Amer / Via Airport,1,WB,187609,650054008,1,,0
+54,2,1139112,Ltd Stop / Mall Amer / Via Airport,1,WB,187065,650054008,1,,0
+54,2,1139339,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186818,650054005,1,,0
+54,2,1139346,Ltd Stop / Mall Amer / Via Airport,1,WB,177981,650054008,1,,0
+54,2,1139393,Ltd Stop / Mall Amer / Via Airport,1,WB,176870,650054008,1,,0
+54,2,1139476,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182042,650054005,1,,0
+54,2,1139528,Ltd Stop / Mall Amer / Via Airport,1,WB,187736,650054008,1,,0
+54,2,1139806,Ltd Stop / Mall Amer / Via Airport,1,WB,187442,650054008,1,,0
+54,2,1139964,Ltd Stop / Mall Amer / Via Airport,1,WB,177754,650054009,1,,0
+54,2,1139994,Ltd Stop / Mall Amer / Via Airport,1,WB,186799,650054008,1,,0
+54,2,1140232,Ltd Stop / Mall Amer / Via Airport,1,WB,176870,650054008,1,,0
+54,2,1140396,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176870,650054005,1,,0
+54,2,1140421,Ltd Stop / Mall Amer / Via Airport,1,WB,180208,650054008,1,,0
+54,2,1140541,Ltd Stop / Mall Amer / Via Airport,1,WB,179793,650054008,1,,0
+54,2,1140606,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177754,650054005,1,,0
+54,2,1140638,Ltd Stop / Mall Amer / Via Airport,1,WB,177754,650054008,1,,0
+54,2,1140721,Ltd Stop / Mall Amer / Via Airport,1,WB,187135,650054008,1,,0
+54,2,1140791,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176870,650054005,1,,0
+54,2,1140858,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187736,650054005,1,,0
+54,2,1140939,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185848,650054005,1,,0
+54,2,1141014,Ltd Stop / Mall Amer / Via Airport,1,WB,186818,650054008,1,,0
+54,2,1141023,Ltd Stop / Mall Amer / Via Airport,1,WB,187010,650054008,1,,0
+54,2,1141030,Ltd Stop / Mall Amer / Via Airport,1,WB,187442,650054008,1,,0
+54,2,1141036,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,183016,650054005,1,,0
+54,2,1141189,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187736,650054005,1,,0
+54,2,1141210,Ltd Stop / Mall Amer / Via Airport,1,WB,185848,650054008,1,,0
+54,2,1141245,Ltd Stop / Mall Amer / Via Airport,1,WB,176870,650054008,1,,0
+54,2,1141250,Ltd Stop / Mall Amer / Via Airport,1,WB,187736,650054008,1,,0
+54,2,1141290,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186799,650054005,1,,0
+54,2,1141424,Ltd Stop / Mall Amer / Via Airport,1,WB,188043,650054008,1,,0
+54,2,1141513,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177981,650054005,1,,0
+54,2,1141569,Ltd Stop / Mall Amer / Via Airport,1,WB,183016,650054009,1,,0
+54,2,1141600,Ltd Stop / Mall Amer / Via Airport,1,WB,187621,650054008,1,,0
+54,2,1141612,Ltd Stop / Mall Amer / Via Airport,1,WB,187061,650054008,1,,0
+54,2,1141705,Ltd Stop / Mall Amer / Via Airport,1,WB,177754,650054008,1,,0
+54,2,1141762,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177754,650054005,1,,0
+54,2,1141829,Ltd Stop / Mall Amer / Via Airport,1,WB,176870,650054008,1,,0
+54,2,1141834,Ltd Stop / Mall Amer / Via Airport,1,WB,186759,650054008,1,,0
+54,2,1142094,Ltd Stop / Mall Amer / Via Airport,1,WB,182042,650054008,1,,0
+54,2,1142104,Ltd Stop / Mall Amer / Via Airport,1,WB,185171,650054009,1,,0
+54,2,1142363,Ltd Stop / Mall Amer / Via Airport,1,WB,187052,650054008,1,,0
+54,2,1142388,Ltd Stop / Mall Amer / Via Airport,1,WB,177524,650054008,1,,0
+54,2,1142420,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186873,650054005,1,,0
+54,2,1142422,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,177981,650054005,1,,0
+54,2,1142432,Ltd Stop / Mall Amer / Via Airport,1,WB,185848,650054008,1,,0
+54,2,1142549,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,176870,650054005,1,,0
+54,2,1142617,Ltd Stop / Mall Amer / Via Airport,1,WB,177981,650054008,1,,0
+54,2,1142632,Ltd Stop / Mall Amer / Via Airport,1,WB,177754,650054009,1,,0
+54,6,1282728,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178391,650054005,1,,0
+54,6,1283767,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178391,650054005,1,,0
+54,6,1288653,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,178468,650054005,1,,0
+54,1,1301126,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,179454,650054006,1,,0
+54,6,1320443,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182973,650054005,1,,0
+54,6,1320687,Ltd Stop / Mall Amer / Via Airport,1,WB,182989,650054010,1,,0
+54,6,1320809,Ltd Stop / Mall Amer / Via Airport,1,WB,182989,650054010,1,,0
+54,6,1321462,Ltd Stop / Mall Amer / Via Airport,1,WB,182558,650054010,1,,0
+54,6,1321559,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182989,650054005,1,,0
+54,6,1324576,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182989,650054005,1,,0
+54,6,1324643,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,182261,650054005,1,,0
+54,2,1333471,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185171,650054005,1,,0
+54,6,1334781,Ltd Stop / Mall Amer / Via Airport,1,WB,185247,650054009,1,,0
+54,6,1335155,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,184881,650054005,1,,0
+54,6,1335317,Ltd Stop / Mall Amer / Via Airport,1,WB,185247,650054009,1,,0
+54,1,1335539,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,184796,650054006,1,,0
+54,1,1335670,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,184796,650054006,1,,0
+54,6,1335847,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185247,650054005,1,,0
+54,2,1339291,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185480,650054005,1,,0
+54,6,1339932,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185341,650054005,1,,0
+54,6,1340129,Ltd Stop / Mall Amer / Via Airport,1,WB,185940,650054010,1,,0
+54,1,1341131,Ltd Stop / Mall Amer / Via Airport,1,WB,185792,650054010,1,,0
+54,6,1342013,Ltd Stop / Mall Amer / Via Airport,1,WB,185341,650054010,1,,0
+54,2,1342078,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,185480,650054005,1,,0
+54,6,1342193,Ltd Stop / Mall Amer / Via Airport,1,WB,185341,650054009,1,,0
+54,6,1342464,Ltd Stop / Mall Amer / Via Airport,1,WB,185341,650054009,1,,0
+54,6,1344094,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186456,650054005,1,,0
+54,6,1344942,Ltd Stop / Mall Amer / Via Airport,1,WB,186456,650054010,1,,0
+54,6,1345324,Ltd Stop / Mall Amer / Via Airport,1,WB,186456,650054010,1,,0
+54,6,1345392,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186456,650054005,1,,0
+54,1,1345964,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186881,650054001,1,M,0
+54,1,1345989,Ltd Stop / Mall Amer / Via Airport,1,WB,186897,650054007,1,,0
+54,2,1345992,Ltd Stop / Mall Amer / Via Airport,1,WB,177981,650054007,1,,0
+54,6,1345997,Ltd Stop / Mall Amer / Via Airport,1,WB,186969,650054007,1,,0
+54,6,1346017,Ltd Stop / Mall Amer / Via Airport,1,WB,187580,650054007,1,,0
+54,6,1346020,Ltd Stop / Mall Amer / Via Airport,1,WB,186773,650054007,1,,0
+54,6,1346021,Ltd Stop / Mplwd Mall / Via Airport,0,EB,176181,650054001,1,M,0
+54,2,1346030,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187945,650054001,1,M,0
+54,1,1346032,Ltd Stop / Mall Amer / Via Airport,1,WB,186938,650054007,1,,0
+54,6,1346048,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185844,650054001,1,M,0
+54,2,1346063,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187135,650054001,1,M,0
+54,1,1346067,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186850,650054001,1,M,0
+54,6,1346072,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186756,650054003,1,M,0
+54,1,1346073,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186822,650054001,1,M,0
+54,1,1346077,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186850,650054001,1,M,0
+54,1,1346080,Ltd Stop / Mall Amer / Via Airport,1,WB,186984,650054007,1,,0
+54,2,1346096,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186797,650054001,1,M,0
+54,2,1346114,Ltd Stop / Mall Amer / Via Airport,1,WB,186799,650054007,1,,0
+54,2,1346123,Ltd Stop / Mall Amer / Via Airport,1,WB,186759,650054007,1,,0
+54,1,1346129,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187029,650054001,1,M,0
+54,6,1346151,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186841,650054004,1,M,0
+54,2,1346175,Ltd Stop / Mplwd Mall / Via Airport,0,EB,179793,650054001,1,M,0
+54,2,1346180,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187010,650054001,1,M,0
+54,2,1346195,Ltd Stop / Mall Amer / Via Airport,1,WB,187945,650054007,1,,0
+54,2,1346206,Ltd Stop / Mall Amer / Via Airport,1,WB,186873,650054007,1,,0
+54,2,1346214,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187061,650054003,1,M,0
+54,6,1346216,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186804,650054001,1,M,0
+54,2,1346234,Ltd Stop / Mall Amer / Via Airport,1,WB,187065,650054007,1,,0
+54,1,1346236,Ltd Stop / Mall Amer / Via Airport,1,WB,186850,650054007,1,,0
+54,1,1346247,Ltd Stop / Mall Amer / Via Airport,1,WB,179388,650054007,1,,0
+54,6,1346265,Ltd Stop / Mall Amer / Via Airport,1,WB,186841,650054007,1,,0
+54,1,1346266,Ltd Stop / Mall Amer / Via Airport,1,WB,186850,650054007,1,,0
+54,1,1346267,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186117,650054001,1,M,0
+54,1,1346279,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186881,650054001,1,M,0
+54,2,1346280,Ltd Stop / Mall Amer / Via Airport,1,WB,186778,650054007,1,,0
+54,6,1346282,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185940,650054003,1,M,0
+54,6,1346284,Ltd Stop / Mall Amer / Via Airport,1,WB,176181,650054007,1,,0
+54,2,1346302,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187621,650054001,1,M,0
+54,6,1346315,Ltd Stop / Mall Amer / Via Airport,1,WB,186936,650054007,1,,0
+54,2,1346318,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186742,650054001,1,M,0
+54,2,1346323,Ltd Stop / Mall Amer / Via Airport,1,WB,187609,650054007,1,,0
+54,1,1346324,Ltd Stop / Mall Amer / Via Airport,1,WB,186872,650054007,1,,0
+54,2,1346325,Ltd Stop / Mall Amer / Via Airport,1,WB,186742,650054007,1,,0
+54,2,1346328,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185848,650054001,1,M,0
+54,1,1346345,Ltd Stop / Mall Amer / Via Airport,1,WB,185502,650054007,1,,0
+54,6,1346347,Ltd Stop / Mall Amer / Via Airport,1,WB,186773,650054007,1,,0
+54,2,1346354,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185480,650054001,1,M,0
+54,1,1346358,Ltd Stop / Mplwd Mall / Via Airport,0,EB,179723,650054001,1,M,0
+54,1,1346374,Ltd Stop / Mall Amer / Via Airport,1,WB,179454,650054007,1,,0
+54,1,1346382,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185953,650054001,1,M,0
+54,1,1346405,Ltd Stop / Mplwd Mall / Via Airport,0,EB,179388,650054001,1,M,0
+54,2,1346409,Ltd Stop / Mall Amer / Via Airport,1,WB,187439,650054007,1,,0
+54,6,1346414,Ltd Stop / Mall Amer / Via Airport,1,WB,187580,650054007,1,,0
+54,6,1346426,Ltd Stop / Mall Amer / Via Airport,1,WB,177478,650054007,1,,0
+54,2,1346428,Ltd Stop / Mall Amer / Via Airport,1,WB,186818,650054007,1,,0
+54,1,1346431,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186984,650054001,1,M,0
+54,2,1346455,Ltd Stop / Mplwd Mall / Via Airport,0,EB,177981,650054001,1,M,0
+54,2,1346467,Ltd Stop / Mall Amer / Via Airport,1,WB,186873,650054007,1,,0
+54,6,1346471,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186936,650054001,1,M,0
+54,1,1346482,Ltd Stop / Mall Amer / Via Airport,1,WB,175332,650054007,1,,0
+54,1,1346488,Ltd Stop / Mplwd Mall / Via Airport,0,EB,175924,650054001,1,M,0
+54,1,1346499,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186013,650054001,1,M,0
+54,1,1346504,Ltd Stop / Mall Amer / Via Airport,1,WB,175924,650054007,1,,0
+54,2,1346512,Ltd Stop / Mall Amer / Via Airport,1,WB,186799,650054007,1,,0
+54,1,1346515,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185725,650054001,1,M,0
+54,2,1346520,Ltd Stop / Mall Amer / Via Airport,1,WB,187010,650054007,1,,0
+54,6,1346521,Ltd Stop / Mall Amer / Via Airport,1,WB,186882,650054007,1,,0
+54,2,1346525,Ltd Stop / Mall Amer / Via Airport,1,WB,177524,650054007,1,,0
+54,2,1346531,Ltd Stop / Mall Amer / Via Airport,1,WB,177130,650054007,1,,0
+54,6,1346538,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185341,650054002,1,M,0
+54,1,1346541,Ltd Stop / Mplwd Mall / Via Airport,0,EB,179454,650054002,1,M,0
+54,1,1346555,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185792,650054001,1,M,0
+54,2,1346558,Ltd Stop / Mall Amer / Via Airport,1,WB,186759,650054007,1,,0
+54,2,1346563,Ltd Stop / Mplwd Mall / Via Airport,0,EB,177130,650054001,1,M,0
+54,1,1346581,Ltd Stop / Mall Amer / Via Airport,1,WB,186881,650054007,1,,0
+54,2,1346586,Ltd Stop / Mall Amer / Via Airport,1,WB,187010,650054007,1,,0
+54,1,1346620,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186917,650054001,1,M,0
+54,2,1346625,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185480,650054001,1,M,0
+54,1,1346628,Ltd Stop / Mall Amer / Via Airport,1,WB,186013,650054007,1,,0
+54,1,1346629,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186938,650054001,1,M,0
+54,1,1346658,Ltd Stop / Mall Amer / Via Airport,1,WB,185725,650054007,1,,0
+54,1,1346670,Ltd Stop / Mall Amer / Via Airport,1,WB,185953,650054007,1,,0
+54,1,1346674,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186733,650054001,1,M,0
+54,2,1346679,Ltd Stop / Mall Amer / Via Airport,1,WB,187621,650054007,1,,0
+54,2,1346688,Ltd Stop / Mall Amer / Via Airport,1,WB,186873,650054007,1,,0
+54,2,1346691,Ltd Stop / Mall Amer / Via Airport,1,WB,186797,650054007,1,,0
+54,1,1346700,Ltd Stop / Mall Amer / Via Airport,1,WB,187029,650054007,1,,0
+54,2,1346713,Ltd Stop / Mall Amer / Via Airport,1,WB,185480,650054007,1,,0
+54,6,1346741,Ltd Stop / Mall Amer / Via Airport,1,WB,176257,650054007,1,,0
+54,1,1346749,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186872,650054001,1,M,0
+54,6,1346752,Ltd Stop / Mall Amer / Via Airport,1,WB,186773,650054007,1,,0
+54,1,1346755,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186850,650054001,1,M,0
+54,1,1346781,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186984,650054001,1,M,0
+54,6,1346796,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186972,650054001,1,M,0
+54,1,1346817,Ltd Stop / Mall Amer / Via Airport,1,WB,186881,650054007,1,,0
+54,1,1346825,Ltd Stop / Mall Amer / Via Airport,1,WB,187032,650054007,1,,0
+54,6,1346835,Ltd Stop / Mall Amer / Via Airport,1,WB,186804,650054007,1,,0
+54,1,1346836,Ltd Stop / Mplwd Mall / Via Airport,0,EB,185623,650054001,1,M,0
+54,2,1346837,Ltd Stop / Mplwd Mall / Via Airport,0,EB,180208,650054004,1,M,0
+54,6,1346841,Ltd Stop / Mall Amer / Via Airport,1,WB,186972,650054007,1,,0
+54,1,1346858,Ltd Stop / Mall Amer / Via Airport,1,WB,186903,650054007,1,,0
+54,1,1346861,Ltd Stop / Mall Amer / Via Airport,1,WB,185623,650054007,1,,0
+54,6,1346872,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186882,650054001,1,M,0
+54,6,1346892,Ltd Stop / Mall Amer / Via Airport,1,WB,185341,650054007,1,,0
+54,6,1346895,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186773,650054001,1,M,0
+54,1,1346898,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186903,650054001,1,M,0
+54,6,1346909,Ltd Stop / Mall Amer / Via Airport,1,WB,187017,650054007,1,,0
+54,6,1346912,Ltd Stop / Mall Amer / Via Airport,1,WB,186835,650054007,1,,0
+54,2,1346926,Ltd Stop / Mall Amer / Via Airport,1,WB,187736,650054007,1,,0
+54,2,1346929,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187065,650054003,1,M,0
+54,2,1346943,Ltd Stop / Mall Amer / Via Airport,1,WB,185848,650054007,1,,0
+54,1,1346950,Ltd Stop / Mall Amer / Via Airport,1,WB,186917,650054007,1,,0
+54,1,1346951,Ltd Stop / Mall Amer / Via Airport,1,WB,186905,650054007,1,,0
+54,1,1346988,Ltd Stop / Mall Amer / Via Airport,1,WB,186117,650054007,1,,0
+54,6,1346991,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186835,650054003,1,M,0
+54,1,1346997,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186872,650054001,1,M,0
+54,1,1347021,Ltd Stop / Mall Amer / Via Airport,1,WB,186850,650054007,1,,0
+54,6,1347022,Ltd Stop / Mall Amer / Via Airport,1,WB,186729,650054007,1,,0
+54,6,1347025,Ltd Stop / Mall Amer / Via Airport,1,WB,186972,650054007,1,,0
+54,1,1347028,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186917,650054001,1,M,0
+54,1,1347029,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186905,650054001,1,M,0
+54,6,1347038,Ltd Stop / Mall Amer / Via Airport,1,WB,186936,650054007,1,,0
+54,6,1347039,Ltd Stop / Mall Amer / Via Airport,1,WB,186804,650054007,1,,0
+54,2,1347058,Ltd Stop / Mall Amer / Via Airport,1,WB,187020,650054007,1,,0
+54,1,1347063,Ltd Stop / Mall Amer / Via Airport,1,WB,186917,650054007,1,,0
+54,6,1347072,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186972,650054001,1,M,0
+54,2,1347089,Ltd Stop / Mall Amer / Via Airport,1,WB,187061,650054007,1,,0
+54,6,1347096,Ltd Stop / Mplwd Mall / Via Airport,0,EB,177478,650054001,1,M,0
+54,2,1347121,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186799,650054001,1,M,0
+54,2,1347163,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187065,650054005,1,,0
+54,1,1347167,Ltd Stop / Mall Amer / Via Airport,1,WB,186938,650054010,1,,0
+54,6,1347184,Ltd Stop / Mall Amer / Via Airport,1,WB,186804,650054010,1,,0
+54,6,1347204,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186804,650054005,1,,0
+54,2,1347241,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186873,650054001,1,M,0
+54,6,1347245,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187017,650054001,1,M,0
+54,2,1347246,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186759,650054005,1,,0
+54,2,1347257,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187020,650054001,1,M,0
+54,2,1347265,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187010,650054005,1,,0
+54,6,1347277,Ltd Stop / Mall Amer / Via Airport,1,WB,187152,650054010,1,,0
+54,6,1347349,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186972,650054001,1,M,0
+54,6,1347354,Ltd Stop / Mall Amer / Via Airport,1,WB,186936,650054007,1,,0
+54,1,1347357,Ltd Stop / Mall Amer / Via Airport,1,WB,186938,650054007,1,,0
+54,6,1347392,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187017,650054005,1,,0
+54,1,1347426,Ltd Stop / Mall Amer / Via Airport,1,WB,186822,650054007,1,,0
+54,1,1347435,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186903,650054001,1,M,0
+54,1,1347444,Ltd Stop / Mall Amer / Via Airport,1,WB,186903,650054007,1,,0
+54,6,1347450,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186936,650054001,1,M,0
+54,1,1347455,Ltd Stop / Mall Amer / Via Airport,1,WB,187032,650054007,1,,0
+54,2,1347464,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186759,650054001,1,M,0
+54,2,1347562,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186799,650054005,1,,0
+54,6,1347570,Ltd Stop / Mall Amer / Via Airport,1,WB,186915,650054007,1,,0
+54,1,1347589,Ltd Stop / Mall Amer / Via Airport,1,WB,187032,650054010,1,,0
+54,1,1347634,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187029,650054001,1,M,0
+54,6,1347643,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187152,650054005,1,,0
+54,6,1347675,Ltd Stop / Mall Amer / Via Airport,1,WB,187152,650054007,1,,0
+54,1,1347686,Ltd Stop / Mall Amer / Via Airport,1,WB,187029,650054007,1,,0
+54,6,1347731,Ltd Stop / Mall Amer / Via Airport,1,WB,186941,650054007,1,,0
+54,6,1347757,Ltd Stop / Mall Amer / Via Airport,1,WB,186849,650054010,1,,0
+54,6,1347763,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186941,650054005,1,,0
+54,2,1347773,Ltd Stop / Mplwd Mall / Via Airport,0,EB,177524,650054001,1,M,0
+54,1,1347777,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186897,650054006,1,,0
+54,6,1347918,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186849,650054005,1,,0
+54,6,1347987,Ltd Stop / Mall Amer / Via Airport,1,WB,187017,650054007,1,,0
+54,2,1347988,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186873,650054001,1,M,0
+54,1,1347993,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187032,650054006,1,,0
+54,6,1348005,Ltd Stop / Mall Amer / Via Airport,1,WB,187152,650054007,1,,0
+54,6,1348049,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186915,650054005,1,,0
+54,6,1348051,Ltd Stop / Mall Amer / Via Airport,1,WB,186849,650054010,1,,0
+54,1,1348081,Ltd Stop / Mall Amer / Via Airport,1,WB,185792,650054007,1,,0
+54,1,1348092,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187029,650054006,1,,0
+54,6,1348093,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186849,650054001,1,M,0
+54,2,1348099,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187061,650054005,1,,0
+54,2,1348129,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187052,650054001,1,M,0
+54,1,1348159,Ltd Stop / Mall Amer / Via Airport,1,WB,186917,650054007,1,,0
+54,1,1348171,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186984,650054001,1,M,0
+54,6,1348208,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186804,650054001,1,M,0
+54,6,1348221,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186773,650054001,1,M,0
+54,6,1348225,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187152,650054001,1,M,0
+54,2,1348278,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186873,650054005,1,,0
+54,6,1348286,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186773,650054001,1,M,0
+54,2,1348324,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186759,650054005,1,,0
+54,6,1348343,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186849,650054005,1,,0
+54,2,1348352,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186818,650054001,1,M,0
+54,6,1348436,Ltd Stop / Mall Amer / Via Airport,1,WB,186849,650054007,1,,0
+54,1,1348453,Ltd Stop / Mall Amer / Via Airport,1,WB,186905,650054010,1,,0
+54,1,1348457,Ltd Stop / Mall Amer / Via Airport,1,WB,186905,650054007,1,,0
+54,6,1348472,Ltd Stop / Mall Amer / Via Airport,1,WB,187152,650054010,1,,0
+54,6,1348477,Ltd Stop / Mall Amer / Via Airport,1,WB,187144,650054007,1,,0
+54,6,1348516,Ltd Stop / Mall Amer / Via Airport,1,WB,186915,650054010,1,,0
+54,1,1348553,Ltd Stop / Mall Amer / Via Airport,1,WB,186960,650054007,1,,0
+54,6,1348563,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,186936,650054005,1,,0
+54,6,1348591,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186969,650054001,1,M,0
+54,1,1348604,Ltd Stop / Mall Amer / Via Airport,1,WB,186984,650054007,1,,0
+54,6,1348615,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187144,650054001,1,M,0
+54,1,1348616,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187032,650054001,1,M,0
+54,1,1348634,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186960,650054001,1,M,0
+54,1,1348644,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186905,650054001,1,M,0
+54,6,1348651,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187017,650054001,1,M,0
+54,2,1348671,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187010,650054001,1,M,0
+54,6,1348674,Ltd Stop / Mplwd Mall / Via Airport,0,EB,186849,650054001,1,M,0
+54,6,1348684,Ltd Stop / Mall Amer / Via Airport,1,WB,186849,650054007,1,,0
+54,19,1351800,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187885,650054006,1,,0
+54,6,1351855,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187842,650054005,1,,0
+54,6,1351962,Ltd Stop / Mall Amer / Via Airport,1,WB,187749,650054010,1,,0
+54,19,1352007,Ltd Stop / Mall Amer / Via Airport,1,WB,187885,650054010,1,,0
+54,2,1352107,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187945,650054005,1,,0
+54,2,1352134,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187442,650054005,1,,0
+54,18,1352148,Ltd Stop / Mall Amer / Via Airport,1,WB,187881,650054010,1,,0
+54,1,1352313,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187451,650054006,1,,0
+54,6,1352516,Ltd Stop / Mall Amer / Via Airport,1,WB,187190,650054007,1,,0
+54,1,1352520,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187759,650054006,1,,0
+54,1,1352705,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187193,650054001,1,M,0
+54,2,1352755,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187609,650054001,1,M,0
+54,6,1352761,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187933,650054005,1,,0
+54,6,1352766,Ltd Stop / Mall Amer / Via Airport,1,WB,187446,650054010,1,,0
+54,6,1352818,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187264,650054001,1,M,0
+54,6,1352855,Ltd Stop / Mall Amer / Via Airport,1,WB,187933,650054010,1,,0
+54,6,1352924,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187684,650054005,1,,0
+54,19,1353063,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187885,650054006,1,,0
+54,6,1353102,Ltd Stop / Mall Amer / Via Airport,1,WB,187446,650054010,1,,0
+54,6,1353103,Ltd Stop / Mall Amer / Via Airport,1,WB,187462,650054010,1,,0
+54,18,1353120,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187881,650054006,1,,0
+54,6,1353201,Ltd Stop / Mall Amer / Via Airport,1,WB,187264,650054007,1,,0
+54,6,1353463,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187603,650054005,1,,0
+54,1,1353552,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187451,650054001,1,M,0
+54,1,1353705,Ltd Stop / Mall Amer / Via Airport,1,WB,187451,650054010,1,,0
+54,6,1354169,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187446,650054001,1,M,0
+54,6,1354267,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187603,650054001,1,M,0
+54,6,1354414,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187842,650054005,1,,0
+54,6,1354430,Ltd Stop / Mall Amer / Via Airport,1,WB,187684,650054007,1,,0
+54,2,1354548,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187621,650054005,1,,0
+54,6,1354651,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187580,650054001,1,M,0
+54,18,1354674,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187881,650054006,1,,0
+54,6,1354756,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187749,650054005,1,,0
+54,6,1354819,Ltd Stop / Mall Amer / Via Airport,1,WB,187842,650054010,1,,0
+54,6,1354857,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187933,650054005,1,,0
+54,2,1354866,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187439,650054001,1,M,0
+54,6,1354948,Ltd Stop / Mall Amer / Via Airport,1,WB,187603,650054010,1,,0
+54,20,1354993,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187436,650054006,1,,0
+54,6,1355065,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187580,650054001,1,M,0
+54,6,1355098,Ltd Stop / Mplwd Mall / Via Airport,0,EB,187190,650054001,1,M,0
+54,20,1355150,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187436,650054006,1,,0
+54,2,1355386,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187387,650054005,1,,0
+54,2,1355432,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187609,650054005,1,,0
+54,2,1355527,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187442,650054005,1,,0
+54,6,1355530,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,187462,650054005,1,,0
+54,2,1355627,Ltd Stop / Dtwn St Paul / Via Airport,0,EB,188043,650054005,1,,0
