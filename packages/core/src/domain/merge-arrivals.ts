@@ -1,10 +1,5 @@
-import type {
-  Arrival,
-  EpochSeconds,
-  ScheduledStopTime,
-  StopTimePrediction,
-  TransitSettings,
-} from "../model";
+import type { Arrival, EpochSeconds, ScheduledStopTime, StopTimePrediction } from "../model";
+import type { TransitSettings } from "../settings";
 import { compareRoutesNaturally } from "./natural-order";
 
 const SERVICE_DATE_LESS_MATCH_WINDOW_SECONDS = 3 * 60 * 60;

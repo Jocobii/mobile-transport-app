@@ -35,7 +35,7 @@ function arrival(overrides: Partial<Arrival> = {}): Arrival {
 
 describe("approachingVehicles (10.10)", () => {
   it("includes a vehicle whose current stop sequence is unknown", () => {
-    const v = vehicle({ currentStopSequence: undefined });
+    const v = vehicle();
     const result = approachingVehicles([arrival()], [v], NOW);
     expect(result.map((x) => x.id)).toEqual(["v1"]);
   });

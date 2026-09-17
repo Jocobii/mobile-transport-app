@@ -1,5 +1,5 @@
-import type { Arrival, Route } from "@transit/core";
 import type { ArrivalDto } from "@transit/contracts";
+import type { Arrival, Route } from "@transit/core";
 import { routeShortName } from "./route";
 
 /** Maps a domain `Arrival` to its DTO. `route` is the arrival's own route (by `routeId`). */

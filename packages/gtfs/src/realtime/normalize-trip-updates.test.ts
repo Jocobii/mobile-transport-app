@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { ScheduledStopTime, Trip } from "@transit/core";
 import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import { describe, expect, it } from "vitest";
-import type { ScheduledStopTime, Trip } from "@transit/core";
 import { normalizeTripUpdates } from "./normalize-trip-updates";
 import type { TripLookup } from "./trip-lookup";
 

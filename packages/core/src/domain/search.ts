@@ -6,12 +6,7 @@ export const VARIANT_SUFFIX_PATTERN = /^\d+[a-z]$/;
  * strip diacritics. Callers reject the result when `isValidNormalizedQuery` is false.
  */
 export function normalizeQuery(raw: string): string {
-  return raw
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
+  return raw.normalize("NFD").replace(/\p{M}/gu, "").trim().replace(/\s+/g, " ").toLowerCase();
 }
 
 export function isValidNormalizedQuery(query: string): boolean {

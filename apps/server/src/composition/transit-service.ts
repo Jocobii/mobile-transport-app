@@ -1,10 +1,7 @@
 import path from "node:path";
-import {
-  createGtfsRealtimeProvider,
-  createSqliteCatalogProvider,
-} from "@transit/gtfs";
 import type { RealtimeProvider, TransitService } from "@transit/core";
 import { createTransitService } from "@transit/core";
+import { createGtfsRealtimeProvider, createSqliteCatalogProvider } from "@transit/gtfs";
 import { FEEDS } from "@/config/feeds";
 import { readServerConfig } from "@/config/server-config";
 import { TRANSIT_SETTINGS } from "@/config/transit-settings";

@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
 import type { VehicleDetailResult } from "@transit/core";
-import { createVehicleDetailHandler } from "./vehicle-detail-handler";
+import { describe, expect, it } from "vitest";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
+import { createVehicleDetailHandler } from "./vehicle-detail-handler";
 
 const RESULT: VehicleDetailResult = {
   vehicle: {
@@ -31,10 +31,9 @@ describe("createVehicleDetailHandler", () => {
       getService: () => fakeTransitService({ getVehicleDetail: async () => RESULT }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/vehicles/mvta%3Av1"),
-      { params: Promise.resolve({ vehicleId: "mvta:v1" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/vehicles/mvta%3Av1"), {
+      params: Promise.resolve({ vehicleId: "mvta:v1" }),
+    });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
   });
@@ -44,10 +43,9 @@ describe("createVehicleDetailHandler", () => {
       getService: () => fakeTransitService({ getVehicleDetail: async () => undefined }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/vehicles/nope"),
-      { params: Promise.resolve({ vehicleId: "nope" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/vehicles/nope"), {
+      params: Promise.resolve({ vehicleId: "nope" }),
+    });
     expect(response.status).toBe(404);
   });
 
@@ -56,10 +54,9 @@ describe("createVehicleDetailHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/vehicles/"),
-      { params: Promise.resolve({ vehicleId: "" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/vehicles/"), {
+      params: Promise.resolve({ vehicleId: "" }),
+    });
     expect(response.status).toBe(400);
   });
 
@@ -68,10 +65,9 @@ describe("createVehicleDetailHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      unauthedRequest("https://x/api/v1/vehicles/mvta%3Av1"),
-      { params: Promise.resolve({ vehicleId: "mvta:v1" }) },
-    );
+    const response = await handler(unauthedRequest("https://x/api/v1/vehicles/mvta%3Av1"), {
+      params: Promise.resolve({ vehicleId: "mvta:v1" }),
+    });
     expect(response.status).toBe(401);
   });
 });

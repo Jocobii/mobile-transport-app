@@ -1,5 +1,5 @@
-import type { VehicleDetailResult } from "@transit/core";
 import type { VehicleDetailResponse } from "@transit/contracts";
+import type { VehicleDetailResult } from "@transit/core";
 import { mapFeedStatus } from "./feed-status";
 import { mapRoute } from "./route";
 import { mapUpcomingStop } from "./upcoming-stop";

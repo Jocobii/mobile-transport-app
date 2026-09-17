@@ -1,5 +1,5 @@
-import type { SearchResult } from "@transit/core";
 import type { SearchResponse } from "@transit/contracts";
+import type { SearchResult } from "@transit/core";
 import { mapRoute } from "./route";
 import { mapStop } from "./stop";
 

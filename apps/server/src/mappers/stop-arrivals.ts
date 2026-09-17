@@ -1,5 +1,5 @@
-import type { StopArrivalsResult } from "@transit/core";
 import type { StopArrivalsResponse } from "@transit/contracts";
+import type { StopArrivalsResult } from "@transit/core";
 import { mapArrival } from "./arrival";
 import { mapFeedStatus } from "./feed-status";
 import { mapRoute } from "./route";

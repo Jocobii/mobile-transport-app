@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { ScheduledStopTime, StopTimePrediction, TransitSettings } from "../model";
+import type { ScheduledStopTime, StopTimePrediction } from "../model";
+import type { TransitSettings } from "../settings";
 import { mergeArrivals } from "./merge-arrivals";
 
 const SETTINGS = {
@@ -49,9 +50,7 @@ describe("mergeArrivals (10.9)", () => {
 
   it("a matched canceled prediction becomes a canceled live arrival at the scheduled time", () => {
     const scheduled = [scheduledRow({ serviceDate: "20260916" })];
-    const predictions = [
-      prediction({ serviceDate: "20260916", status: "canceled", time: 0 }),
-    ];
+    const predictions = [prediction({ serviceDate: "20260916", status: "canceled", time: 0 })];
     const [arrival] = mergeArrivals(scheduled, predictions, NOW, SETTINGS);
     expect(arrival?.source).toBe("live");
     expect(arrival?.status).toBe("canceled");

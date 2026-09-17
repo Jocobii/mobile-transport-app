@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { Stop, UpcomingStopResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapUpcomingStop } from "./upcoming-stop";
 
 const STOP: Stop = {

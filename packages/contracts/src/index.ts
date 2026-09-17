@@ -35,9 +35,9 @@ export interface FeedStatusDto {
   feedId: string;
   ok: boolean;
   /** Unix epoch seconds reported by the feed. */
-  dataTimestamp?: number;
+  dataTimestamp?: number | undefined;
   /** Unix epoch seconds when the server last fetched the feed. */
-  fetchedAt?: number;
+  fetchedAt?: number | undefined;
 }
 
 export interface RouteSummaryDto {
@@ -45,8 +45,8 @@ export interface RouteSummaryDto {
   feedId: string;
   shortName: string;
   longName: string;
-  color?: string;
-  textColor?: string;
+  color?: string | undefined;
+  textColor?: string | undefined;
 }
 
 export interface StopSummaryDto extends LatLonDto {
@@ -59,26 +59,26 @@ export interface ArrivalDto {
   tripId: string;
   routeId: string;
   routeShortName: string;
-  routeColor?: string;
+  routeColor?: string | undefined;
   directionId: 0 | 1;
   headsign: string;
   time: number;
-  scheduledTime?: number;
-  delaySec?: number;
+  scheduledTime?: number | undefined;
+  delaySec?: number | undefined;
   source: "live" | "scheduled";
   status: "normal" | "canceled" | "skipped";
-  vehicleId?: string;
+  vehicleId?: string | undefined;
 }
 
 export interface VehicleDto extends LatLonDto {
   id: string;
-  label?: string;
+  label?: string | undefined;
   routeId: string;
   routeShortName: string;
   directionId: 0 | 1;
   headsign: string;
   tripId: string;
-  bearing?: number;
+  bearing?: number | undefined;
   updatedAt: number;
   occupancy?:
     | "empty"
@@ -88,7 +88,8 @@ export interface VehicleDto extends LatLonDto {
     | "crushed_standing_room_only"
     | "full"
     | "not_accepting_passengers"
-    | "unknown";
+    | "unknown"
+    | undefined;
 }
 
 /** GET /api/v1/stops/nearby?lat=&lon=&radius= */
@@ -147,8 +148,8 @@ export interface UpcomingStopDto {
   stop: StopSummaryDto;
   stopSequence: number;
   time: number;
-  scheduledTime?: number;
-  delaySec?: number;
+  scheduledTime?: number | undefined;
+  delaySec?: number | undefined;
   source: "live" | "scheduled";
   status: "normal" | "canceled" | "skipped";
 }
@@ -164,6 +165,6 @@ export interface HealthResponse {
   status: "ok" | "degraded";
   /** Unix epoch seconds when the response was produced. */
   checkedAt: number;
-  catalogVersion?: string;
+  catalogVersion?: string | undefined;
   feeds: FeedStatusDto[];
 }

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { NearbyResult, Route, Stop, Vehicle } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapNearbyResult } from "./nearby";
 
 const STOP: Stop = {

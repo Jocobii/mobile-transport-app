@@ -1,5 +1,5 @@
-import { addDays, localServiceDate } from "@transit/core";
 import type { EpochSeconds, ServiceDate } from "@transit/core";
+import { addDays, localServiceDate } from "@transit/core";
 
 export { addDays, localServiceDate };
 
@@ -10,8 +10,8 @@ export interface GtfsParseLocation {
 }
 
 export class GtfsParseError extends Error {
-  readonly file?: string;
-  readonly row?: number;
+  readonly file?: string | undefined;
+  readonly row?: number | undefined;
 
   constructor(message: string, location?: GtfsParseLocation) {
     const suffix = location ? ` (${location.file}:${location.row})` : "";

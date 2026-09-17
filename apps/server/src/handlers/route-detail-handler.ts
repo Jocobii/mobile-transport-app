@@ -1,9 +1,9 @@
-import { InvalidDirectionError } from "@transit/core";
 import type { TransitService } from "@transit/core";
+import { InvalidDirectionError } from "@transit/core";
 import type { ServerConfigResult } from "@/config/server-config";
-import { CATALOG_CACHE, errorResponse, jsonResponse } from "@/http/responses";
 import { handleApiRequest } from "@/http/handle-api-request";
 import { parseDirectionId, parseOptionalLatLon } from "@/http/params";
+import { CATALOG_CACHE, errorResponse, jsonResponse } from "@/http/responses";
 import { mapRouteDetailResult } from "@/mappers/route-detail";
 
 export interface RouteDetailHandlerDeps {

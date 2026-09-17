@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { Route, Stop, Vehicle, VehicleDetailResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapVehicleDetailResult } from "./vehicle-detail";
 
 describe("mapVehicleDetailResult", () => {

@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { InvalidDirectionError } from "@transit/core";
 import type { RouteDetailResult } from "@transit/core";
+import { InvalidDirectionError } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { createRouteDetailHandler } from "./route-detail-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 
@@ -24,10 +24,9 @@ describe("createRouteDetailHandler", () => {
       getService: () => fakeTransitService({ getRouteDetail: async () => RESULT }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/routes/mvta%3A436"),
-      { params: Promise.resolve({ routeId: "mvta:436" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/routes/mvta%3A436"), {
+      params: Promise.resolve({ routeId: "mvta:436" }),
+    });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, max-age=300");
   });
@@ -37,10 +36,9 @@ describe("createRouteDetailHandler", () => {
       getService: () => fakeTransitService({ getRouteDetail: async () => undefined }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/routes/unknown%3A1"),
-      { params: Promise.resolve({ routeId: "unknown:1" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/routes/unknown%3A1"), {
+      params: Promise.resolve({ routeId: "unknown:1" }),
+    });
     expect(response.status).toBe(404);
   });
 
@@ -61,10 +59,9 @@ describe("createRouteDetailHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/routes/mvta%3A436?lat=1"),
-      { params: Promise.resolve({ routeId: "mvta:436" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/routes/mvta%3A436?lat=1"), {
+      params: Promise.resolve({ routeId: "mvta:436" }),
+    });
     expect(response.status).toBe(400);
   });
 
@@ -90,10 +87,9 @@ describe("createRouteDetailHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      unauthedRequest("https://x/api/v1/routes/mvta%3A436"),
-      { params: Promise.resolve({ routeId: "mvta:436" }) },
-    );
+    const response = await handler(unauthedRequest("https://x/api/v1/routes/mvta%3A436"), {
+      params: Promise.resolve({ routeId: "mvta:436" }),
+    });
     expect(response.status).toBe(401);
   });
 });

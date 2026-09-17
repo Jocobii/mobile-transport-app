@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { HealthResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapHealthResult } from "./health";
 
 describe("mapHealthResult", () => {

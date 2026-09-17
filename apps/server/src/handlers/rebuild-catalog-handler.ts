@@ -51,7 +51,12 @@ export function createRebuildCatalogHandler(deps: RebuildCatalogHandlerDeps) {
       });
       if (!response.ok) {
         return jsonResponse(
-          { error: { code: "internal_error", message: `Deploy hook responded with HTTP ${response.status}.` } },
+          {
+            error: {
+              code: "internal_error",
+              message: `Deploy hook responded with HTTP ${response.status}.`,
+            },
+          },
           { status: 502, cacheControl: NO_STORE },
         );
       }

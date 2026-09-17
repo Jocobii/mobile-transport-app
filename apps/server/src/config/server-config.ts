@@ -2,11 +2,11 @@
 export interface ServerConfig {
   apiKey: string;
   /** Vercel sends `Authorization: Bearer <cronSecret>` to cron routes. Required in production. */
-  cronSecret?: string;
+  cronSecret?: string | undefined;
   /** Deploy hook URL called by the cron route. Required in production. */
-  catalogDeployHookUrl?: string;
+  catalogDeployHookUrl?: string | undefined;
   /** Catalog location; defaults to `generated/catalog.sqlite` resolved from `process.cwd()`. */
-  catalogPath?: string;
+  catalogPath?: string | undefined;
 }
 
 export type ServerConfigResult =

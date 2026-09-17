@@ -1,9 +1,9 @@
-import type { NearbyResult } from "@transit/core";
 import type { NearbyStopsResponse } from "@transit/contracts";
+import type { NearbyResult } from "@transit/core";
 import { mapArrival } from "./arrival";
 import { mapFeedStatus } from "./feed-status";
-import { requireRoute, routesById } from "./route-lookup";
 import { mapRoute } from "./route";
+import { requireRoute, routesById } from "./route-lookup";
 import { mapStop } from "./stop";
 import { mapVehicle } from "./vehicle";
 

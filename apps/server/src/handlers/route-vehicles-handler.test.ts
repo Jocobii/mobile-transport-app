@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { RouteVehiclesResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { createRouteVehiclesHandler } from "./route-vehicles-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 
@@ -22,10 +22,9 @@ describe("createRouteVehiclesHandler", () => {
       getService: () => fakeTransitService({ getRouteVehicles: async () => RESULT }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/routes/mvta%3A436/vehicles"),
-      { params: Promise.resolve({ routeId: "mvta:436" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/routes/mvta%3A436/vehicles"), {
+      params: Promise.resolve({ routeId: "mvta:436" }),
+    });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect((await response.json()).vehicles).toEqual([]);
@@ -36,10 +35,9 @@ describe("createRouteVehiclesHandler", () => {
       getService: () => fakeTransitService({ getRouteVehicles: async () => undefined }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/routes/unknown%3A1/vehicles"),
-      { params: Promise.resolve({ routeId: "unknown:1" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/routes/unknown%3A1/vehicles"), {
+      params: Promise.resolve({ routeId: "unknown:1" }),
+    });
     expect(response.status).toBe(404);
   });
 
@@ -60,10 +58,9 @@ describe("createRouteVehiclesHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      unauthedRequest("https://x/api/v1/routes/mvta%3A436/vehicles"),
-      { params: Promise.resolve({ routeId: "mvta:436" }) },
-    );
+    const response = await handler(unauthedRequest("https://x/api/v1/routes/mvta%3A436/vehicles"), {
+      params: Promise.resolve({ routeId: "mvta:436" }),
+    });
     expect(response.status).toBe(401);
   });
 });

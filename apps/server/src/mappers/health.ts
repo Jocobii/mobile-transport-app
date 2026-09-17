@@ -1,5 +1,5 @@
-import type { HealthResult } from "@transit/core";
 import type { HealthResponse } from "@transit/contracts";
+import type { HealthResult } from "@transit/core";
 import { mapFeedStatus } from "./feed-status";
 
 export function mapHealthResult(result: HealthResult): HealthResponse {

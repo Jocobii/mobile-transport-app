@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GtfsParseError, addDays, epochFor, localServiceDate, parseGtfsTime } from "./gtfs-time";
+import { addDays, epochFor, GtfsParseError, localServiceDate, parseGtfsTime } from "./gtfs-time";
 
 const CHICAGO = "America/Chicago";
 

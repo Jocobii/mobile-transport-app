@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import gtfsRealtimeBindings from "gtfs-realtime-bindings";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Trip } from "@transit/core";
+import gtfsRealtimeBindings from "gtfs-realtime-bindings";
+import { describe, expect, it } from "vitest";
 import { normalizeVehiclePositions } from "./normalize-vehicle-positions";
 import type { TripLookup } from "./trip-lookup";
 

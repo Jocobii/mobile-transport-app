@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { downloadStaticFeed } from "./download-feed";
 
 function fakeFetch(response: { ok: boolean; status: number; body?: Uint8Array }) {
-  return vi.fn(async (_url: string, init?: RequestInit) => {
+  return vi.fn(async (_url: string | Request | URL, init?: RequestInit) => {
     expect(init?.signal).toBeInstanceOf(AbortSignal);
     return {
       ok: response.ok,

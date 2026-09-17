@@ -1,5 +1,5 @@
-import type { Stop } from "@transit/core";
 import type { StopSummaryDto } from "@transit/contracts";
+import type { Stop } from "@transit/core";
 
 export function mapStop(stop: Stop): StopSummaryDto {
   return {

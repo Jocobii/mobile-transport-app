@@ -1,5 +1,5 @@
-import { isValidNormalizedQuery, normalizeQuery } from "@transit/core";
 import type { DirectionId, LatLon, TransitSettings } from "@transit/core";
+import { isValidNormalizedQuery, normalizeQuery } from "@transit/core";
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; message: string };
 

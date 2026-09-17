@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { HealthResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { createHealthHandler } from "./health-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 

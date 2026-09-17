@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { CatalogUnavailableError } from "@transit/gtfs";
 import type { StopArrivalsResult } from "@transit/core";
+import { CatalogUnavailableError } from "@transit/gtfs";
+import { describe, expect, it } from "vitest";
 import { createStopArrivalsHandler } from "./stop-arrivals-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 
@@ -17,10 +17,9 @@ describe("createStopArrivalsHandler", () => {
       getService: () => fakeTransitService({ getStopArrivals: async () => RESULT }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/stops/56939/arrivals"),
-      { params: Promise.resolve({ stopId: "56939" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/stops/56939/arrivals"), {
+      params: Promise.resolve({ stopId: "56939" }),
+    });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
   });
@@ -30,10 +29,9 @@ describe("createStopArrivalsHandler", () => {
       getService: () => fakeTransitService({ getStopArrivals: async () => undefined }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/stops/nope/arrivals"),
-      { params: Promise.resolve({ stopId: "nope" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/stops/nope/arrivals"), {
+      params: Promise.resolve({ stopId: "nope" }),
+    });
     expect(response.status).toBe(404);
   });
 
@@ -42,10 +40,9 @@ describe("createStopArrivalsHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/stops//arrivals"),
-      { params: Promise.resolve({ stopId: "" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/stops//arrivals"), {
+      params: Promise.resolve({ stopId: "" }),
+    });
     expect(response.status).toBe(400);
   });
 
@@ -54,10 +51,9 @@ describe("createStopArrivalsHandler", () => {
       getService: () => fakeTransitService({}),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      unauthedRequest("https://x/api/v1/stops/56939/arrivals"),
-      { params: Promise.resolve({ stopId: "56939" }) },
-    );
+    const response = await handler(unauthedRequest("https://x/api/v1/stops/56939/arrivals"), {
+      params: Promise.resolve({ stopId: "56939" }),
+    });
     expect(response.status).toBe(401);
   });
 
@@ -71,10 +67,9 @@ describe("createStopArrivalsHandler", () => {
         }),
       readConfig: () => OK_CONFIG,
     });
-    const response = await handler(
-      authedRequest("https://x/api/v1/stops/56939/arrivals"),
-      { params: Promise.resolve({ stopId: "56939" }) },
-    );
+    const response = await handler(authedRequest("https://x/api/v1/stops/56939/arrivals"), {
+      params: Promise.resolve({ stopId: "56939" }),
+    });
     expect(response.status).toBe(503);
   });
 });

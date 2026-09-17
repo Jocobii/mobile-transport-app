@@ -1,4 +1,3 @@
-import type { transit_realtime } from "gtfs-realtime-bindings";
 import type {
   EpochSeconds,
   FeedId,
@@ -8,6 +7,7 @@ import type {
   Trip,
   TripId,
 } from "@transit/core";
+import type { transit_realtime } from "gtfs-realtime-bindings";
 import { localServiceDate } from "../time/gtfs-time";
 import type { TripLookup } from "./trip-lookup";
 
@@ -36,7 +36,7 @@ function parseEpoch(value: unknown): EpochSeconds | undefined {
 
 function canceledPredictions(
   scheduled: ScheduledStopTime[],
-  context: { feedId: FeedId; tripId: TripId; serviceDate: ServiceDate; vehicleId?: string },
+  context: { feedId: FeedId; tripId: TripId; serviceDate: ServiceDate; vehicleId?: string | undefined },
 ): StopTimePrediction[] {
   return scheduled.map((stopTime) => ({
     feedId: context.feedId,
@@ -73,8 +73,7 @@ function normalizeStopTimeUpdate(
   const stopId =
     update.stopId || context.scheduledBySequence.get(update.stopSequence ?? -1)?.stopId;
   if (!stopId) return undefined;
-  const stopSequence =
-    update.stopSequence ?? context.scheduledByStopId.get(stopId)?.stopSequence;
+  const stopSequence = update.stopSequence ?? context.scheduledByStopId.get(stopId)?.stopSequence;
 
   const base = {
     feedId,

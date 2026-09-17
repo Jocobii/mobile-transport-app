@@ -1,4 +1,3 @@
-import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import type {
   Cache,
   CatalogProvider,
@@ -10,6 +9,7 @@ import type {
   RealtimeSnapshot,
   TransitSettings,
 } from "@transit/core";
+import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import { downloadStaticFeed } from "../static/download-feed";
 import { normalizeTripUpdates } from "./normalize-trip-updates";
 import { normalizeVehiclePositions } from "./normalize-vehicle-positions";
@@ -40,7 +40,7 @@ function parseHeaderTimestamp(value: unknown): EpochSeconds | undefined {
 
 async function fetchAndDecode(
   url: string,
-  options: { userAgent: string; timeoutMs: number; fetchImpl?: typeof fetch },
+  options: { userAgent: string; timeoutMs: number; fetchImpl?: typeof fetch | undefined },
 ): Promise<InstanceType<typeof FeedMessage>> {
   const bytes = await downloadStaticFeed(url, options);
   return FeedMessage.decode(bytes);

@@ -1,12 +1,6 @@
+import type { Cache, CatalogProvider, Clock, FeedConfig, TransitSettings } from "@transit/core";
 import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import { describe, expect, it } from "vitest";
-import type {
-  Cache,
-  CatalogProvider,
-  Clock,
-  FeedConfig,
-  TransitSettings,
-} from "@transit/core";
 import { createGtfsRealtimeProvider } from "./gtfs-realtime-provider";
 import type { TripLookup } from "./trip-lookup";
 

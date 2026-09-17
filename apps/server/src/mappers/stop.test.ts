@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { Stop } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapStop } from "./stop";
 
 describe("mapStop", () => {

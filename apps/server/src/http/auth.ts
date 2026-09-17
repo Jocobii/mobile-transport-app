@@ -23,7 +23,7 @@ function sha256(value: string): Buffer {
  */
 export function hasValidBearerToken(request: Request, expectedToken: string): boolean {
   const header = request.headers.get("authorization");
-  if (!header || !header.startsWith("Bearer ")) {
+  if (!header?.startsWith("Bearer ")) {
     return false;
   }
   const providedToken = header.slice("Bearer ".length);

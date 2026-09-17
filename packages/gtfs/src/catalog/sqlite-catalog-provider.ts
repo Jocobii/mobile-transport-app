@@ -1,5 +1,4 @@
 import { DatabaseSync } from "node:sqlite";
-import { VARIANT_SUFFIX_PATTERN, boundingBox, haversineMeters } from "@transit/core";
 import type {
   CatalogProvider,
   EpochSeconds,
@@ -15,6 +14,7 @@ import type {
   Trip,
   TripId,
 } from "@transit/core";
+import { boundingBox, haversineMeters, VARIANT_SUFFIX_PATTERN } from "@transit/core";
 import { addDays, epochFor, localServiceDate } from "../time/gtfs-time";
 
 export class CatalogUnavailableError extends Error {
@@ -96,7 +96,6 @@ function compareStopsForSearch(
   return NATURAL_COLLATOR.compare(a.stop.name, b.stop.name);
 }
 
-
 export function createSqliteCatalogProvider(
   options: SqliteCatalogProviderOptions,
 ): CatalogProvider {
@@ -110,9 +109,10 @@ export function createSqliteCatalogProvider(
     );
   }
 
-  const feedsCache = db
-    .prepare("SELECT id, timezone FROM feeds")
-    .all() as Array<{ id: string; timezone: string }>;
+  const feedsCache = db.prepare("SELECT id, timezone FROM feeds").all() as Array<{
+    id: string;
+    timezone: string;
+  }>;
 
   const stmtCatalogVersion = db.prepare("SELECT value FROM meta WHERE key = 'catalog_version'");
   const stmtGetStop = db.prepare("SELECT * FROM stops WHERE id = ?");
@@ -256,7 +256,10 @@ export function createSqliteCatalogProvider(
       }
     }
 
-    return [...scored.values()].sort(compareRoutesForSearch).slice(0, limit).map((e) => e.route);
+    return [...scored.values()]
+      .sort(compareRoutesForSearch)
+      .slice(0, limit)
+      .map((e) => e.route);
   }
 
   async function searchRoutes(normalizedQuery: string, limit: number): Promise<Route[]> {
@@ -288,7 +291,10 @@ export function createSqliteCatalogProvider(
       }
     }
 
-    return [...scored.values()].sort(compareStopsForSearch).slice(0, limit).map((e) => e.stop);
+    return [...scored.values()]
+      .sort(compareStopsForSearch)
+      .slice(0, limit)
+      .map((e) => e.stop);
   }
 
   async function getRoute(routeId: RouteId): Promise<Route | undefined> {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { TransitSettings } from "../model";
 import type { RealtimeSnapshot } from "../ports";
+import type { TransitSettings } from "../settings";
 import { applyFreshnessRules, isFeedStale, isVehicleStale } from "./freshness";
 
 const SETTINGS = { realtimeStaleAfterSeconds: 120 } as TransitSettings;

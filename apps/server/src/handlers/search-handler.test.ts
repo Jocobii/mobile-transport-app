@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { SearchResult } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { createSearchHandler } from "./search-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 

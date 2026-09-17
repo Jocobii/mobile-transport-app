@@ -51,9 +51,9 @@ export interface Route {
   shortName: string;
   longName: string;
   /** Hex color without `#`, when the feed provides one. */
-  color?: string;
-  textColor?: string;
-  sortOrder?: number;
+  color?: string | undefined;
+  textColor?: string | undefined;
+  sortOrder?: number | undefined;
 }
 
 export interface Stop extends LatLon {
@@ -110,16 +110,16 @@ export interface StopTimePrediction {
   feedId: FeedId;
   tripId: TripId;
   /** From `trip.start_date`, when present. */
-  serviceDate?: ServiceDate;
+  serviceDate?: ServiceDate | undefined;
   routeId: RouteId;
   directionId: DirectionId;
   stopId: StopId;
-  stopSequence?: number;
+  stopSequence?: number | undefined;
   /** For status "normal"; for canceled/skipped, 0 means "use schedule". */
   time: EpochSeconds;
-  delaySec?: number;
+  delaySec?: number | undefined;
   status: StopTimeStatus;
-  vehicleId?: VehicleId;
+  vehicleId?: VehicleId | undefined;
 }
 
 export type OccupancyStatus =
@@ -135,15 +135,15 @@ export type OccupancyStatus =
 export interface Vehicle extends LatLon {
   id: VehicleId;
   feedId: FeedId;
-  label?: string;
+  label?: string | undefined;
   routeId: RouteId;
   directionId: DirectionId;
   tripId: TripId;
-  bearing?: number;
-  currentStopSequence?: number;
+  bearing?: number | undefined;
+  currentStopSequence?: number | undefined;
   /** When the position was reported by the vehicle. */
   updatedAt: EpochSeconds;
-  occupancy?: OccupancyStatus;
+  occupancy?: OccupancyStatus | undefined;
 }
 
 /** @deprecated Use `Arrival["source"]` directly. */
@@ -158,14 +158,14 @@ export interface Arrival {
   tripId: TripId;
   headsign: string;
   /** From the matched scheduled row. */
-  stopSequence?: number;
+  stopSequence?: number | undefined;
   /** Best known time: prediction when live, schedule otherwise. */
   time: EpochSeconds;
-  scheduledTime?: EpochSeconds;
-  delaySec?: number;
+  scheduledTime?: EpochSeconds | undefined;
+  delaySec?: number | undefined;
   source: ArrivalSource;
   status: StopTimeStatus;
-  vehicleId?: VehicleId;
+  vehicleId?: VehicleId | undefined;
 }
 
 export interface Alert {
@@ -173,9 +173,9 @@ export interface Alert {
   routeIds: RouteId[];
   stopIds: StopId[];
   header: string;
-  description?: string;
-  activeFrom?: EpochSeconds;
-  activeUntil?: EpochSeconds;
+  description?: string | undefined;
+  activeFrom?: EpochSeconds | undefined;
+  activeUntil?: EpochSeconds | undefined;
 }
 
 /** Freshness/health of one feed's realtime data. Replaces `Freshness`. */
@@ -184,6 +184,6 @@ export interface FeedStatus {
   /** Fetched successfully and not stale. */
   ok: boolean;
   /** Feed header timestamp. */
-  dataTimestamp?: EpochSeconds;
-  fetchedAt?: EpochSeconds;
+  dataTimestamp?: EpochSeconds | undefined;
+  fetchedAt?: EpochSeconds | undefined;
 }

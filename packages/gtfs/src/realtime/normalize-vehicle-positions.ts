@@ -1,5 +1,5 @@
-import type { transit_realtime } from "gtfs-realtime-bindings";
 import type { EpochSeconds, FeedId, OccupancyStatus, Vehicle } from "@transit/core";
+import type { transit_realtime } from "gtfs-realtime-bindings";
 import type { TripLookup } from "./trip-lookup";
 
 export interface NormalizeVehiclePositionsOptions {

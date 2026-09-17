@@ -1,5 +1,5 @@
-import type { Route } from "@transit/core";
 import type { RouteSummaryDto } from "@transit/contracts";
+import type { Route } from "@transit/core";
 
 export function mapRoute(route: Route): RouteSummaryDto {
   return {

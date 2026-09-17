@@ -102,10 +102,7 @@ function directionIdOf(value: string | undefined): DirectionId {
   return value === "1" ? 1 : 0;
 }
 
-async function collectRows(
-  source: GtfsSource,
-  table: string,
-): Promise<CsvRow[]> {
+async function collectRows(source: GtfsSource, table: string): Promise<CsvRow[]> {
   const rows: CsvRow[] = [];
   for await (const row of source.readRows(table)) rows.push(row);
   return rows;
@@ -135,24 +132,19 @@ function computeServiceDates(
   const windowEnd = addDays(buildDate, settings.catalogServiceDaysAfter);
 
   const calendarByService = new Map<string, CsvRow>();
-  for (const row of calendarRows)
-    calendarByService.set(row.service_id as string, row);
+  for (const row of calendarRows) calendarByService.set(row.service_id as string, row);
 
   const exceptionsByService = new Map<string, Map<ServiceDate, "1" | "2">>();
   for (const row of calendarDateRows) {
     const serviceId = row.service_id as string;
-    const exceptions =
-      exceptionsByService.get(serviceId) ?? new Map<ServiceDate, "1" | "2">();
+    const exceptions = exceptionsByService.get(serviceId) ?? new Map<ServiceDate, "1" | "2">();
     if (row.exception_type === "1" || row.exception_type === "2") {
       exceptions.set(row.date as string, row.exception_type);
     }
     exceptionsByService.set(serviceId, exceptions);
   }
 
-  const serviceIds = new Set<string>([
-    ...calendarByService.keys(),
-    ...exceptionsByService.keys(),
-  ]);
+  const serviceIds = new Set<string>([...calendarByService.keys(), ...exceptionsByService.keys()]);
   const datesByService = new Map<string, Set<ServiceDate>>();
 
   const dates: ServiceDate[] = [];
@@ -178,8 +170,7 @@ function computeServiceDates(
 
       if (active) {
         const scopedId = `${feedId}:${serviceId}`;
-        const activeDates =
-          datesByService.get(scopedId) ?? new Set<ServiceDate>();
+        const activeDates = datesByService.get(scopedId) ?? new Set<ServiceDate>();
         activeDates.add(date);
         datesByService.set(scopedId, activeDates);
       }
@@ -212,8 +203,7 @@ function importableStops(rows: CsvRow[]): Map<string, StopRecord> {
     if (lat === 0 && lon === 0) continue;
 
     const stopId = row.stop_id as string;
-    const code =
-      row.stop_code && row.stop_code.trim() !== "" ? row.stop_code : stopId;
+    const code = row.stop_code && row.stop_code.trim() !== "" ? row.stop_code : stopId;
     result.set(stopId, { code, name: row.stop_name ?? "", lat, lon });
   }
   return result;
@@ -281,16 +271,11 @@ function resolveStopTimes(rows: RawStopTime[]): ResolvedStopTime[] {
       fraction = (i - p) / (n - p);
     }
 
-    current.timeSeconds = Math.round(
-      prevTime + fraction * (nextTime - prevTime),
-    );
+    current.timeSeconds = Math.round(prevTime + fraction * (nextTime - prevTime));
   }
 
   return resolved
-    .filter(
-      (row): row is RawStopTime & { timeSeconds: number } =>
-        row.timeSeconds !== null,
-    )
+    .filter((row): row is RawStopTime & { timeSeconds: number } => row.timeSeconds !== null)
     .map((row) => ({
       stopSequence: row.stopSequence,
       stopId: row.stopId,
@@ -307,14 +292,14 @@ interface ImportedTrip {
   routeId: string;
   directionId: DirectionId;
   headsign: string;
-  shapeId?: string;
+  shapeId?: string | undefined;
   stopTimes: ResolvedStopTime[];
   serviceDates: Set<ServiceDate>;
 }
 
 interface FeedImportResult {
   counts: Record<string, number>;
-  feedVersion?: string;
+  feedVersion?: string | undefined;
   windowStart: ServiceDate;
   windowEnd: ServiceDate;
 }
@@ -355,28 +340,15 @@ async function importFeed(
 
   db.prepare(
     "INSERT INTO feeds (id, name, timezone, feed_version, priority) VALUES (?, ?, ?, ?, ?)",
-  ).run(
-    feedId,
-    config.name,
-    config.timezone,
-    feedInfoRows[0]?.feed_version ?? null,
-    priority,
-  );
+  ).run(feedId, config.name, config.timezone, feedInfoRows[0]?.feed_version ?? null, priority);
 
   // --- agencies -------------------------------------------------------------
-  const insertAgency = db.prepare(
-    "INSERT INTO agencies (id, feed_id, name) VALUES (?, ?, ?)",
-  );
+  const insertAgency = db.prepare("INSERT INTO agencies (id, feed_id, name) VALUES (?, ?, ?)");
   for (const row of agencyRows) {
-    insertAgency.run(
-      `${feedId}:${row.agency_id ?? ""}`,
-      feedId,
-      row.agency_name ?? "",
-    );
+    insertAgency.run(`${feedId}:${row.agency_id ?? ""}`, feedId, row.agency_name ?? "");
   }
   counts.agencies = agencyRows.length;
-  const defaultAgencyId =
-    agencyRows.length === 1 ? (agencyRows[0]?.agency_id ?? "") : "default";
+  const defaultAgencyId = agencyRows.length === 1 ? (agencyRows[0]?.agency_id ?? "") : "default";
 
   // --- routes -----------------------------------------------------------------
   const insertRoute = db.prepare(
@@ -390,9 +362,7 @@ async function importFeed(
   for (const row of routeRows) {
     const routeId = `${feedId}:${row.route_id}`;
     const rawAgencyId =
-      row.agency_id && row.agency_id.trim() !== ""
-        ? row.agency_id
-        : defaultAgencyId;
+      row.agency_id && row.agency_id.trim() !== "" ? row.agency_id : defaultAgencyId;
     const shortName = row.route_short_name ?? "";
     const longName = row.route_long_name ?? "";
     insertRoute.run(
@@ -439,10 +409,7 @@ async function importFeed(
   counts.service_dates = serviceDateCount;
 
   // --- shapes (kept only in memory, for patterns) -------------------------------
-  const rawShapePoints = new Map<
-    string,
-    Array<{ lat: number; lon: number; seq: number }>
-  >();
+  const rawShapePoints = new Map<string, Array<{ lat: number; lon: number; seq: number }>>();
   for (const row of shapeRows) {
     const shapeId = `${feedId}:${row.shape_id}`;
     const list = rawShapePoints.get(shapeId) ?? [];
@@ -467,15 +434,12 @@ async function importFeed(
   for (const [index, row] of stopTimeRows.entries()) {
     const tripId = row.trip_id as string;
     const list = stopTimesByTrip.get(tripId) ?? [];
-    const timeRaw =
-      row.departure_time?.trim() || row.arrival_time?.trim() || "";
+    const timeRaw = row.departure_time?.trim() || row.arrival_time?.trim() || "";
     list.push({
       stopSequence: Number(row.stop_sequence),
       stopId: row.stop_id as string,
       timeSeconds:
-        timeRaw === ""
-          ? null
-          : parseGtfsTime(timeRaw, { file: "stop_times.txt", row: index + 2 }),
+        timeRaw === "" ? null : parseGtfsTime(timeRaw, { file: "stop_times.txt", row: index + 2 }),
       shapeDistTraveled: optionalNumber(row.shape_dist_traveled) ?? null,
     });
     stopTimesByTrip.set(tripId, list);
@@ -511,9 +475,7 @@ async function importFeed(
     const patternId = `${routeId}:${directionId}`;
     const tripId = `${feedId}:${row.trip_id}`;
     const shapeId =
-      row.shape_id && row.shape_id.trim() !== ""
-        ? `${feedId}:${row.shape_id}`
-        : undefined;
+      row.shape_id && row.shape_id.trim() !== "" ? `${feedId}:${row.shape_id}` : undefined;
     const headsign = row.trip_headsign ?? "";
 
     insertTrip.run(
@@ -586,8 +548,7 @@ function groupByRouteAndDirection(
 ): Map<string, Map<DirectionId, ImportedTrip[]>> {
   const byRoute = new Map<string, Map<DirectionId, ImportedTrip[]>>();
   for (const trip of trips) {
-    const byDirection =
-      byRoute.get(trip.routeId) ?? new Map<DirectionId, ImportedTrip[]>();
+    const byDirection = byRoute.get(trip.routeId) ?? new Map<DirectionId, ImportedTrip[]>();
     const list = byDirection.get(trip.directionId) ?? [];
     list.push(trip);
     byDirection.set(trip.directionId, list);
@@ -596,9 +557,7 @@ function groupByRouteAndDirection(
   return byRoute;
 }
 
-function pickWinningGroup(
-  groups: Map<string, ImportedTrip[]>,
-): ImportedTrip[] | undefined {
+function pickWinningGroup(groups: Map<string, ImportedTrip[]>): ImportedTrip[] | undefined {
   let winner: ImportedTrip[] | undefined;
   for (const group of groups.values()) {
     if (!winner) {
@@ -626,14 +585,11 @@ function pickHeadsign(
   stopById: Map<string, StopRecord>,
 ): string {
   const counts = new Map<string, number>();
-  for (const trip of winner)
-    counts.set(trip.headsign, (counts.get(trip.headsign) ?? 0) + 1);
+  for (const trip of winner) counts.set(trip.headsign, (counts.get(trip.headsign) ?? 0) + 1);
 
   let headsign = "";
   let bestCount = -1;
-  for (const [candidate, count] of [...counts.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0]),
-  )) {
+  for (const [candidate, count] of [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     if (count > bestCount) {
       headsign = candidate;
       bestCount = count;
@@ -654,11 +610,7 @@ function pickShape(
 ): LatLon[] {
   const shapeIdCounts = new Map<string, number>();
   for (const trip of winner) {
-    if (trip.shapeId)
-      shapeIdCounts.set(
-        trip.shapeId,
-        (shapeIdCounts.get(trip.shapeId) ?? 0) + 1,
-      );
+    if (trip.shapeId) shapeIdCounts.set(trip.shapeId, (shapeIdCounts.get(trip.shapeId) ?? 0) + 1);
   }
   let bestShapeId: string | undefined;
   let bestShapeCount = 0;
@@ -698,9 +650,7 @@ function buildPatterns(
   for (const [routeId, byDirection] of groupByRouteAndDirection(trips)) {
     for (const [directionId, groupTrips] of byDirection) {
       const lookaheadTrips = groupTrips.filter((trip) =>
-        [...trip.serviceDates].some(
-          (date) => date >= buildDate && date <= lookaheadEnd,
-        ),
+        [...trip.serviceDates].some((date) => date >= buildDate && date <= lookaheadEnd),
       );
       const pool = lookaheadTrips.length > 0 ? lookaheadTrips : groupTrips;
 
@@ -735,18 +685,16 @@ function buildPatterns(
         winner.length,
         JSON.stringify(shape),
       );
-      stopIds.forEach((stopId, position) =>
-        insertPatternStop.run(patternId, position, stopId),
-      );
+      stopIds.forEach((stopId, position) => {
+        insertPatternStop.run(patternId, position, stopId);
+      });
       patternCount++;
     }
   }
   return patternCount;
 }
 
-export async function buildCatalog(
-  options: BuildCatalogOptions,
-): Promise<BuildCatalogResult> {
+export async function buildCatalog(options: BuildCatalogOptions): Promise<BuildCatalogResult> {
   const { feeds, outputPath, now, settings } = options;
   const tmpPath = `${outputPath}.tmp`;
 
@@ -785,36 +733,26 @@ export async function buildCatalog(
         counts: result.counts,
         durationMs: Date.now() - startedAt,
       });
-      feedVersionParts.push(
-        `${feed.config.id}=${result.feedVersion ?? "unknown"}`,
-      );
+      feedVersionParts.push(`${feed.config.id}=${result.feedVersion ?? "unknown"}`);
       if (windowStart === undefined || result.windowStart < windowStart)
         windowStart = result.windowStart;
-      if (windowEnd === undefined || result.windowEnd > windowEnd)
-        windowEnd = result.windowEnd;
+      if (windowEnd === undefined || result.windowEnd > windowEnd) windowEnd = result.windowEnd;
       priority++;
     }
 
     const insertStop = db.prepare(
       "INSERT INTO stops (id, code, name, lat, lon) VALUES (?, ?, ?, ?, ?)",
     );
-    const insertStopFts = db.prepare(
-      "INSERT INTO stops_fts (stop_id, name) VALUES (?, ?)",
-    );
+    const insertStopFts = db.prepare("INSERT INTO stops_fts (stop_id, name) VALUES (?, ?)");
     for (const [stopId, record] of globalStops) {
       insertStop.run(stopId, record.code, record.name, record.lat, record.lon);
       insertStopFts.run(stopId, record.name);
     }
-    const insertStopFeed = db.prepare(
-      "INSERT INTO stop_feeds (stop_id, feed_id) VALUES (?, ?)",
-    );
-    for (const pair of stopFeedPairs)
-      insertStopFeed.run(pair.stopId, pair.feedId);
+    const insertStopFeed = db.prepare("INSERT INTO stop_feeds (stop_id, feed_id) VALUES (?, ?)");
+    for (const pair of stopFeedPairs) insertStopFeed.run(pair.stopId, pair.feedId);
 
     const catalogVersion = `${new Date(now * 1000).toISOString()}|${feedVersionParts.join(",")}`;
-    const insertMeta = db.prepare(
-      "INSERT INTO meta (key, value) VALUES (?, ?)",
-    );
+    const insertMeta = db.prepare("INSERT INTO meta (key, value) VALUES (?, ?)");
     insertMeta.run("catalog_version", catalogVersion);
     insertMeta.run("built_at", String(now));
     insertMeta.run("service_window_start", windowStart ?? "");

@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
 import type {
-  CatalogProvider,
-  Clock,
-  RealtimeProvider,
-  RealtimeSnapshot,
-} from "./ports";
-import type {
   FeedConfig,
   Route,
   RoutePattern,
@@ -14,9 +8,10 @@ import type {
   StopTimePrediction,
   StopWithDistance,
   Trip,
-  TransitSettings,
   Vehicle,
 } from "./model";
+import type { CatalogProvider, Clock, RealtimeProvider, RealtimeSnapshot } from "./ports";
+import type { TransitSettings } from "./settings";
 import { createTransitService } from "./transit-service";
 
 const SETTINGS: TransitSettings = {
@@ -87,7 +82,7 @@ const TRIP: Trip = {
 
 interface FakeCatalogOptions {
   stopsNear?: StopWithDistance[];
-  nearestStop?: StopWithDistance;
+  nearestStop?: StopWithDistance | undefined;
   stop?: Stop | undefined;
   routesServingStop?: Route[];
   route?: Route | undefined;

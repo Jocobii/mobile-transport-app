@@ -1,5 +1,5 @@
-import type { Route, Vehicle } from "@transit/core";
 import type { VehicleDto } from "@transit/contracts";
+import type { Route, Vehicle } from "@transit/core";
 import { routeShortName } from "./route";
 
 /**

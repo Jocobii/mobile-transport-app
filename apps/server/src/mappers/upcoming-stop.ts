@@ -1,5 +1,5 @@
-import type { UpcomingStopResult } from "@transit/core";
 import type { UpcomingStopDto } from "@transit/contracts";
+import type { UpcomingStopResult } from "@transit/core";
 import { mapStop } from "./stop";
 
 export function mapUpcomingStop(upcoming: UpcomingStopResult): UpcomingStopDto {

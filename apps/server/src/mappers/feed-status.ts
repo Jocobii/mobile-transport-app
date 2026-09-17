@@ -1,5 +1,5 @@
-import type { FeedStatus } from "@transit/core";
 import type { FeedStatusDto } from "@transit/contracts";
+import type { FeedStatus } from "@transit/core";
 
 export function mapFeedStatus(status: FeedStatus): FeedStatusDto {
   return {

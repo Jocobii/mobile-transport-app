@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { CatalogUnavailableError } from "@transit/gtfs";
+import { describe, expect, it } from "vitest";
 import type { ServerConfigResult } from "../config/server-config";
 import { handleApiRequest } from "./handle-api-request";
 

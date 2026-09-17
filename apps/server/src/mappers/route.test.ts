@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { Route } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { mapRoute, routeShortName } from "./route";
 
 const ROUTE: Route = {

@@ -1,10 +1,10 @@
-import { DatabaseSync } from "node:sqlite";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { TransitSettings } from "@transit/core";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildCatalog } from "./build-catalog";
 import { createDirectoryGtfsSource } from "./gtfs-source";
 
@@ -129,7 +129,7 @@ describe("buildCatalog (real fixtures: metrotransit + mvta)", () => {
         "SELECT s.name FROM pattern_stops ps JOIN stops s ON s.id = ps.stop_id " +
           "WHERE ps.pattern_id = ? ORDER BY ps.position DESC LIMIT 1",
       )
-      .get(pattern?.id) as { name: string } | undefined;
+      .get(pattern?.id as string) as { name: string } | undefined;
     expect(lastStop?.name).toBe("Eagan Transit Station");
   });
 });

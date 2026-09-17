@@ -97,8 +97,8 @@ export interface UpcomingStopResult {
   stop: Stop;
   stopSequence: number;
   time: EpochSeconds;
-  scheduledTime?: EpochSeconds;
-  delaySec?: number;
+  scheduledTime?: EpochSeconds | undefined;
+  delaySec?: number | undefined;
   source: "live" | "scheduled";
   status: StopTimeStatus;
 }
@@ -113,7 +113,7 @@ export interface VehicleDetailResult {
 export interface HealthResult {
   status: "ok" | "degraded";
   checkedAt: EpochSeconds;
-  catalogVersion?: string;
+  catalogVersion?: string | undefined;
   feeds: FeedStatus[];
 }
 

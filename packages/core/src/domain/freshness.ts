@@ -1,5 +1,6 @@
-import type { EpochSeconds, FeedStatus, TransitSettings, Vehicle } from "../model";
+import type { EpochSeconds, FeedStatus, Vehicle } from "../model";
 import type { RealtimeSnapshot } from "../ports";
+import type { TransitSettings } from "../settings";
 
 /** A feed is stale when its data is older than `realtimeStaleAfterSeconds`, or unknown. */
 export function isFeedStale(

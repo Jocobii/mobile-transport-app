@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { Clock } from "@transit/core";
+import { describe, expect, it } from "vitest";
 import { createInMemoryCache } from "./in-memory-cache";
 
 function fakeClock(start: number): Clock & { advance: (seconds: number) => void } {

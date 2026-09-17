@@ -1,9 +1,9 @@
 import type { TransitService } from "@transit/core";
 import type { ServerConfigResult } from "@/config/server-config";
 import { TRANSIT_SETTINGS } from "@/config/transit-settings";
-import { CATALOG_CACHE, errorResponse, jsonResponse } from "@/http/responses";
 import { handleApiRequest } from "@/http/handle-api-request";
 import { parseSearchQuery } from "@/http/params";
+import { CATALOG_CACHE, errorResponse, jsonResponse } from "@/http/responses";
 import { mapSearchResult } from "@/mappers/search";
 
 export interface SearchHandlerDeps {

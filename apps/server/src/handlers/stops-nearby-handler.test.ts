@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { CatalogUnavailableError } from "@transit/gtfs";
 import type { NearbyResult } from "@transit/core";
+import { CatalogUnavailableError } from "@transit/gtfs";
+import { describe, expect, it } from "vitest";
 import { createStopsNearbyHandler } from "./stops-nearby-handler";
 import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
 

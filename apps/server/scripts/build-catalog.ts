@@ -46,7 +46,9 @@ async function buildFeedInput(feed: (typeof FEEDS)[number]): Promise<BuildCatalo
     const bytes = readFileSync(path.join(RAW_DIR, "mvta", "gtfs.zip"));
     return { config: feed, source: createZipGtfsSource(new Uint8Array(bytes)) };
   }
-  throw new Error(`No raw fixture wired up for feed "${feed.id}". Add one in scripts/build-catalog.ts.`);
+  throw new Error(
+    `No raw fixture wired up for feed "${feed.id}". Add one in scripts/build-catalog.ts.`,
+  );
 }
 
 async function main(): Promise<void> {
