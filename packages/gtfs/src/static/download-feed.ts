@@ -1,7 +1,7 @@
 export interface DownloadStaticFeedOptions {
   userAgent: string;
   timeoutMs: number;
-  fetchImpl?: typeof fetch;
+  fetchImpl?: typeof fetch | undefined;
 }
 
 /**

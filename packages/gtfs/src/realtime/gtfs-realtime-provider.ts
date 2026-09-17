@@ -47,7 +47,7 @@ async function fetchAndDecode(
 }
 
 function isStale(
-  status: { dataTimestamp?: EpochSeconds },
+  status: { dataTimestamp?: EpochSeconds | undefined },
   now: EpochSeconds,
   settings: TransitSettings,
 ): boolean {
