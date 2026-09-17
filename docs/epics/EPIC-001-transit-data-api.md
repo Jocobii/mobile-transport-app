@@ -890,7 +890,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
 
 ### Phase E — Server (`apps/server`)
 
-- [ ] **E001-T13 — Configuration, infrastructure adapters and composition root**
+- [x] **E001-T13 — Configuration, infrastructure adapters and composition root**
   - `src/config/feeds.ts` (6.1), `src/config/transit-settings.ts` (6.2), extend `src/config/server-config.ts` with optional `cronSecret`, `catalogDeployHookUrl`, `catalogPath`.
   - `src/infrastructure/in-memory-cache.ts` (`Cache` with expiry), `src/infrastructure/system-clock.ts`.
   - `src/composition/transit-service.ts` (section 11).
