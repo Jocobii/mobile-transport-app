@@ -830,7 +830,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests: the four cases of 10.1, invalid time string.
   - Commit: `feat(gtfs): add gtfs time and service date helpers`
 
-- [ ] **E001-T06 — GTFS source reading**
+- [x] **E001-T06 — GTFS source reading**
   - `src/static/gtfs-source.ts`: `interface GtfsSource { hasFile(name): boolean; readRows(name): AsyncIterable<Record<string, string>> }`.
   - Implementations: `createZipGtfsSource(bytes: Uint8Array)` (fflate `unzipSync`, strip UTF-8 BOM) and `createDirectoryGtfsSource(dirPath)` (for fixtures and local raw data).
   - CSV parsing with `csv-parse` (`columns: true`, `bom: true`, `skip_empty_lines: true`, `relax_column_count: true`).
