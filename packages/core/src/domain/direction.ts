@@ -12,7 +12,7 @@ export type SelectRoutePatternResult =
  */
 export function selectRoutePattern(
   patterns: RoutePattern[],
-  options: { directionId?: DirectionId; near?: LatLon },
+  options: { directionId?: DirectionId | undefined; near?: LatLon | undefined },
 ): SelectRoutePatternResult {
   if (patterns.length === 0) return { ok: false, reason: "not_found" };
 
