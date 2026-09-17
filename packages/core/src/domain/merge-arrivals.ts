@@ -41,16 +41,26 @@ function matchScheduledRow(
   return best && bestDiff <= SERVICE_DATE_LESS_MATCH_WINDOW_SECONDS ? best : undefined;
 }
 
+export interface ScheduleMergeResult {
+  /** Arrivals for matched predictions (rules 3-4) and unmatched scheduled rows (rule 5). */
+  arrivals: Arrival[];
+  /** Predictions that matched no scheduled row (candidates for rule 6, unwindowed here). */
+  unmatchedPredictions: StopTimePrediction[];
+}
+
 /**
- * Merges scheduled stop times with fresh realtime predictions for one stop (10.9).
- * Pure: the caller has already fetched scheduled rows and predictions for the window.
+ * Matches predictions to scheduled rows and applies 10.9 rules 3-5: a matched normal
+ * prediction becomes a live arrival with `scheduledTime`/`delaySec`; a matched canceled
+ * or skipped prediction becomes a live arrival at the scheduled time; an unmatched
+ * scheduled row becomes a scheduled arrival. Pure, unwindowed and unsorted - callers
+ * that need the full stop-arrivals behavior (rule 6, windowing, sorting) use
+ * `mergeArrivals`; callers that only need rules 3-5 (e.g. a single trip's upcoming
+ * stops) use this directly.
  */
-export function mergeArrivals(
+export function mergeScheduleWithPredictions(
   scheduled: ScheduledStopTime[],
   predictions: StopTimePrediction[],
-  now: EpochSeconds,
-  settings: TransitSettings,
-): Arrival[] {
+): ScheduleMergeResult {
   const scheduledByKey = new Map<string, ScheduledStopTime>();
   for (const row of scheduled) {
     scheduledByKey.set(scheduledKey(row.tripId, row.serviceDate, row.stopId), row);
@@ -58,25 +68,12 @@ export function mergeArrivals(
 
   const matchedScheduledKeys = new Set<string>();
   const arrivals: Arrival[] = [];
+  const unmatchedPredictions: StopTimePrediction[] = [];
 
   for (const prediction of predictions) {
     const matched = matchScheduledRow(prediction, scheduledByKey, scheduled);
     if (!matched) {
-      if (prediction.status === "normal") {
-        arrivals.push({
-          stopId: prediction.stopId,
-          routeId: prediction.routeId,
-          directionId: prediction.directionId,
-          tripId: prediction.tripId,
-          headsign: "",
-          stopSequence: prediction.stopSequence,
-          time: prediction.time,
-          delaySec: prediction.delaySec,
-          source: "live",
-          status: prediction.status,
-          vehicleId: prediction.vehicleId,
-        });
-      }
+      unmatchedPredictions.push(prediction);
       continue;
     }
 
@@ -125,6 +122,38 @@ export function mergeArrivals(
       time: row.time,
       source: "scheduled",
       status: "normal",
+    });
+  }
+
+  return { arrivals, unmatchedPredictions };
+}
+
+/**
+ * Merges scheduled stop times with fresh realtime predictions for one stop (10.9).
+ * Pure: the caller has already fetched scheduled rows and predictions for the window.
+ */
+export function mergeArrivals(
+  scheduled: ScheduledStopTime[],
+  predictions: StopTimePrediction[],
+  now: EpochSeconds,
+  settings: TransitSettings,
+): Arrival[] {
+  const { arrivals, unmatchedPredictions } = mergeScheduleWithPredictions(scheduled, predictions);
+
+  for (const prediction of unmatchedPredictions) {
+    if (prediction.status !== "normal") continue;
+    arrivals.push({
+      stopId: prediction.stopId,
+      routeId: prediction.routeId,
+      directionId: prediction.directionId,
+      tripId: prediction.tripId,
+      headsign: "",
+      stopSequence: prediction.stopSequence,
+      time: prediction.time,
+      delaySec: prediction.delaySec,
+      source: "live",
+      status: prediction.status,
+      vehicleId: prediction.vehicleId,
     });
   }
 

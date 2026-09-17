@@ -882,7 +882,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests: one `describe` per rule in sections 10.6, 10.8–10.10 and 10.12, with in-memory data (no fixtures needed).
   - Commit: `feat(core): add arrival merge, freshness and ranking rules`
 
-- [ ] **E001-T12 — TransitService**
+- [x] **E001-T12 — TransitService**
   - `packages/core/src/transit-service.ts` implementing 7.3 and 10.11–10.15 on top of the ports and domain functions.
   - Realtime snapshots are fetched once per use-case call with `Promise.all` over providers (providers never throw).
   - Tests with fake catalog, fake providers and fake clock covering: nearby with and without stops in radius; stop arrivals mixing live and scheduled; unknown stop → `undefined`; route detail direction selection by `near`; vehicle detail upcoming stops; health degraded when one feed is not ok.

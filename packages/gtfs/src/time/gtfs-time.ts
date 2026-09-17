@@ -1,4 +1,7 @@
+import { addDays, localServiceDate } from "@transit/core";
 import type { EpochSeconds, ServiceDate } from "@transit/core";
+
+export { addDays, localServiceDate };
 
 /** Where a value was read from, for error messages. */
 export interface GtfsParseLocation {
@@ -75,14 +78,6 @@ function zonedEpoch(
   return secondOffset === firstOffset ? adjusted : guess - secondOffset;
 }
 
-function parseServiceDate(serviceDate: ServiceDate): { year: number; month: number; day: number } {
-  return {
-    year: Number(serviceDate.slice(0, 4)),
-    month: Number(serviceDate.slice(4, 6)),
-    day: Number(serviceDate.slice(6, 8)),
-  };
-}
-
 /**
  * GTFS local time → epoch seconds.
  * `epochFor = zonedEpoch(serviceDate at 12:00:00 local) - 12h + secondsAfterMidnight`.
@@ -94,29 +89,9 @@ export function epochFor(
   secondsAfterMidnight: number,
   timezone: string,
 ): EpochSeconds {
-  const { year, month, day } = parseServiceDate(serviceDate);
+  const year = Number(serviceDate.slice(0, 4));
+  const month = Number(serviceDate.slice(4, 6));
+  const day = Number(serviceDate.slice(6, 8));
   const localNoon = zonedEpoch(year, month, day, 12, 0, 0, timezone);
   return localNoon - 12 * 3600 + secondsAfterMidnight;
-}
-
-/** The local calendar date (`YYYYMMDD`) of an epoch in `timezone`. */
-export function localServiceDate(epoch: EpochSeconds, timezone: string): ServiceDate {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date(epoch * 1000));
-  const get = (type: string): string => parts.find((part) => part.type === type)?.value ?? "";
-  return `${get("year")}${get("month")}${get("day")}`;
-}
-
-/** Adds (or subtracts) whole calendar days to a `YYYYMMDD` service date. */
-export function addDays(serviceDate: ServiceDate, days: number): ServiceDate {
-  const { year, month, day } = parseServiceDate(serviceDate);
-  const shifted = new Date(Date.UTC(year, month - 1, day + days));
-  const yyyy = String(shifted.getUTCFullYear()).padStart(4, "0");
-  const mm = String(shifted.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(shifted.getUTCDate()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}`;
 }
