@@ -1,6 +1,14 @@
 import { API_KEY_HEADER, type ApiErrorBody, type HealthResponse } from "@transit/contracts";
+import type { HealthResult } from "@transit/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { GET } from "./route";
+
+const getHealth = vi.fn<() => Promise<HealthResult>>();
+
+vi.mock("@/composition/transit-service", () => ({
+  getTransitService: () => ({ getHealth }),
+}));
+
+const { GET } = await import("./route");
 
 const HEALTH_URL = "https://example.test/api/v1/health";
 
@@ -12,6 +20,7 @@ describe("GET /api/v1/health", () => {
 
   it("returns the health report when the API key is valid", async () => {
     vi.stubEnv("API_KEY", "secret");
+    getHealth.mockResolvedValueOnce({ status: "ok", checkedAt: 1_700_000_000, feeds: [] });
 
     const response = await GET(
       new Request(HEALTH_URL, { headers: { [API_KEY_HEADER]: "secret" } }),
