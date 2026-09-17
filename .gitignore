@@ -28,6 +28,9 @@ apps/mobile/ios/
 # Local GTFS downloads (large, re-downloadable)
 data/
 
+# Generated catalog (built at deploy/build time)
+apps/server/generated/
+
 # OS / editors
 .DS_Store
 *.log

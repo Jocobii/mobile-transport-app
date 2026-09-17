@@ -8,6 +8,10 @@ nodeLinker: hoisted
 
 # Dependencies allowed to run install scripts (pnpm blocks them by default).
 # sharp and unrs-resolver come from the Next.js template (image optimization, ESLint); not needed for an API-only server.
+# esbuild (needed by vitest/tsx) runs its postinstall to fetch the native binary; protobufjs's build
+# script only regenerates code from .proto sources, which this repo never does.
 allowBuilds:
+  esbuild: true
+  protobufjs: false
   sharp: false
   unrs-resolver: false

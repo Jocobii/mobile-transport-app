@@ -12,9 +12,14 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@transit/core": "workspace:*"
+    "@transit/core": "workspace:*",
+    "csv-parse": "^5.6.0",
+    "fflate": "^0.8.2",
+    "gtfs-realtime-bindings": "^1.1.1"
   },
   "devDependencies": {
-    "@transit/config": "workspace:*"
+    "@transit/config": "workspace:*",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.2"
   }
 }

@@ -40,7 +40,15 @@ engineering docs that apply to the code you are touching.
 
 Packages also have their own `AGENTS.md` with local rules.
 
-## 4. Package map and boundaries
+## 4. Epics (planned work)
+
+- Planned work lives in [`docs/epics/`](docs/epics/README.md). Each epic is an implementation-ready plan.
+- Before starting, read the active epic end to end, then execute its tasks **in order**.
+- Implement exactly what the epic specifies (contracts, algorithms, settings, file paths). Do not add scope.
+- Mark each task checkbox and the epic status in `docs/epics/README.md` as you progress.
+- If the epic is ambiguous, contradicts this file, or hits one of its stop conditions: **stop and ask**.
+
+## 5. Package map and boundaries
 
 ```
 apps/mobile ──► @transit/api-client ──► @transit/contracts
@@ -58,7 +66,7 @@ apps/server ──► @transit/core, @transit/gtfs, @transit/contracts
 | `apps/server` | HTTP transport + composition root | Hold domain logic inside route handlers |
 | `apps/mobile` | UI, navigation, i18n, device APIs | Import `core` or `gtfs`; hard-code labels |
 
-## 5. Definition of done
+## 6. Definition of done
 
 - [ ] Matches a decision in the decisions document (or the user explicitly approved it).
 - [ ] Respects package boundaries and the golden rules.
