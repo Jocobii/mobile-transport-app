@@ -239,18 +239,27 @@ interface ResolvedStopTime {
 function resolveStopTimes(rows: RawStopTime[]): ResolvedStopTime[] {
   const resolved = rows.map((row) => ({ ...row }));
 
+  // Two linear passes (instead of scanning outward from each blank row) keep this
+  // O(n) even when many consecutive stop times are blank.
+  const prevKnown: number[] = new Array(resolved.length).fill(-1);
+  let lastKnown = -1;
+  for (let i = 0; i < resolved.length; i++) {
+    if ((resolved[i] as RawStopTime).timeSeconds !== null) lastKnown = i;
+    prevKnown[i] = lastKnown;
+  }
+  const nextKnown: number[] = new Array(resolved.length).fill(resolved.length);
+  let nextSeen = resolved.length;
+  for (let i = resolved.length - 1; i >= 0; i--) {
+    if ((resolved[i] as RawStopTime).timeSeconds !== null) nextSeen = i;
+    nextKnown[i] = nextSeen;
+  }
+
   for (let i = 0; i < resolved.length; i++) {
     const current = resolved[i] as RawStopTime;
     if (current.timeSeconds !== null) continue;
 
-    let p = i - 1;
-    while (p >= 0 && (resolved[p] as RawStopTime).timeSeconds === null) p--;
-    let n = i + 1;
-    while (
-      n < resolved.length &&
-      (resolved[n] as RawStopTime).timeSeconds === null
-    )
-      n++;
+    const p = prevKnown[i] as number;
+    const n = nextKnown[i] as number;
     if (p < 0 || n >= resolved.length) continue;
 
     const prev = resolved[p] as RawStopTime;
