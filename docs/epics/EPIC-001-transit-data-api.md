@@ -838,7 +838,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests: both sources read fixture rows identically; BOM handling.
   - Commit: `feat(gtfs): read gtfs feeds from zip archives and directories`
 
-- [ ] **E001-T07 — Catalog builder**
+- [x] **E001-T07 — Catalog builder**
   - `src/static/build-catalog.ts`: `buildCatalog({ feeds: Array<{ config: FeedConfig; source: GtfsSource }>, outputPath, now: EpochSeconds, settings })`.
   - Implements sections 9 and 10.2–10.5 and the FTS tables; writes to `${outputPath}.tmp` then renames.
   - `catalog_version` = `${ISO build time}|${feedId}=${feed_version or "unknown"},...`.
