@@ -16,3 +16,4 @@ export * from "./catalog/sqlite-catalog-provider";
 export * from "./realtime/trip-lookup";
 export * from "./realtime/normalize-vehicle-positions";
 export * from "./realtime/normalize-trip-updates";
+export * from "./realtime/gtfs-realtime-provider";

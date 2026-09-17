@@ -870,7 +870,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
     - `departure.time` used when `arrival` is absent.
   - Commit: `feat(gtfs): normalize gtfs realtime vehicle positions and trip updates`
 
-- [ ] **E001-T10 — Realtime provider**
+- [x] **E001-T10 — Realtime provider**
   - `src/realtime/gtfs-realtime-provider.ts`: `createGtfsRealtimeProvider({ feed: FeedConfig, catalog, cache, clock, settings, fetchImpl })` implementing 10.8.
   - Tests with a fake fetch and fake clock: cache hit within 20 s; refetch after TTL; single-flight (two concurrent calls → one fetch per URL); partial failure → `ok: false` with the successful part; total failure → empty and `ok: false`; timeout honored.
   - Commit: `feat(gtfs): add cached gtfs realtime provider`
