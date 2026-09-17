@@ -1,17 +1,19 @@
 import type {
-  Agency,
-  Alert,
-  Arrival,
-  Direction,
-  DirectionId,
   EpochSeconds,
-  Freshness,
+  FeedId,
+  FeedStatus,
   LatLon,
   Route,
   RouteId,
-  Shape,
+  RoutePattern,
+  ScheduledStopTime,
+  ServiceDate,
   Stop,
   StopId,
+  StopTimePrediction,
+  StopWithDistance,
+  Trip,
+  TripId,
   Vehicle,
 } from "./model";
 
@@ -30,27 +32,39 @@ export interface ProviderCapabilities {
 
 /** Static data: agencies, routes, stops, shapes and schedules. */
 export interface CatalogProvider {
-  getAgencies(): Promise<Agency[]>;
-  getRoutes(): Promise<Route[]>;
-  getDirections(routeId: RouteId): Promise<Direction[]>;
+  getCatalogVersion(): Promise<string>;
   getStop(stopId: StopId): Promise<Stop | undefined>;
-  findStopsNear(location: LatLon, radiusMeters: number): Promise<Stop[]>;
-  getRouteStops(routeId: RouteId, directionId: DirectionId): Promise<Stop[]>;
-  getShape(routeId: RouteId, directionId: DirectionId): Promise<Shape | undefined>;
-  getScheduledArrivals(stopId: StopId, from: number, to: number): Promise<Arrival[]>;
+  findStopsNear(center: LatLon, radiusMeters: number, limit: number): Promise<StopWithDistance[]>;
+  findNearestStop(center: LatLon, maxDistanceMeters: number): Promise<StopWithDistance | undefined>;
+  searchRoutes(normalizedQuery: string, limit: number): Promise<Route[]>;
+  searchStops(normalizedQuery: string, limit: number): Promise<Stop[]>;
+  getRoute(routeId: RouteId): Promise<Route | undefined>;
+  getRoutesServingStop(stopId: StopId): Promise<Route[]>;
+  getRoutePatterns(routeId: RouteId): Promise<RoutePattern[]>;
+  getTrip(tripId: TripId): Promise<Trip | undefined>;
+  getScheduledStopTimesAtStop(
+    stopId: StopId,
+    from: EpochSeconds,
+    to: EpochSeconds,
+  ): Promise<ScheduledStopTime[]>;
+  getScheduledStopTimesForTrip(
+    tripId: TripId,
+    serviceDate: ServiceDate,
+  ): Promise<ScheduledStopTime[]>;
 }
 
 export interface RealtimeSnapshot {
+  feedId: FeedId;
   vehicles: Vehicle[];
-  arrivals: Arrival[];
-  alerts: Alert[];
-  freshness: Freshness;
+  predictions: StopTimePrediction[];
+  status: FeedStatus;
 }
 
-/** Live data for one agency. */
+/** Live data for one feed. */
 export interface RealtimeProvider {
-  readonly id: string;
+  readonly feedId: FeedId;
   readonly capabilities: ProviderCapabilities;
+  /** Never throws: failures are reported through `status.ok = false` with empty data. */
   getSnapshot(): Promise<RealtimeSnapshot>;
 }
 

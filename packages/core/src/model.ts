@@ -5,7 +5,11 @@
  * these types. Nothing outside the adapters knows where the data came from.
  */
 
-/** Global ids are prefixed with the agency id, e.g. `mvta:436`. Stops use the regional stop_id. */
+export type FeedId = string;
+/** YYYYMMDD in the feed time zone. */
+export type ServiceDate = string;
+
+/** Global ids are prefixed with the feed id, e.g. `mvta:436`. Stops use the regional stop_id. */
 export type AgencyId = string;
 export type RouteId = string;
 export type StopId = string;
@@ -23,13 +27,25 @@ export interface LatLon {
   lon: number;
 }
 
+export interface FeedConfig {
+  id: FeedId;
+  name: string;
+  /** IANA time zone, e.g. "America/Chicago". */
+  timezone: string;
+  staticUrl: string;
+  vehiclePositionsUrl: string;
+  tripUpdatesUrl: string;
+}
+
 export interface Agency {
   id: AgencyId;
+  feedId: FeedId;
   name: string;
 }
 
 export interface Route {
   id: RouteId;
+  feedId: FeedId;
   agencyId: AgencyId;
   /** Can be empty for some routes (e.g. rail lines); search must also use `longName`. */
   shortName: string;
@@ -37,27 +53,73 @@ export interface Route {
   /** Hex color without `#`, when the feed provides one. */
   color?: string;
   textColor?: string;
-}
-
-export interface Direction {
-  routeId: RouteId;
-  directionId: DirectionId;
-  headsign: string;
+  sortOrder?: number;
 }
 
 export interface Stop extends LatLon {
   id: StopId;
-  /** Number printed on the stop sign. */
+  /** Number printed on the stop sign, falls back to `stop_id`. */
   code: string;
   name: string;
-  /** A stop shared by several agencies keeps a single entry. */
-  agencyIds: AgencyId[];
+  /** A stop shared by several agencies keeps a single entry. Replaces `agencyIds`. */
+  feedIds: FeedId[];
 }
 
-export interface Shape {
+export interface StopWithDistance {
+  stop: Stop;
+  distanceMeters: number;
+}
+
+export interface Trip {
+  id: TripId;
+  feedId: FeedId;
   routeId: RouteId;
   directionId: DirectionId;
-  points: LatLon[];
+  headsign: string;
+  patternId: string;
+}
+
+export interface ScheduledStopTime {
+  tripId: TripId;
+  routeId: RouteId;
+  directionId: DirectionId;
+  headsign: string;
+  stopId: StopId;
+  stopSequence: number;
+  serviceDate: ServiceDate;
+  /** Departure time, falls back to arrival time. */
+  time: EpochSeconds;
+}
+
+export interface RoutePattern {
+  /** `${routeId}:${directionId}`. */
+  id: string;
+  routeId: RouteId;
+  directionId: DirectionId;
+  headsign: string;
+  /** Ordered. */
+  stops: Stop[];
+  /** Simplified polyline. */
+  shape: LatLon[];
+}
+
+export type StopTimeStatus = "normal" | "canceled" | "skipped";
+
+/** One normalized GTFS-RT stop time update (future stops only). */
+export interface StopTimePrediction {
+  feedId: FeedId;
+  tripId: TripId;
+  /** From `trip.start_date`, when present. */
+  serviceDate?: ServiceDate;
+  routeId: RouteId;
+  directionId: DirectionId;
+  stopId: StopId;
+  stopSequence?: number;
+  /** For status "normal"; for canceled/skipped, 0 means "use schedule". */
+  time: EpochSeconds;
+  delaySec?: number;
+  status: StopTimeStatus;
+  vehicleId?: VehicleId;
 }
 
 export type OccupancyStatus =
@@ -72,18 +134,22 @@ export type OccupancyStatus =
 
 export interface Vehicle extends LatLon {
   id: VehicleId;
+  feedId: FeedId;
   label?: string;
   routeId: RouteId;
   directionId: DirectionId;
   tripId: TripId;
   bearing?: number;
+  currentStopSequence?: number;
   /** When the position was reported by the vehicle. */
   updatedAt: EpochSeconds;
   occupancy?: OccupancyStatus;
 }
 
+/** @deprecated Use `Arrival["source"]` directly. */
 export type ArrivalSource = "live" | "scheduled";
-export type ArrivalStatus = "normal" | "canceled" | "skipped";
+/** @deprecated Use `StopTimeStatus`. */
+export type ArrivalStatus = StopTimeStatus;
 
 export interface Arrival {
   stopId: StopId;
@@ -91,12 +157,14 @@ export interface Arrival {
   directionId: DirectionId;
   tripId: TripId;
   headsign: string;
+  /** From the matched scheduled row. */
+  stopSequence?: number;
   /** Best known time: prediction when live, schedule otherwise. */
   time: EpochSeconds;
   scheduledTime?: EpochSeconds;
   delaySec?: number;
   source: ArrivalSource;
-  status: ArrivalStatus;
+  status: StopTimeStatus;
   vehicleId?: VehicleId;
 }
 
@@ -110,11 +178,12 @@ export interface Alert {
   activeUntil?: EpochSeconds;
 }
 
-/** Metadata attached to every realtime result. */
-export interface Freshness {
-  providerId: string;
-  /** Timestamp reported by the source feed. */
-  dataTimestamp: EpochSeconds;
-  /** When the server fetched the source. */
-  fetchedAt: EpochSeconds;
+/** Freshness/health of one feed's realtime data. Replaces `Freshness`. */
+export interface FeedStatus {
+  feedId: FeedId;
+  /** Fetched successfully and not stale. */
+  ok: boolean;
+  /** Feed header timestamp. */
+  dataTimestamp?: EpochSeconds;
+  fetchedAt?: EpochSeconds;
 }
