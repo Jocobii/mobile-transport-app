@@ -87,6 +87,8 @@ export interface RouteDetailResult {
 
 export interface RouteVehiclesResult {
   routeId: RouteId;
+  /** The route itself, so callers can resolve each vehicle's route short name and color. */
+  route: Route;
   vehicles: Vehicle[];
   feeds: FeedStatus[];
 }
@@ -280,7 +282,7 @@ export function createTransitService(deps: TransitServiceDeps) {
       )
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
-    return { routeId, vehicles, feeds: combined.feeds };
+    return { routeId, route, vehicles, feeds: combined.feeds };
   }
 
   /** Scheduled stop times for the vehicle's trip on the service date determined by 10.14 rule 2. */

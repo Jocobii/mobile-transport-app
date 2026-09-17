@@ -3,6 +3,9 @@ import type { ApiErrorBody, ApiErrorCode } from "@transit/contracts";
 /** Cache policy for responses that must always be fresh. */
 export const NO_STORE = "no-store";
 
+/** Cache policy for responses that change slowly (catalog-backed data). */
+export const CATALOG_CACHE = "private, max-age=300";
+
 const STATUS_BY_ERROR_CODE: Record<ApiErrorCode, number> = {
   unauthorized: 401,
   invalid_request: 400,

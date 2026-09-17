@@ -897,7 +897,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests: in-memory cache expiry with a fake clock; server config parsing of the new variables.
   - Commit: `feat(server): wire transit service with catalog and realtime providers`
 
-- [ ] **E001-T14 — HTTP helpers and mappers**
+- [x] **E001-T14 — HTTP helpers and mappers**
   - `src/http/params.ts`: `parseLatLon`, `parseRadius`, `parseDirectionId`, `parseSearchQuery`, `parsePathId` returning `{ ok: true, value } | { ok: false, message }`.
   - `src/http/responses.ts`: add `CATALOG_CACHE = "private, max-age=300"`, map `catalog_unavailable` → 503.
   - `src/http/handle-api-request.ts`: shared wrapper that runs config check, auth, catches `CatalogUnavailableError` → 503 and unknown errors → 500.
