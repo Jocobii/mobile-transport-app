@@ -939,11 +939,11 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
 
 ### Phase F — Closing
 
-- [ ] **E001-T17 — End-to-end local verification**
+- [x] **E001-T17 — End-to-end local verification**
   - Run section 15 checks with the real catalog (`catalog:build`, live network) and record results in the change description.
   - Commit: none unless fixes are needed (`fix(<scope>): ...`).
 
-- [ ] **E001-T18 — Documentation**
+- [x] **E001-T18 — Documentation**
   - Update `docs/engineering/architecture.md` (catalog storage, realtime cache, ids), `docs/engineering/server.md` (folder structure, cron route), `docs/epics/README.md` (status `Done`).
   - List in the final summary the decisions this epic introduced (section 3, second table) so the project decisions document can be updated.
   - Commit: `docs(repo): document transit data api architecture`

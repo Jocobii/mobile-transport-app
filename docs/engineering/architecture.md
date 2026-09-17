@@ -30,15 +30,22 @@ AgencyRegistry (server config)         which adapters and URLs each agency uses
 ## Use cases (TransitService)
 
 One method per query the UI needs. Do not add use cases that are not backed by a decided screen or flow.
+Implemented in `packages/core/src/transit-service.ts` (`createTransitService`); see EPIC-001 for the full
+per-use-case algorithm.
 
 | Use case | Screen |
 |---|---|
-| `getNearbyStops(location, radiusMeters)` | Nearby (initial state) |
+| `getNearby(center, radiusMeters)` | Nearby (initial state) |
 | `search(query)` | Search (routes and stops) |
-| `getArrivals(stopId)` | Stop |
-| `getRouteDetail(routeId, directionId)` | Route |
-| `getVehicles(routeId, directionId?)` | Route / Nearby |
+| `getStopArrivals(stopId)` | Stop |
+| `getRouteDetail(routeId, options)` | Route |
+| `getRouteVehicles(routeId, directionId?)` | Route / Nearby |
 | `getVehicleDetail(vehicleId)` | Vehicle |
+| `getHealth()` | Diagnostics / `/api/v1/health` |
+
+`TransitServiceDeps` also takes `feeds: FeedConfig[]` (beyond `catalog`, `realtime`, `clock`, `settings`),
+so the service can resolve each feed's IANA time zone when computing a fallback service date for
+`getVehicleDetail` — see "Ids and service dates" below.
 
 ## Canonical model rules
 
@@ -68,6 +75,51 @@ One method per query the UI needs. Do not add use cases that are not backed by a
 - A `live` arrival replaces the `scheduled` arrival of the same trip at the same stop.
 - If realtime fails or is stale (threshold in configuration), fall back to schedule. Never fail the whole request.
 - Source priority per agency comes from configuration, never from `if (agency === ...)`.
+
+## Catalog storage
+
+- The static catalog (agencies, routes, stops, shapes, calendar, patterns) is a **SQLite file**
+  (`node:sqlite`, read-only at request time), built ahead of time — never inside a request.
+- `apps/server/scripts/build-catalog.ts` builds it from each configured feed (`FEEDS`), either by
+  downloading the static zip or, with `--source=raw`, from the checked-out `data/raw/` fixtures
+  (no network). It writes `apps/server/generated/catalog.sqlite` and logs each feed's row counts and
+  build duration (`buildCatalog()` itself does not log).
+- `apps/server/package.json`'s `build` script runs `catalog:build` before `next build`, so the file
+  exists when Next.js traces the deployment bundle. `next.config.ts` sets
+  `outputFileTracingIncludes: { "/api/**": ["./generated/catalog.sqlite"] }` so the catalog is included
+  in every API route function's bundle (paths there resolve relative to `apps/server`, the Next.js
+  project root in this monorepo).
+- Vercel keeps serving the previous deployment if a build fails (e.g. a feed download fails), so a bad
+  feed never takes the API down.
+- `SqliteCatalogProvider` (`@transit/gtfs`) opens the file once per function instance, read-only, from
+  `CATALOG_PATH` or `path.join(process.cwd(), "generated/catalog.sqlite")` by default (see
+  `apps/server/src/composition/transit-service.ts`).
+- A daily Vercel cron (`vercel.json`, 09:00 UTC) hits `GET /api/cron/rebuild-catalog`, which is
+  authenticated with a bearer `CRON_SECRET` (not `x-api-key`) and simply POSTs to
+  `CATALOG_DEPLOY_HOOK_URL` to trigger a fresh build/deploy — the rebuild itself always happens at
+  build time, never inside a running function.
+
+## Realtime cache
+
+- `InMemoryCache` (`apps/server/src/infrastructure/in-memory-cache.ts`) is a plain `Map` keyed by cache
+  key, storing `{ value, expiresAt }`, driven by the injected `Clock` (never `Date.now()` directly).
+- One cache instance is created in the composition root and shared across every feed's
+  `GtfsRealtimeProvider`, with a `realtimeCacheTtlSeconds: 20` TTL (`TRANSIT_SETTINGS`). Data older than
+  `realtimeStaleAfterSeconds: 120` is treated as stale and the merger falls back to schedule.
+- The cache lives only as long as the function instance (no background workers, no shared state across
+  instances) — see "Serverless constraints" below. Occasional extra downloads on a cold instance are
+  acceptable by design.
+
+## Ids and service dates
+
+- Route, trip and vehicle ids are prefixed with the owning feed id (`FeedConfig.id`), e.g. `mvta:436`.
+  Stop ids are the regional `stop_id` as-is: the same `stop_id` reported by two feeds is one stop
+  (`Stop.feedIds` lists every feed that serves it).
+- `ServiceDate` is `YYYYMMDD` in the feed's own IANA time zone (`FeedConfig.timezone`), computed with
+  `localServiceDate`/`addDays` (`packages/core/src/domain/service-date.ts` — moved there from
+  `@transit/gtfs` because they are generic calendar helpers, not GTFS-specific, and `core` cannot depend
+  on `gtfs`). `getVehicleDetail` uses this to compute a fallback service date per feed when the realtime
+  feed itself does not report one.
 
 ## Serverless constraints (Vercel)
 
