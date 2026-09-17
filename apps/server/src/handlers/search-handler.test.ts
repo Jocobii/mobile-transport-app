@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest";
+import type { SearchResult } from "@transit/core";
+import { createSearchHandler } from "./search-handler";
+import { authedRequest, fakeTransitService, OK_CONFIG, unauthedRequest } from "./test-helpers";
+
+const EMPTY_RESULT: SearchResult = { routes: [], stops: [] };
+
+describe("createSearchHandler", () => {
+  it("returns 200 with a private cache-control header", async () => {
+    const handler = createSearchHandler({
+      getService: () => fakeTransitService({ search: async () => EMPTY_RESULT }),
+      readConfig: () => OK_CONFIG,
+    });
+    const response = await handler(authedRequest("https://x/api/v1/search?q=436"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, max-age=300");
+  });
+
+  it("returns 400 invalid_request when q is missing", async () => {
+    const handler = createSearchHandler({
+      getService: () => fakeTransitService({}),
+      readConfig: () => OK_CONFIG,
+    });
+    const response = await handler(authedRequest("https://x/api/v1/search"));
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 401 unauthorized without an API key", async () => {
+    const handler = createSearchHandler({
+      getService: () => fakeTransitService({}),
+      readConfig: () => OK_CONFIG,
+    });
+    const response = await handler(unauthedRequest("https://x/api/v1/search?q=436"));
+    expect(response.status).toBe(401);
+  });
+});

@@ -5,11 +5,11 @@ import {
 } from "@transit/gtfs";
 import type { RealtimeProvider, TransitService } from "@transit/core";
 import { createTransitService } from "@transit/core";
-import { FEEDS } from "../config/feeds";
-import { readServerConfig } from "../config/server-config";
-import { TRANSIT_SETTINGS } from "../config/transit-settings";
-import { createInMemoryCache } from "../infrastructure/in-memory-cache";
-import { createSystemClock } from "../infrastructure/system-clock";
+import { FEEDS } from "@/config/feeds";
+import { readServerConfig } from "@/config/server-config";
+import { TRANSIT_SETTINGS } from "@/config/transit-settings";
+import { createInMemoryCache } from "@/infrastructure/in-memory-cache";
+import { createSystemClock } from "@/infrastructure/system-clock";
 
 function resolveCatalogPath(): string {
   const configResult = readServerConfig();

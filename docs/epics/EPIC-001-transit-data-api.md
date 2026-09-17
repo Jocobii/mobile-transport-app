@@ -905,7 +905,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Tests for every parser boundary value in section 11 and for each mapper.
   - Commit: `feat(server): add request parsing, error handling and dto mappers`
 
-- [ ] **E001-T15 — Endpoints**
+- [x] **E001-T15 — Endpoints**
   - Route files:
     - `app/api/v1/stops/nearby/route.ts`
     - `app/api/v1/search/route.ts`

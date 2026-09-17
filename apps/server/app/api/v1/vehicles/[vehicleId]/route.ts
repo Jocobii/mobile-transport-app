@@ -1,10 +1,10 @@
 import { getTransitService } from "@/composition/transit-service";
 import { readServerConfig } from "@/config/server-config";
-import { createHealthHandler } from "@/handlers/health-handler";
+import { createVehicleDetailHandler } from "@/handlers/vehicle-detail-handler";
 
 export const runtime = "nodejs";
 
-export const GET = createHealthHandler({
+export const GET = createVehicleDetailHandler({
   getService: getTransitService,
   readConfig: readServerConfig,
 });

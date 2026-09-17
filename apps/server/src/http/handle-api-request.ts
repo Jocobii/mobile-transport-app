@@ -1,5 +1,5 @@
 import { CatalogUnavailableError } from "@transit/gtfs";
-import type { ServerConfigResult } from "../config/server-config";
+import type { ServerConfigResult } from "@/config/server-config";
 import { hasValidApiKey } from "./auth";
 import { errorResponse } from "./responses";
 
