@@ -36,7 +36,12 @@ function parseEpoch(value: unknown): EpochSeconds | undefined {
 
 function canceledPredictions(
   scheduled: ScheduledStopTime[],
-  context: { feedId: FeedId; tripId: TripId; serviceDate: ServiceDate; vehicleId?: string | undefined },
+  context: {
+    feedId: FeedId;
+    tripId: TripId;
+    serviceDate: ServiceDate;
+    vehicleId?: string | undefined;
+  },
 ): StopTimePrediction[] {
   return scheduled.map((stopTime) => ({
     feedId: context.feedId,
