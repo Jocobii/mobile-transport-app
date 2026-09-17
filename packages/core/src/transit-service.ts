@@ -241,7 +241,7 @@ export function createTransitService(deps: TransitServiceDeps) {
 
   async function getRouteDetail(
     routeId: RouteId,
-    options: { directionId?: DirectionId; near?: LatLon },
+    options: { directionId?: DirectionId | undefined; near?: LatLon | undefined },
   ): Promise<RouteDetailResult | undefined> {
     const route = await catalog.getRoute(routeId);
     if (!route) return undefined;

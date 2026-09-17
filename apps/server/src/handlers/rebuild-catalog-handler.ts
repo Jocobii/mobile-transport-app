@@ -26,10 +26,10 @@ export function createRebuildCatalogHandler(deps: RebuildCatalogHandlerDeps) {
     }
 
     const { cronSecret, catalogDeployHookUrl } = configResult.config;
-    const missing: string[] = [];
-    if (!cronSecret) missing.push("CRON_SECRET");
-    if (!catalogDeployHookUrl) missing.push("CATALOG_DEPLOY_HOOK_URL");
-    if (missing.length > 0) {
+    if (!cronSecret || !catalogDeployHookUrl) {
+      const missing: string[] = [];
+      if (!cronSecret) missing.push("CRON_SECRET");
+      if (!catalogDeployHookUrl) missing.push("CATALOG_DEPLOY_HOOK_URL");
       return errorResponse(
         "server_misconfigured",
         `Missing required environment variables: ${missing.join(", ")}`,

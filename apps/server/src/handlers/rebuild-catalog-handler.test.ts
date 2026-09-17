@@ -12,8 +12,9 @@ const OK_CRON_CONFIG: ServerConfigResult = {
 };
 
 function cronRequest(token?: string): Request {
-  const headers = token ? { authorization: `Bearer ${token}` } : undefined;
-  return new Request("https://x/api/cron/rebuild-catalog", { headers });
+  return new Request("https://x/api/cron/rebuild-catalog", {
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+  });
 }
 
 describe("createRebuildCatalogHandler", () => {
