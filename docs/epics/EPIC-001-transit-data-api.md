@@ -861,7 +861,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
 
 ### Phase C — Realtime (`@transit/gtfs`)
 
-- [ ] **E001-T09 — GTFS-RT normalization**
+- [x] **E001-T09 — GTFS-RT normalization**
   - `src/realtime/normalize-vehicle-positions.ts` and `normalize-trip-updates.ts`: pure functions `(feedMessage, { feedId, tripLookup })` implementing 10.7, where `tripLookup` exposes `getTrip` and `getScheduledStopTimesForTrip`.
   - Tests with fixtures:
     - MVTA vehicles: `directionId` resolved from the catalog (the feed has none);

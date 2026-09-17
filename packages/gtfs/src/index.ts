@@ -13,3 +13,6 @@ export * from "./static/download-feed";
 export * from "./static/simplify-shape";
 export * from "./static/build-catalog";
 export * from "./catalog/sqlite-catalog-provider";
+export * from "./realtime/trip-lookup";
+export * from "./realtime/normalize-vehicle-positions";
+export * from "./realtime/normalize-trip-updates";
