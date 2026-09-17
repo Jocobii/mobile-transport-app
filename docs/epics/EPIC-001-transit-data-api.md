@@ -852,7 +852,7 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
     - interpolation of a synthetic blank stop time (small in-test fixture).
   - Commit: `feat(gtfs): build sqlite catalog from gtfs static feeds`
 
-- [ ] **E001-T08 — SQLite catalog provider**
+- [x] **E001-T08 — SQLite catalog provider**
   - `src/catalog/sqlite-catalog-provider.ts`: `createSqliteCatalogProvider({ databasePath })` implementing `CatalogProvider` with `node:sqlite` `DatabaseSync(path, { readOnly: true })` and prepared statements created once.
   - Scheduled queries use the service dates of the local days covering `[from, to]` plus the previous day (for times ≥ 24:00:00), converting with `epochFor`.
   - Throws `CatalogUnavailableError` (exported) when the file is missing or unreadable.

@@ -12,3 +12,4 @@ export * from "./static/gtfs-source";
 export * from "./static/download-feed";
 export * from "./static/simplify-shape";
 export * from "./static/build-catalog";
+export * from "./catalog/sqlite-catalog-provider";
