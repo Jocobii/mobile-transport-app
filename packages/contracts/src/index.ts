@@ -2,6 +2,7 @@
  * Public API contract (v1). The server maps domain objects to these shapes;
  * the mobile app only depends on this package.
  * Endpoints are defined in the project decisions document.
+ * All times are Unix epoch seconds.
  */
 
 export const API_VERSION = "v1";
@@ -14,6 +15,7 @@ export type ApiErrorCode =
   | "unauthorized"
   | "invalid_request"
   | "not_found"
+  | "catalog_unavailable"
   | "server_misconfigured"
   | "internal_error";
 
@@ -24,13 +26,137 @@ export interface ApiErrorBody {
   };
 }
 
-export interface FeedHealth {
-  agencyId: string;
+export interface LatLonDto {
+  lat: number;
+  lon: number;
+}
+
+export interface FeedStatusDto {
+  feedId: string;
   ok: boolean;
   /** Unix epoch seconds reported by the feed. */
   dataTimestamp?: number;
   /** Unix epoch seconds when the server last fetched the feed. */
   fetchedAt?: number;
+}
+
+export interface RouteSummaryDto {
+  id: string;
+  feedId: string;
+  shortName: string;
+  longName: string;
+  color?: string;
+  textColor?: string;
+}
+
+export interface StopSummaryDto extends LatLonDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface ArrivalDto {
+  tripId: string;
+  routeId: string;
+  routeShortName: string;
+  routeColor?: string;
+  directionId: 0 | 1;
+  headsign: string;
+  time: number;
+  scheduledTime?: number;
+  delaySec?: number;
+  source: "live" | "scheduled";
+  status: "normal" | "canceled" | "skipped";
+  vehicleId?: string;
+}
+
+export interface VehicleDto extends LatLonDto {
+  id: string;
+  label?: string;
+  routeId: string;
+  routeShortName: string;
+  directionId: 0 | 1;
+  headsign: string;
+  tripId: string;
+  bearing?: number;
+  updatedAt: number;
+  occupancy?:
+    | "empty"
+    | "many_seats_available"
+    | "few_seats_available"
+    | "standing_room_only"
+    | "crushed_standing_room_only"
+    | "full"
+    | "not_accepting_passengers"
+    | "unknown";
+}
+
+/** GET /api/v1/stops/nearby?lat=&lon=&radius= */
+export interface NearbyStopDto {
+  stop: StopSummaryDto;
+  distanceMeters: number;
+  routes: RouteSummaryDto[];
+  nextArrivals: ArrivalDto[];
+  approachingVehicles: VehicleDto[];
+}
+export interface NearbyStopsResponse {
+  stops: NearbyStopDto[];
+  /** true when no stop was inside the radius and the nearest stop was returned instead. */
+  outsideRadius: boolean;
+  feeds: FeedStatusDto[];
+}
+
+/** GET /api/v1/search?q= */
+export interface SearchResponse {
+  routes: RouteSummaryDto[];
+  stops: StopSummaryDto[];
+}
+
+/** GET /api/v1/stops/{stopId}/arrivals */
+export interface StopArrivalsResponse {
+  stop: StopSummaryDto;
+  routes: RouteSummaryDto[];
+  arrivals: ArrivalDto[];
+  feeds: FeedStatusDto[];
+}
+
+/** GET /api/v1/routes/{routeId}?directionId=&lat=&lon= */
+export interface RouteDirectionDto {
+  directionId: 0 | 1;
+  headsign: string;
+}
+export interface RouteDetailResponse {
+  route: RouteSummaryDto;
+  directions: RouteDirectionDto[];
+  selectedDirectionId: 0 | 1;
+  /** Ordered, selected direction. */
+  stops: StopSummaryDto[];
+  /** Selected direction. */
+  shape: LatLonDto[];
+}
+
+/** GET /api/v1/routes/{routeId}/vehicles?directionId= */
+export interface RouteVehiclesResponse {
+  routeId: string;
+  vehicles: VehicleDto[];
+  feeds: FeedStatusDto[];
+}
+
+/** GET /api/v1/vehicles/{vehicleId} */
+export interface UpcomingStopDto {
+  stop: StopSummaryDto;
+  stopSequence: number;
+  time: number;
+  scheduledTime?: number;
+  delaySec?: number;
+  source: "live" | "scheduled";
+  status: "normal" | "canceled" | "skipped";
+}
+export interface VehicleDetailResponse {
+  vehicle: VehicleDto;
+  route: RouteSummaryDto;
+  upcomingStops: UpcomingStopDto[];
+  feeds: FeedStatusDto[];
 }
 
 /** GET /api/v1/health */
@@ -39,5 +165,5 @@ export interface HealthResponse {
   /** Unix epoch seconds when the response was produced. */
   checkedAt: number;
   catalogVersion?: string;
-  feeds: FeedHealth[];
+  feeds: FeedStatusDto[];
 }

@@ -7,6 +7,7 @@ const STATUS_BY_ERROR_CODE: Record<ApiErrorCode, number> = {
   unauthorized: 401,
   invalid_request: 400,
   not_found: 404,
+  catalog_unavailable: 503,
   server_misconfigured: 500,
   internal_error: 500,
 };

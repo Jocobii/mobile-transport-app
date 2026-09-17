@@ -4,6 +4,12 @@ import {
   type ApiErrorBody,
   type ApiErrorCode,
   type HealthResponse,
+  type NearbyStopsResponse,
+  type RouteDetailResponse,
+  type RouteVehiclesResponse,
+  type SearchResponse,
+  type StopArrivalsResponse,
+  type VehicleDetailResponse,
 } from "@transit/contracts";
 
 export interface ApiClientOptions {
@@ -21,6 +27,16 @@ export class ApiError extends Error {
     super(message);
     this.name = "ApiError";
   }
+}
+
+/** Builds a `?a=1&b=2` query string, omitting undefined values. */
+function buildQuery(params: Record<string, string | number | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined) search.set(key, String(value));
+  }
+  const query = search.toString();
+  return query === "" ? "" : `?${query}`;
 }
 
 export function createApiClient(options: ApiClientOptions) {
@@ -44,6 +60,36 @@ export function createApiClient(options: ApiClientOptions) {
   }
 
   return {
+    getNearbyStops: (params: { lat: number; lon: number; radius?: number }) =>
+      get<NearbyStopsResponse>(`/stops/nearby${buildQuery(params)}`),
+
+    search: (q: string) => get<SearchResponse>(`/search${buildQuery({ q })}`),
+
+    getStopArrivals: (stopId: string) =>
+      get<StopArrivalsResponse>(`/stops/${encodeURIComponent(stopId)}/arrivals`),
+
+    getRouteDetail: (
+      routeId: string,
+      options: { directionId?: 0 | 1; lat?: number; lon?: number } = {},
+    ) =>
+      get<RouteDetailResponse>(
+        `/routes/${encodeURIComponent(routeId)}${buildQuery({
+          directionId: options.directionId,
+          lat: options.lat,
+          lon: options.lon,
+        })}`,
+      ),
+
+    getRouteVehicles: (routeId: string, options: { directionId?: 0 | 1 } = {}) =>
+      get<RouteVehiclesResponse>(
+        `/routes/${encodeURIComponent(routeId)}/vehicles${buildQuery({
+          directionId: options.directionId,
+        })}`,
+      ),
+
+    getVehicleDetail: (vehicleId: string) =>
+      get<VehicleDetailResponse>(`/vehicles/${encodeURIComponent(vehicleId)}`),
+
     getHealth: () => get<HealthResponse>("/health"),
   };
 }

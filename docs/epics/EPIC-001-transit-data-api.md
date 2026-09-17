@@ -807,12 +807,12 @@ Execute in order. Check each box when its acceptance criteria pass. Commit after
   - Acceptance: `pnpm verify` passes; `node -e "require('node:sqlite')"` works on Node 24.
   - Commit: `build(repo): add dependencies for transit data api`
 
-- [ ] **E001-T02 — Core model, ports and settings**
+- [x] **E001-T02 — Core model, ports and settings**
   - Apply sections 7.1, 7.2 and the `TransitSettings` interface (7.3). Update existing usages (`Stop.agencyIds` → `feedIds`, `Freshness` → `FeedStatus`).
   - Acceptance: `pnpm typecheck` passes; no Biome boundary violations.
   - Commit: `feat(core): extend transit model and ports for data api`
 
-- [ ] **E001-T03 — Contracts and API client**
+- [x] **E001-T03 — Contracts and API client**
   - Apply section 8 to `@transit/contracts`.
   - `@transit/api-client`: add `getNearbyStops({ lat, lon, radius? })`, `search(q)`, `getStopArrivals(stopId)`, `getRouteDetail(routeId, { directionId?, lat?, lon? })`, `getRouteVehicles(routeId, { directionId? })`, `getVehicleDetail(vehicleId)`; keep `getHealth()`. Path params encoded with `encodeURIComponent`; omit undefined query params.
   - Tests (`packages/api-client/src/index.test.ts`, fake `fetch`): URL building for every method, `x-api-key` header, error mapping to `ApiError`.
