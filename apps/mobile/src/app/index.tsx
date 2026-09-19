@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TransitMap, type TransitMapHandle } from "@/features/map/TransitMap";
 import { useUserLocation } from "@/features/map/use-user-location";
 import { collectApproachingVehicles } from "@/features/nearby/collect-approaching-vehicles";
+import type { NearbyRouteGroup } from "@/features/nearby/group-nearby-by-route";
 import { NearbyPanel } from "@/features/nearby/NearbyPanel";
 import { useNearby } from "@/features/nearby/use-nearby";
 import { RouteVehiclesPanel } from "@/features/route/RouteVehiclesPanel";
@@ -67,6 +68,7 @@ export default function HomeScreen() {
   const { location, recenter } = useUserLocation();
   const [searchText, setSearchText] = useState("");
   const [snap, setSnap] = useState<SheetSnap>("half");
+  const [highlightedStopId, setHighlightedStopId] = useState<string | undefined>(undefined);
   const mapRef = useRef<TransitMapHandle>(null);
   const fittedRouteId = useRef<string | undefined>(undefined);
 
@@ -102,6 +104,11 @@ export default function HomeScreen() {
     });
     return () => subscription.remove();
   }, [canGoBack, back]);
+
+  // The Nearby row highlight only lives while Nearby is the active panel.
+  useEffect(() => {
+    if (panel.kind !== "nearby") setHighlightedStopId(undefined);
+  }, [panel.kind]);
 
   // Closing the search (back to Nearby) forgets the typed text.
   useEffect(() => {
@@ -142,6 +149,10 @@ export default function HomeScreen() {
 
   const openStop = (id: string) => push({ kind: "stop", stopId: id });
   const openRoute = (route: RouteSummaryDto) => push({ kind: "route", route });
+  const highlightBoardingStop = (group: NearbyRouteGroup) => {
+    setHighlightedStopId(group.stop.id);
+    mapRef.current?.focusOn({ lat: group.stop.lat, lon: group.stop.lon });
+  };
   const focusVehicle = (vehicle: VehicleDto) =>
     mapRef.current?.focusOn({ lat: vehicle.lat, lon: vehicle.lon });
 
@@ -152,7 +163,7 @@ export default function HomeScreen() {
         showsUserLocation={position !== undefined}
         bottomInset={panelHeight}
         stops={mapContent.stops}
-        selectedStopId={stopId}
+        selectedStopId={stopId ?? highlightedStopId}
         vehicles={mapContent.vehicles}
         onStopPress={openStop}
       />
@@ -188,7 +199,8 @@ export default function HomeScreen() {
             isInitialLoading={nearby.isInitialLoading || location.status === "loading"}
             lastSuccessAt={nearby.lastSuccessAt}
             locationUnavailable={location.status === "unavailable"}
-            onStopPress={openStop}
+            highlightedStopId={highlightedStopId}
+            onRoutePress={highlightBoardingStop}
             onRetry={nearby.refetch}
           />
         ) : null}

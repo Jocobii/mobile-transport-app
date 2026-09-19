@@ -26,6 +26,15 @@
     "loading": "Buscando paradas cerca de ti… La primera carga puede tardar unos segundos.",
     "outsideRadius": "No hay paradas a menos de 500 m. Mostrando la más cercana.",
     "empty": "No encontramos paradas cerca de ti.",
+    "emptyRoutes": "No hay salidas en los próximos 90 min cerca de ti.",
+    "subtitle_singleStop_one": "{{count}} ruta · {{stops}} parada a menos de {{distance}}",
+    "subtitle_singleStop_other": "{{count}} rutas · {{stops}} parada a menos de {{distance}}",
+    "subtitle_manyStops_one": "{{count}} ruta · {{stops}} paradas a menos de {{distance}}",
+    "subtitle_manyStops_other": "{{count}} rutas · {{stops}} paradas a menos de {{distance}}",
+    "destination": "→ {{headsign}}",
+    "boardingStop": "{{stop}} · {{distance}}",
+    "then": "luego {{time}}",
+    "rowLabel": "Ruta {{route}} hacia {{headsign}}, se aborda en {{stop}}",
     "locationDenied": "No pudimos obtener tu ubicación. Puedes buscar una ruta o una parada."
   },
   "stop": {
