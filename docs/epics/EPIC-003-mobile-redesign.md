@@ -214,10 +214,10 @@ Execute in order. Mark each checkbox. Commit per task (Conventional Commits, Eng
 - [x] **E003-T01 — Contract and server colors.** §4. Tests first. `pnpm verify`.
 - [x] **E003-T02 — Theme and status system.** §5.1 tokens, §5.2 `formatArrivalStatus` (tests), `StatusChip`,
   `StatusIcon`, `routeColors` (§7.2, tests), `RouteBadge` with official colors. `react-native-svg` via `npx expo install` if needed.
-- [ ] **E003-T03 — Map style and markers.** `map-style.ts`, new `StopMarker` (normal/selected + label),
+- [x] **E003-T03 — Map style and markers.** `map-style.ts`, new `StopMarker` (normal/selected + label),
   new `VehicleMarker` (§6.1), safe-area offsets for overlays.
-- [ ] **E003-T04 — Bottom sheet.** §3 bottom sheet decision; replace `BottomPanel`; three snap points; keep Android back behavior.
-- [ ] **E003-T05 — Route-first Nearby.** `groupNearbyByRoute` (§7.1, tests), `NearbyRouteRow`, header, empty state,
+- [x] **E003-T04 — Bottom sheet.** §3 bottom sheet decision; replace `BottomPanel`; three snap points; keep Android back behavior.
+- [x] **E003-T05 — Route-first Nearby.** `groupNearbyByRoute` (§7.1, tests), `NearbyRouteRow`, header, empty state,
   pull-to-refresh, row ↔ map highlight.
 - [ ] **E003-T06 — Vehicle view.** Panel kinds (reducer tests), `useVehicleDetail` (polled), `segmentToStop` and
   `stopsUntil` (tests), live/scheduled/passed/canceled/gone variants, follow mode, bus marker tap.

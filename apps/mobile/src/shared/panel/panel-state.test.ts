@@ -75,3 +75,51 @@ describe("panelReducer", () => {
     expect(state).toEqual(initialPanelState);
   });
 });
+
+describe("panelReducer vehicle and trip panels", () => {
+  const VEHICLE = {
+    kind: "vehicle",
+    vehicleId: "mvta:v1",
+    stopId: "56939",
+    routeId: "mvta:436",
+    directionId: 1,
+  } as const;
+
+  it("opens the vehicle view over the current panel and goes back to it", () => {
+    const state = run([{ type: "push", panel: VEHICLE }, { type: "back" }]);
+    expect(currentPanel(state)).toEqual({ kind: "nearby" });
+  });
+
+  it("ignores pushing the same vehicle for the same stop again", () => {
+    const once = run([{ type: "push", panel: VEHICLE }]);
+    expect(panelReducer(once, { type: "push", panel: { ...VEHICLE } })).toBe(once);
+  });
+
+  it("pushes the same vehicle when the stop differs", () => {
+    const state = run([
+      { type: "push", panel: VEHICLE },
+      { type: "push", panel: { ...VEHICLE, stopId: "1" } },
+    ]);
+    expect(state.stack).toHaveLength(3);
+  });
+
+  it("treats a trip panel as the same only for the same trip and stop", () => {
+    const arrival = {
+      tripId: "mvta:t1",
+      routeId: "mvta:436",
+      routeShortName: "436",
+      directionId: 1,
+      headsign: "Eagan",
+      time: 1000,
+      source: "scheduled",
+      status: "normal",
+    } as const;
+    const once = run([{ type: "push", panel: { kind: "trip", arrival, stopId: "1" } }]);
+    expect(
+      panelReducer(once, { type: "push", panel: { kind: "trip", arrival, stopId: "1" } }),
+    ).toBe(once);
+    expect(
+      panelReducer(once, { type: "push", panel: { kind: "trip", arrival, stopId: "2" } }).stack,
+    ).toHaveLength(3);
+  });
+});

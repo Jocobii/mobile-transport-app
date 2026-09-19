@@ -1,4 +1,4 @@
-import type { StopArrivalsResponse } from "@transit/contracts";
+import type { ArrivalDto, StopArrivalsResponse } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { FreshnessLabel } from "@/shared/components/FreshnessLabel";
@@ -16,6 +16,7 @@ interface StopPanelProps {
   lastSuccessAt: number | undefined;
   /** Distance is shown only when the user position is known. */
   userPosition: Position | undefined;
+  onArrivalPress: (arrival: ArrivalDto) => void;
   onRetry: () => void;
 }
 
@@ -25,6 +26,7 @@ export function StopPanel({
   isInitialLoading,
   lastSuccessAt,
   userPosition,
+  onArrivalPress,
   onRetry,
 }: StopPanelProps) {
   const { t } = useTranslation();
@@ -46,6 +48,9 @@ export function StopPanel({
               : t("stop.code", { code: data.stop.code })}
           </Text>
           <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
+          {data.arrivals.length > 0 ? (
+            <Text style={styles.hint}>{t("stop.tapHint")}</Text>
+          ) : null}
         </View>
       ) : null}
 
@@ -53,7 +58,8 @@ export function StopPanel({
         <FlatList
           data={data.arrivals}
           keyExtractor={(arrival, index) => `${arrival.tripId}:${index}`}
-          renderItem={({ item }) => <StopArrivalRow arrival={item} now={now} />}
+          renderItem={({ item }) => <StopArrivalRow arrival={item} now={now} onPress={onArrivalPress} />}
+          ItemSeparatorComponent={Separator}
           ListEmptyComponent={<EmptyState title={t("stop.empty")} hint={t("stop.emptyHint")} />}
           contentContainerStyle={styles.list}
         />
@@ -66,7 +72,20 @@ export function StopPanel({
   );
 }
 
+function Separator() {
+  return <View style={styles.separator} />;
+}
+
 const styles = StyleSheet.create({
+  hint: {
+    marginTop: spacing.xs,
+    color: colors.inkSecondary,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  separator: {
+    height: spacing.sm,
+  },
   container: {
     flex: 1,
   },

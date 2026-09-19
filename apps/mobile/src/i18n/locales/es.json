@@ -41,7 +41,8 @@
     "code": "Parada {{code}}",
     "codeWithDistance": "Parada {{code}} · a {{distance}}",
     "empty": "No hay llegadas en los próximos 90 min",
-    "emptyHint": "Puede que el servicio ya haya terminado por hoy."
+    "emptyHint": "Puede que el servicio ya haya terminado por hoy.",
+    "tapHint": "Toca una llegada para ver dónde va el camión"
   },
   "route": {
     "vehicleCount_one": "{{count}} camión en vivo",
@@ -49,6 +50,24 @@
     "towards": "Hacia {{headsign}}",
     "noHeadsign": "Sin destino",
     "empty": "No hay camiones en vivo de esta ruta ahora."
+  },
+  "vehicle": {
+    "destination": "→ {{headsign}}",
+    "arrivesIn": "Llega a tu parada en {{minutes}} min",
+    "arrivesNow": "Llega a tu parada ahora",
+    "stopsLeft_zero": "Es la próxima parada",
+    "stopsLeft_one": "falta {{count}} parada",
+    "stopsLeft_other": "faltan {{count}} paradas",
+    "positionAge": "posición de hace {{seconds}} s",
+    "yourStop": "tu parada",
+    "follow": "Seguir al camión",
+    "following": "Siguiendo al camión",
+    "passed": "El camión ya pasó por tu parada",
+    "canceled": "Tu camión fue cancelado",
+    "skipped": "Este camión no pasará por tu parada",
+    "gone": "Ya no hay ubicación en vivo de este camión",
+    "noLivePosition": "Este viaje todavía no reporta su ubicación.",
+    "seeStopArrivals": "Ver llegadas de la parada"
   },
   "sheet": {
     "handleLabel": "Ajustar la altura del panel"
@@ -61,7 +80,9 @@
     "liveLate": "{{minutes}} min tarde",
     "liveEarly": "Sale {{minutes}} min antes",
     "canceled": "Cancelado",
-    "skipped": "No pasará por esta parada"
+    "skipped": "No pasará por esta parada",
+    "viewLive": "Ver camión en vivo",
+    "viewTrip": "Ver detalle del viaje"
   },
   "freshness": {
     "seconds": "Actualizado hace {{seconds}} s",

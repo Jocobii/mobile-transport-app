@@ -9,6 +9,7 @@ import { BEARING_STEP_DEGREES } from "./map-config";
 
 interface VehicleMarkerProps {
   vehicle: VehicleDto;
+  onPress?: ((vehicle: VehicleDto) => void) | undefined;
 }
 
 const HALO_INSET = 5;
@@ -39,7 +40,7 @@ export function vehicleMarkerKey(vehicle: VehicleDto): string {
  * The parent keys it with `vehicleMarkerKey`, so it remounts when its look changes and
  * `tracksViewChanges` can be turned off after the first render (a Google Maps performance need).
  */
-export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
+export function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
   const bearing = markerBearing(vehicle);
   const palette = routeColors(vehicle.routeColor, vehicle.routeTextColor);
@@ -54,6 +55,7 @@ export function VehicleMarker({ vehicle }: VehicleMarkerProps) {
       coordinate={{ latitude: vehicle.lat, longitude: vehicle.lon }}
       anchor={{ x: 0.5, y: 0.5 }}
       tracksViewChanges={tracksViewChanges}
+      onPress={onPress ? () => onPress(vehicle) : undefined}
     >
       <View style={styles.container}>
         <View style={[styles.halo, { backgroundColor: `${palette.background}${HALO_ALPHA}` }]} />

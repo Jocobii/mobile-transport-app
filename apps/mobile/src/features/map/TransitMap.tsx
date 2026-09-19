@@ -1,7 +1,7 @@
 import type { VehicleDto } from "@transit/contracts";
 import { type Ref, useImperativeHandle, useRef } from "react";
 import { StyleSheet } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Polyline } from "react-native-maps";
 import type { Position } from "@/shared/geo/position";
 import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";
@@ -19,7 +19,16 @@ export interface MapStop {
 /** Camera commands the screen sends to the map. */
 export interface TransitMapHandle {
   focusOn: (position: Position) => void;
+  /** Moves the camera to the position keeping the current zoom (used to follow a vehicle). */
+  panTo: (position: Position) => void;
   fitTo: (positions: Position[]) => void;
+}
+
+/** Route segment drawn on the map (Vehicle view). */
+export interface RouteSegment {
+  coordinates: Position[];
+  /** `#RRGGBB` */
+  color: string;
 }
 
 interface TransitMapProps {
@@ -31,6 +40,11 @@ interface TransitMapProps {
   selectedStopId?: string | undefined;
   vehicles: VehicleDto[];
   onStopPress: (stopId: string) => void;
+  routeSegment?: RouteSegment | undefined;
+  /** Set to make bus markers tappable. */
+  onVehiclePress?: ((vehicle: VehicleDto) => void) | undefined;
+  /** Fires when the user drags the map (stops follow mode). */
+  onUserPan?: (() => void) | undefined;
 }
 
 /** The single map of the app. It is never unmounted. */
@@ -42,6 +56,9 @@ export function TransitMap({
   selectedStopId,
   vehicles,
   onStopPress,
+  routeSegment,
+  onVehiclePress,
+  onUserPan,
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
 
@@ -57,6 +74,12 @@ export function TransitMap({
         400,
       );
     };
+    const panTo = (position: Position) => {
+      mapRef.current?.animateCamera(
+        { center: { latitude: position.lat, longitude: position.lon } },
+        { duration: 400 },
+      );
+    };
     const fitTo = (positions: Position[]) => {
       const [first] = positions;
       if (!first) return;
@@ -69,7 +92,7 @@ export function TransitMap({
         { edgePadding: FIT_PADDING, animated: true },
       );
     };
-    return { focusOn, fitTo };
+    return { focusOn, panTo, fitTo };
   }, []);
 
   return (
@@ -88,7 +111,15 @@ export function TransitMap({
       showsMyLocationButton={false}
       toolbarEnabled={false}
       customMapStyle={MAP_STYLE}
+      onPanDrag={onUserPan}
     >
+      {routeSegment && routeSegment.coordinates.length > 1 ? (
+        <Polyline
+          coordinates={routeSegment.coordinates.map((p) => ({ latitude: p.lat, longitude: p.lon }))}
+          strokeColor={routeSegment.color}
+          strokeWidth={6}
+        />
+      ) : null}
       {stops.map((stop) => (
         <StopMarker
           key={`${stop.id}:${stop.id === selectedStopId}`}
@@ -101,7 +132,7 @@ export function TransitMap({
         />
       ))}
       {vehicles.map((vehicle) => (
-        <VehicleMarker key={vehicleMarkerKey(vehicle)} vehicle={vehicle} />
+        <VehicleMarker key={vehicleMarkerKey(vehicle)} vehicle={vehicle} onPress={onVehiclePress} />
       ))}
     </MapView>
   );

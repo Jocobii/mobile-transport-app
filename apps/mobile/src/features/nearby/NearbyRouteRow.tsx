@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ChevronIcon } from "@/shared/components/ChevronIcon";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
@@ -35,7 +36,11 @@ export function NearbyRouteRow({ group, now, highlighted, onPress }: NearbyRoute
         headsign: group.headsign,
         stop: group.stop.name,
       })}
-      style={[styles.row, highlighted && styles.highlighted]}
+      style={({ pressed }) => [
+        styles.row,
+        highlighted && styles.highlighted,
+        pressed && styles.pressed,
+      ]}
     >
       <RouteBadge
         label={group.routeShortName}
@@ -70,6 +75,9 @@ export function NearbyRouteRow({ group, now, highlighted, onPress }: NearbyRoute
           </Text>
         ) : null}
       </View>
+      <View style={styles.chevron}>
+        <ChevronIcon />
+      </View>
     </Pressable>
   );
 }
@@ -84,6 +92,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
+  },
+  pressed: {
+    backgroundColor: colors.map,
+  },
+  chevron: {
+    alignSelf: "center",
   },
   highlighted: {
     borderColor: colors.ink,
