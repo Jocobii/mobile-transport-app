@@ -1,11 +1,11 @@
 import type { ArrivalDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
-import { LiveIcon } from "@/shared/components/LiveIcon";
 import { RouteBadge } from "@/shared/components/RouteBadge";
+import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { formatArrivalTime } from "@/shared/format/arrival-time";
-import { colors, fontSizes, monospaceFont, spacing } from "@/shared/theme";
+import { colors, fontSizes, monospaceFont, spacing, statusTimeColors } from "@/shared/theme";
 
 interface StopArrivalRowProps {
   arrival: ArrivalDto;
@@ -24,20 +24,27 @@ export function StopArrivalRow({ arrival, now }: StopArrivalRowProps) {
   return (
     <View style={styles.row}>
       <View style={styles.time}>
-        <Text style={[styles.primary, time.struck && styles.struck]}>{time.primary}</Text>
+        <Text
+          style={[
+            styles.primary,
+            { color: statusTimeColors[status.status] },
+            time.struck && styles.struck,
+          ]}
+        >
+          {time.primary}
+        </Text>
         {time.unit ? <Text style={styles.unit}>{time.unit}</Text> : null}
       </View>
-      <RouteBadge label={arrival.routeShortName} />
+      <RouteBadge
+        label={arrival.routeShortName}
+        color={arrival.routeColor}
+        textColor={arrival.routeTextColor}
+      />
       <View style={styles.details}>
-        <Text style={styles.headsign} numberOfLines={1}>
+        <Text style={styles.headsign} numberOfLines={2}>
           {arrival.headsign}
         </Text>
-        <View style={styles.statusLine}>
-          {status.tone === "live" ? <LiveIcon /> : null}
-          <Text style={[styles.status, toneStyles[status.tone]]} numberOfLines={1}>
-            {t(status.key, status.params)}
-          </Text>
-        </View>
+        <StatusChip status={status.status} label={t(status.key, status.params)} />
       </View>
     </View>
   );
@@ -54,7 +61,6 @@ const styles = StyleSheet.create({
     width: 72,
   },
   primary: {
-    color: colors.ink,
     fontFamily: monospaceFont,
     fontSize: fontSizes.bigTime,
     fontWeight: "700",
@@ -76,18 +82,4 @@ const styles = StyleSheet.create({
     color: colors.inkSecondary,
     fontSize: fontSizes.body,
   },
-  statusLine: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  status: {
-    fontSize: 13,
-  },
-});
-
-const toneStyles = StyleSheet.create({
-  live: { color: colors.live },
-  scheduled: { color: colors.muted },
-  problem: { color: colors.problem },
 });

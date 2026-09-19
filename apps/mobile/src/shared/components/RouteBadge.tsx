@@ -1,14 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
-import { colors, fontSizes, monospaceFont, radii, spacing } from "@/shared/theme";
+import { routeColors } from "@/shared/format/route-colors";
+import { fontSizes, monospaceFont, radii, spacing } from "@/shared/theme";
 
 interface RouteBadgeProps {
   label: string;
+  /** Official GTFS colors (`#RRGGBB`); missing values use the fallback. */
+  color?: string | undefined;
+  textColor?: string | undefined;
 }
 
-export function RouteBadge({ label }: RouteBadgeProps) {
+export function RouteBadge({ label, color, textColor }: RouteBadgeProps) {
+  const palette = routeColors(color, textColor);
   return (
-    <View style={styles.badge}>
-      <Text style={styles.text} numberOfLines={1}>
+    <View style={[styles.badge, { backgroundColor: palette.background }]}>
+      <Text style={[styles.text, { color: palette.text }]} numberOfLines={1}>
         {label}
       </Text>
     </View>
@@ -21,11 +26,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: radii.badge,
-    backgroundColor: colors.ink,
     alignItems: "center",
   },
   text: {
-    color: colors.surface,
     fontFamily: monospaceFont,
     fontSize: fontSizes.body,
     fontWeight: "700",

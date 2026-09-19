@@ -9,10 +9,15 @@ before using any Expo or React Native API.
 
 ```
 src/app/            Expo Router screens (thin: compose hooks + components)
-src/features/<x>/   feature folders: nearby, stop, route, search, map
-    components/     presentational components (props in, UI out, no data fetching)
-    hooks/          data hooks (use @transit/api-client), view-model logic
-src/shared/         cross-feature UI components, formatting, theme tokens
+src/features/<x>/   feature folders: nearby, stop, route, search, map (panel components, data hooks and
+                    pure view-model logic with their tests live side by side, flat inside the folder)
+src/shared/         cross-feature code:
+    components/     shared UI (RouteBadge, BottomPanel, SearchBar, ...)
+    format/         pure formatting (arrival status/time, distance, freshness)
+    geo/            position helpers
+    panel/          panel state machine (reducer + hook); the map never unmounts
+    polling/        poll controller + use-polled-query (20 s, paused in background)
+    theme.ts        design tokens
 src/i18n/           i18n setup and locale files (es first, en later)
 src/api/            api client instance and configuration
 ```

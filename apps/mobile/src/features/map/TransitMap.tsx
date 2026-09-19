@@ -1,14 +1,17 @@
 import type { VehicleDto } from "@transit/contracts";
 import { type Ref, useImperativeHandle, useRef } from "react";
 import { StyleSheet } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import type { Position } from "@/shared/geo/position";
 import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";
-import { markerBearing, VehicleMarker } from "./VehicleMarker";
+import { MAP_STYLE } from "./map-style";
+import { StopMarker } from "./StopMarker";
+import { VehicleMarker, vehicleMarkerKey } from "./VehicleMarker";
 
 export interface MapStop {
   id: string;
+  name: string;
   lat: number;
   lon: number;
 }
@@ -84,21 +87,21 @@ export function TransitMap({
       showsUserLocation={showsUserLocation}
       showsMyLocationButton={false}
       toolbarEnabled={false}
+      customMapStyle={MAP_STYLE}
     >
       {stops.map((stop) => (
-        <Marker
-          key={stop.id}
-          coordinate={{ latitude: stop.lat, longitude: stop.lon }}
-          pinColor={stop.id === selectedStopId ? colors.highlight : colors.ink}
-          zIndex={stop.id === selectedStopId ? 1 : 0}
-          onPress={() => onStopPress(stop.id)}
+        <StopMarker
+          key={`${stop.id}:${stop.id === selectedStopId}`}
+          id={stop.id}
+          name={stop.name}
+          lat={stop.lat}
+          lon={stop.lon}
+          selected={stop.id === selectedStopId}
+          onPress={onStopPress}
         />
       ))}
       {vehicles.map((vehicle) => (
-        <VehicleMarker
-          key={`${vehicle.id}:${vehicle.routeShortName}:${markerBearing(vehicle) ?? "none"}`}
-          vehicle={vehicle}
-        />
+        <VehicleMarker key={vehicleMarkerKey(vehicle)} vehicle={vehicle} />
       ))}
     </MapView>
   );

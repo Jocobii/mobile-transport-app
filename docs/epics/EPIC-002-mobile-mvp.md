@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Depends on | EPIC-001 (Done): `/api/v1` deployed at `https://mobile-transport-app.vercel.app`, `@transit/api-client`, `@transit/contracts` |
 | Related decisions | Project decisions document: "Flujo propuesto", "EPIC-002 — App móvil", UX principles; wireframes canvas "Wireframes EPIC-002" |
 | Read first | `AGENTS.md`, `docs/engineering/mobile.md`, `architecture.md`, `principles.md`, `typescript.md`, `testing.md`, `workflow.md`, `apps/mobile/AGENTS.md` |
@@ -248,7 +248,7 @@ Execute in order. Mark each checkbox when done. Commit per task (Conventional Co
 - [x] **E002-T09 — Route vehicles panel.** §6.4.
 - [x] **E002-T10 — Back behavior and polish.** Android back per §3, accessibility labels on icon buttons,
   touch targets ≥ 44 dp, no Spanish outside `es.json`.
-- [ ] **E002-T11 — Closing.** `pnpm verify`; update `docs/engineering/mobile.md` if the structure changed;
+- [x] **E002-T11 — Closing.** `pnpm verify`; update `docs/engineering/mobile.md` if the structure changed;
   set this epic and the index to `Done`; list decisions introduced during implementation for the decisions document.
 
 ---

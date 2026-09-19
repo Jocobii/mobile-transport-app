@@ -3,8 +3,14 @@ import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { formatArrivalTime } from "@/shared/format/arrival-time";
-import { colors, fontSizes, monospaceFont, spacing } from "@/shared/theme";
-import { LiveIcon } from "./LiveIcon";
+import {
+  colors,
+  fontSizes,
+  monospaceFont,
+  spacing,
+  statusColors,
+  statusTimeColors,
+} from "@/shared/theme";
 import { RouteBadge } from "./RouteBadge";
 
 interface ArrivalRowProps {
@@ -20,11 +26,15 @@ export function ArrivalRow({ arrival, now }: ArrivalRowProps) {
     minutesUnit: t("arrival.minutes"),
   });
   const status = formatArrivalStatus(arrival);
-  const isProblem = status.tone === "problem";
+  const isProblem = status.status === "problem";
 
   return (
     <View style={styles.row}>
-      <RouteBadge label={arrival.routeShortName} />
+      <RouteBadge
+        label={arrival.routeShortName}
+        color={arrival.routeColor}
+        textColor={arrival.routeTextColor}
+      />
       <View style={styles.details}>
         <Text style={styles.headsign} numberOfLines={1}>
           {arrival.headsign}
@@ -35,8 +45,13 @@ export function ArrivalRow({ arrival, now }: ArrivalRowProps) {
           </Text>
         ) : null}
       </View>
-      {status.tone === "live" ? <LiveIcon /> : null}
-      <Text style={[styles.time, time.struck && styles.struck]}>
+      <Text
+        style={[
+          styles.time,
+          { color: statusTimeColors[status.status] },
+          time.struck && styles.struck,
+        ]}
+      >
         {`${time.primary} ${time.unit}`.trim()}
       </Text>
     </View>
@@ -58,13 +73,12 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.body,
   },
   problem: {
-    color: colors.problem,
+    color: statusColors.problem.fg,
     fontSize: 13,
   },
   time: {
     minWidth: 64,
     textAlign: "right",
-    color: colors.ink,
     fontFamily: monospaceFont,
     fontSize: fontSizes.body,
     fontWeight: "700",

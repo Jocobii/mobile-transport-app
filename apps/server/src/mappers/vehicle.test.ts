@@ -8,6 +8,8 @@ const ROUTE: Route = {
   agencyId: "mvta",
   shortName: "436",
   longName: "46th St Station-MSP-Viking Lakes-Eagan",
+  color: "771473",
+  textColor: "ffffff",
 };
 
 const VEHICLE: Vehicle = {
@@ -33,6 +35,8 @@ describe("mapVehicle", () => {
       label: "101",
       routeId: "mvta:436",
       routeShortName: "436",
+      routeColor: "#771473",
+      routeTextColor: "#FFFFFF",
       directionId: 1,
       headsign: "Eagan Transit Station",
       tripId: "mvta:t1",
@@ -42,5 +46,11 @@ describe("mapVehicle", () => {
       lat: 44.9,
       lon: -93.2,
     });
+  });
+
+  it("leaves route colors undefined when the route has none", () => {
+    const dto = mapVehicle(VEHICLE, { ...ROUTE, color: undefined, textColor: undefined });
+    expect(dto.routeColor).toBeUndefined();
+    expect(dto.routeTextColor).toBeUndefined();
   });
 });

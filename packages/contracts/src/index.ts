@@ -45,7 +45,9 @@ export interface RouteSummaryDto {
   feedId: string;
   shortName: string;
   longName: string;
+  /** `#RRGGBB`, uppercase, or undefined. */
   color?: string | undefined;
+  /** `#RRGGBB`, uppercase, or undefined. */
   textColor?: string | undefined;
 }
 
@@ -59,7 +61,10 @@ export interface ArrivalDto {
   tripId: string;
   routeId: string;
   routeShortName: string;
+  /** `#RRGGBB`, uppercase, or undefined. */
   routeColor?: string | undefined;
+  /** `#RRGGBB`, uppercase, or undefined. */
+  routeTextColor?: string | undefined;
   directionId: 0 | 1;
   headsign: string;
   time: number;
@@ -75,6 +80,10 @@ export interface VehicleDto extends LatLonDto {
   label?: string | undefined;
   routeId: string;
   routeShortName: string;
+  /** `#RRGGBB`, uppercase, or undefined. */
+  routeColor?: string | undefined;
+  /** `#RRGGBB`, uppercase, or undefined. */
+  routeTextColor?: string | undefined;
   directionId: 0 | 1;
   headsign: string;
   tripId: string;

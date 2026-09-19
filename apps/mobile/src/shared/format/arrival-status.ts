@@ -1,4 +1,5 @@
 import type { ArrivalDto } from "@transit/contracts";
+import type { ArrivalStatusTone } from "@/shared/theme";
 
 export type ArrivalStatusInput = Pick<ArrivalDto, "source" | "status" | "delaySec">;
 
@@ -13,30 +14,34 @@ export type ArrivalStatusKey =
 export interface ArrivalStatusLabel {
   key: ArrivalStatusKey;
   params?: { minutes: number };
-  tone: "live" | "scheduled" | "problem";
+  status: ArrivalStatusTone;
 }
 
 const SECONDS_PER_MINUTE = 60;
+/** On time when `-60 < delaySec < 120`: late from 2 min, early from 1 min before. */
+const LATE_THRESHOLD_SEC = 120;
+const EARLY_THRESHOLD_SEC = -60;
 
 export function formatArrivalStatus(arrival: ArrivalStatusInput): ArrivalStatusLabel {
-  if (arrival.status === "canceled") return { key: "arrival.canceled", tone: "problem" };
-  if (arrival.status === "skipped") return { key: "arrival.skipped", tone: "problem" };
-  if (arrival.source === "scheduled") return { key: "arrival.scheduled", tone: "scheduled" };
+  if (arrival.status === "canceled") return { key: "arrival.canceled", status: "problem" };
+  if (arrival.status === "skipped") return { key: "arrival.skipped", status: "problem" };
+  if (arrival.source === "scheduled") return { key: "arrival.scheduled", status: "neutral" };
 
-  const delaySec = arrival.delaySec ?? 0;
-  if (delaySec >= SECONDS_PER_MINUTE) {
+  const delaySec = arrival.delaySec;
+  if (delaySec === undefined) return { key: "arrival.liveOnTime", status: "ok" };
+  if (delaySec >= LATE_THRESHOLD_SEC) {
     return {
       key: "arrival.liveLate",
       params: { minutes: Math.round(delaySec / SECONDS_PER_MINUTE) },
-      tone: "live",
+      status: "attention",
     };
   }
-  if (delaySec <= -SECONDS_PER_MINUTE) {
+  if (delaySec <= EARLY_THRESHOLD_SEC) {
     return {
       key: "arrival.liveEarly",
-      params: { minutes: Math.round(-delaySec / SECONDS_PER_MINUTE) },
-      tone: "live",
+      params: { minutes: Math.max(1, Math.round(-delaySec / SECONDS_PER_MINUTE)) },
+      status: "attention",
     };
   }
-  return { key: "arrival.liveOnTime", tone: "live" };
+  return { key: "arrival.liveOnTime", status: "ok" };
 }

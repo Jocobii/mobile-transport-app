@@ -1,5 +1,6 @@
 import type { RouteSummaryDto } from "@transit/contracts";
 import type { Route } from "@transit/core";
+import { normalizeHexColor } from "./color";
 
 export function mapRoute(route: Route): RouteSummaryDto {
   return {
@@ -7,8 +8,8 @@ export function mapRoute(route: Route): RouteSummaryDto {
     feedId: route.feedId,
     shortName: route.shortName,
     longName: route.longName,
-    color: route.color,
-    textColor: route.textColor,
+    color: normalizeHexColor(route.color),
+    textColor: normalizeHexColor(route.textColor),
   };
 }
 

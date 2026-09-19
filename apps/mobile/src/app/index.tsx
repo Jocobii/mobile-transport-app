@@ -20,14 +20,16 @@ import { useSearch } from "@/features/search/use-search";
 import { StopPanel } from "@/features/stop/StopPanel";
 import { useStopArrivals } from "@/features/stop/use-stop-arrivals";
 import { BackButton } from "@/shared/components/BackButton";
-import { BottomPanel } from "@/shared/components/BottomPanel";
+import { BottomSheet } from "@/shared/components/BottomSheet";
 import { SEARCH_BAR_HEIGHT, SearchBar } from "@/shared/components/SearchBar";
 import { SearchInput } from "@/shared/components/SearchInput";
 import type { Panel } from "@/shared/panel/panel-state";
+import type { SheetSnap } from "@/shared/panel/sheet-snap";
 import { usePanelState } from "@/shared/panel/use-panel-state";
 import { colors, spacing } from "@/shared/theme";
 
-const PANEL_HEIGHT_RATIO = 0.45;
+const SHEET_COLLAPSED_HEIGHT = 120;
+const SHEET_HALF_RATIO = 0.5;
 
 interface MapContent {
   stops: StopSummaryDto[];
@@ -64,6 +66,7 @@ export default function HomeScreen() {
   const { panel, canGoBack, push, back } = usePanelState();
   const { location, recenter } = useUserLocation();
   const [searchText, setSearchText] = useState("");
+  const [snap, setSnap] = useState<SheetSnap>("half");
   const mapRef = useRef<TransitMapHandle>(null);
   const fittedRouteId = useRef<string | undefined>(undefined);
 
@@ -77,11 +80,18 @@ export default function HomeScreen() {
   const search = useSearch(searchText);
 
   const topOffset = insets.top + spacing.md;
-  const defaultPanelHeight = Math.round(height * PANEL_HEIGHT_RATIO);
-  const panelHeight =
-    panel.kind === "search"
-      ? height - (topOffset + SEARCH_BAR_HEIGHT + spacing.sm)
-      : defaultPanelHeight;
+  const sheetHeights: Record<SheetSnap, number> = {
+    collapsed: SHEET_COLLAPSED_HEIGHT,
+    half: Math.round(height * SHEET_HALF_RATIO),
+    full: height - (topOffset + SEARCH_BAR_HEIGHT + spacing.sm),
+  };
+  // The map and the recenter button never follow the sheet past its half height.
+  const panelHeight = Math.min(sheetHeights[snap], sheetHeights.half);
+
+  // A new panel opens at half height; search opens full so the results fit.
+  useEffect(() => {
+    setSnap(panel.kind === "search" ? "full" : "half");
+  }, [panel.kind]);
 
   // Android back walks the panel stack and exits only from Nearby.
   useEffect(() => {
@@ -170,7 +180,7 @@ export default function HomeScreen() {
         </Pressable>
       ) : null}
 
-      <BottomPanel height={panelHeight}>
+      <BottomSheet snap={snap} heights={sheetHeights} onSnapChange={setSnap}>
         {panel.kind === "nearby" ? (
           <NearbyPanel
             data={nearby.data}
@@ -215,7 +225,7 @@ export default function HomeScreen() {
             onRetry={routeVehicles.refetch}
           />
         ) : null}
-      </BottomPanel>
+      </BottomSheet>
     </View>
   );
 }

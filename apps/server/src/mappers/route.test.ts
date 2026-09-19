@@ -20,9 +20,15 @@ describe("mapRoute", () => {
       feedId: "mvta",
       shortName: "436",
       longName: "46th St Station-MSP-Viking Lakes-Eagan",
-      color: "0033A0",
-      textColor: "FFFFFF",
+      color: "#0033A0",
+      textColor: "#FFFFFF",
     });
+  });
+
+  it("omits colors that are missing or invalid", () => {
+    const { color, textColor } = mapRoute({ ...ROUTE, color: "zz", textColor: undefined });
+    expect(color).toBeUndefined();
+    expect(textColor).toBeUndefined();
   });
 });
 

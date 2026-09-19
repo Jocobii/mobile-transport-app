@@ -8,7 +8,8 @@ const ROUTE: Route = {
   agencyId: "metrotransit",
   shortName: "54",
   longName: "MSP - St Paul",
-  color: "0033A0",
+  color: "0033a0",
+  textColor: "FFFFFF",
 };
 
 const ARRIVAL: Arrival = {
@@ -32,7 +33,8 @@ describe("mapArrival", () => {
       tripId: "metrotransit:t1",
       routeId: "metrotransit:54",
       routeShortName: "54",
-      routeColor: "0033A0",
+      routeColor: "#0033A0",
+      routeTextColor: "#FFFFFF",
       directionId: 0,
       headsign: "Downtown",
       time: 1000,
@@ -42,5 +44,11 @@ describe("mapArrival", () => {
       status: "normal",
       vehicleId: "metrotransit:v1",
     });
+  });
+
+  it("leaves route colors undefined when the route has none", () => {
+    const dto = mapArrival(ARRIVAL, { ...ROUTE, color: undefined, textColor: undefined });
+    expect(dto.routeColor).toBeUndefined();
+    expect(dto.routeTextColor).toBeUndefined();
   });
 });

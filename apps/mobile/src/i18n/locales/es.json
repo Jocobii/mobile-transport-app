@@ -41,16 +41,18 @@
     "noHeadsign": "Sin destino",
     "empty": "No hay camiones en vivo de esta ruta ahora."
   },
+  "sheet": {
+    "handleLabel": "Ajustar la altura del panel"
+  },
   "arrival": {
     "now": "Ahora",
     "minutes": "min",
     "scheduled": "Programado",
     "liveOnTime": "En vivo · a tiempo",
-    "liveLate": "En vivo · {{minutes}} min tarde",
-    "liveEarly": "En vivo · {{minutes}} min antes",
+    "liveLate": "{{minutes}} min tarde",
+    "liveEarly": "Sale {{minutes}} min antes",
     "canceled": "Cancelado",
-    "skipped": "No pasará por esta parada",
-    "liveIconLabel": "En vivo"
+    "skipped": "No pasará por esta parada"
   },
   "freshness": {
     "seconds": "Actualizado hace {{seconds}} s",
