@@ -31,6 +31,7 @@ const SETTINGS: TransitSettings = {
   areaStopsMaxResults: 250,
   areaVehiclesMaxSpanDegrees: 0.3,
   areaVehiclesMaxResults: 150,
+  routeFilterMaxRoutes: 8,
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,
   pastArrivalGraceSeconds: 60,
@@ -109,6 +110,8 @@ interface FakeCatalogOptions {
   stopsInBounds?: { stops: Stop[]; truncated: boolean };
   /** Records every routeId `getRoute` was called with, to check it is called once per distinct id. */
   getRouteCalls?: RouteId[];
+  /** Records every stop query with the route restriction it received (EPIC-007). */
+  stopQueries?: Array<{ kind: "near" | "nearest" | "bounds"; routeIds: RouteId[] | undefined }>;
 }
 
 function fakeCatalog(options: FakeCatalogOptions = {}): CatalogProvider {
@@ -118,18 +121,26 @@ function fakeCatalog(options: FakeCatalogOptions = {}): CatalogProvider {
       return options.catalogVersion;
     },
     getStop: async () => options.stop,
-    findStopsNear: async (_center, radiusMeters) =>
-      typeof options.stopsNear === "function"
+    findStopsNear: async (_center, radiusMeters, _limit, queryOptions) => {
+      options.stopQueries?.push({ kind: "near", routeIds: queryOptions?.routeIds });
+      return typeof options.stopsNear === "function"
         ? options.stopsNear(radiusMeters)
-        : (options.stopsNear ?? []),
-    findNearestStop: async () => options.nearestStop,
+        : (options.stopsNear ?? []);
+    },
+    findNearestStop: async (_center, _maxDistance, queryOptions) => {
+      options.stopQueries?.push({ kind: "nearest", routeIds: queryOptions?.routeIds });
+      return options.nearestStop;
+    },
     searchRoutes: async () => [],
     searchStops: async () => [],
     getRoute: async (routeId) => {
       options.getRouteCalls?.push(routeId);
       return options.route;
     },
-    findStopsInBounds: async () => options.stopsInBounds ?? { stops: [], truncated: false },
+    findStopsInBounds: async (_bounds, _limit, queryOptions) => {
+      options.stopQueries?.push({ kind: "bounds", routeIds: queryOptions?.routeIds });
+      return options.stopsInBounds ?? { stops: [], truncated: false };
+    },
     getRoutesServingStop: async () => options.routesServingStop ?? [],
     getRoutePatterns: async () => options.patterns ?? [],
     getTrip: async () => options.trip,
@@ -843,5 +854,136 @@ describe("getHealth (10.15)", () => {
     });
 
     expect((await service.getHealth()).status).toBe("ok");
+  });
+});
+
+describe("route filter on stop queries (EPIC-007)", () => {
+  const ROUTE_436: Route = {
+    id: "mvta:436",
+    feedId: "mvta",
+    agencyId: "mvta",
+    shortName: "436",
+    longName: "46th St Station - Eagan",
+  };
+
+  function scheduledFor(routeId: RouteId, times: number[]): ScheduledStopTime[] {
+    return times.map((time, index) => ({
+      tripId: `${routeId}:t${index}`,
+      routeId,
+      directionId: 0,
+      headsign: "Downtown",
+      stopId: STOP.id,
+      stopSequence: 1,
+      serviceDate: "20260916",
+      time,
+    }));
+  }
+
+  function serviceWith(catalogOptions: FakeCatalogOptions) {
+    return createTransitService({
+      catalog: fakeCatalog(catalogOptions),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+  }
+
+  const CENTER = { lat: STOP.lat, lon: STOP.lon };
+
+  it("restricts every adaptive step and the nearest-stop fallback to the chosen routes", async () => {
+    const stopQueries: FakeCatalogOptions["stopQueries"] = [];
+    const service = serviceWith({ stopsNear: [], nearestStop: undefined, stopQueries });
+
+    await service.getNearby(CENTER, undefined, ["mvta:436"]);
+
+    expect(stopQueries).toEqual([
+      { kind: "near", routeIds: ["mvta:436"] },
+      { kind: "near", routeIds: ["mvta:436"] },
+      { kind: "near", routeIds: ["mvta:436"] },
+      { kind: "nearest", routeIds: ["mvta:436"] },
+    ]);
+  });
+
+  it("restricts an explicit radius search and its fallback too", async () => {
+    const stopQueries: FakeCatalogOptions["stopQueries"] = [];
+    const service = serviceWith({ stopsNear: [], stopQueries });
+
+    await service.getNearby(CENTER, 500, ["mvta:436"]);
+
+    expect(stopQueries).toEqual([
+      { kind: "near", routeIds: ["mvta:436"] },
+      { kind: "nearest", routeIds: ["mvta:436"] },
+    ]);
+  });
+
+  it("applies no restriction when routeIds is missing or empty", async () => {
+    const stopQueries: FakeCatalogOptions["stopQueries"] = [];
+    const service = serviceWith({ stopsNear: [], stopQueries });
+
+    await service.getNearby(CENTER, 500);
+    await service.getNearby(CENTER, 500, []);
+
+    expect(stopQueries?.every((query) => query.routeIds === undefined)).toBe(true);
+  });
+
+  it("counts only the filtered stops for the adaptive radius", async () => {
+    const calledRadii: number[] = [];
+    const service = serviceWith({
+      stopsNear: (radiusMeters) => {
+        calledRadii.push(radiusMeters);
+        // The catalog already applied the restriction: 2 stops at 500 m, 3 at 1000 m.
+        return [
+          { stop: { ...STOP, id: "s1" }, distanceMeters: 100 },
+          { stop: { ...STOP, id: "s2" }, distanceMeters: 200 },
+          ...(radiusMeters >= 1000 ? [{ stop: { ...STOP, id: "s3" }, distanceMeters: 800 }] : []),
+        ];
+      },
+    });
+
+    const result = await service.getNearby(CENTER, undefined, ["mvta:436"]);
+
+    expect(calledRadii).toEqual([500, 1000]);
+    expect(result.stops.map((item) => item.stop.id)).toEqual(["s1", "s2", "s3"]);
+  });
+
+  it("limits arrivals and routes to the chosen routes before the per-stop arrivals limit", async () => {
+    const service = serviceWith({
+      stopsNear: [{ stop: STOP, distanceMeters: 42 }],
+      routesServingStop: [ROUTE, ROUTE_436],
+      scheduledAtStop: [
+        ...scheduledFor(ROUTE.id, [NOW + 100, NOW + 200, NOW + 300]),
+        ...scheduledFor(ROUTE_436.id, [NOW + 400]),
+      ],
+    });
+
+    const filtered = await service.getNearby(CENTER, 500, [ROUTE_436.id]);
+    const unfiltered = await service.getNearby(CENTER, 500);
+
+    // The 436 arrival is the 4th by time: a per-stop limit of 3 applied first would drop it.
+    expect(filtered.stops[0]?.nextArrivals.map((arrival) => arrival.routeId)).toEqual([
+      ROUTE_436.id,
+    ]);
+    expect(filtered.stops[0]?.routes).toEqual([ROUTE_436]);
+    expect(unfiltered.stops[0]?.nextArrivals.map((arrival) => arrival.routeId)).toEqual([
+      ROUTE.id,
+      ROUTE.id,
+      ROUTE.id,
+    ]);
+    expect(unfiltered.stops[0]?.routes).toEqual([ROUTE, ROUTE_436]);
+  });
+
+  it("passes the route restriction and the configured limit to findStopsInBounds", async () => {
+    const stopQueries: FakeCatalogOptions["stopQueries"] = [];
+    const service = serviceWith({ stopQueries });
+    const bounds = { minLat: 44.9, minLon: -93.3, maxLat: 45.0, maxLon: -93.2 };
+
+    await service.getStopsInArea(bounds, ["mvta:436", "metrotransit:68"]);
+    await service.getStopsInArea(bounds);
+
+    expect(stopQueries).toEqual([
+      { kind: "bounds", routeIds: ["mvta:436", "metrotransit:68"] },
+      { kind: "bounds", routeIds: undefined },
+    ]);
   });
 });

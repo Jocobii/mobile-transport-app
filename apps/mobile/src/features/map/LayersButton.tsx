@@ -1,25 +1,32 @@
 import { useTranslation } from "react-i18next";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { colors } from "@/shared/theme";
 
 export const LAYERS_BUTTON_SIZE = 48;
 
 interface LayersButtonProps {
+  /** The route filter is on: the button shows a small dot so it is not forgotten. */
+  filterActive: boolean;
   onPress: () => void;
 }
 
 /** Round map overlay button that opens the layer toggles card. Nearby panel only. */
-export function LayersButton({ onPress }: LayersButtonProps) {
+export function LayersButton({ filterActive, onPress }: LayersButtonProps) {
   const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={t("map.layers.button")}
+      accessibilityLabel={
+        filterActive
+          ? `${t("map.layers.button")}, ${t("map.layers.routes.activeDot")}`
+          : t("map.layers.button")
+      }
       style={styles.button}
     >
       <LayersIcon />
+      {filterActive ? <View style={styles.dot} /> : null}
     </Pressable>
   );
 }
@@ -67,5 +74,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.surface,
     elevation: 4,
+  },
+  dot: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.surface,
+    backgroundColor: colors.highlight,
   },
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveSnap, type SnapOffsets, stepSnap } from "./sheet-snap";
+import { resolveSnap, type SnapOffsets, stepSnap, tapSnap } from "./sheet-snap";
 
 const OFFSETS: SnapOffsets = { full: 0, half: 300, collapsed: 600 };
 
@@ -11,13 +11,31 @@ describe("resolveSnap", () => {
   });
 
   it("lets a downward fling carry the sheet to the next lower point", () => {
-    expect(resolveSnap(200, 1500, OFFSETS)).toBe("half");
+    expect(resolveSnap(200, 600, OFFSETS)).toBe("half");
     expect(resolveSnap(400, 1500, OFFSETS)).toBe("collapsed");
   });
 
   it("lets an upward fling carry the sheet to the next higher point", () => {
-    expect(resolveSnap(400, -1500, OFFSETS)).toBe("half");
+    expect(resolveSnap(400, -600, OFFSETS)).toBe("half");
     expect(resolveSnap(200, -1500, OFFSETS)).toBe("full");
+  });
+});
+
+describe("resolveSnap (easy to move)", () => {
+  it("lets a moderate upward flick leave the collapsed point", () => {
+    expect(resolveSnap(600, -700, OFFSETS)).toBe("half");
+  });
+
+  it("lets a moderate downward flick collapse from half", () => {
+    expect(resolveSnap(300, 700, OFFSETS)).toBe("collapsed");
+  });
+});
+
+describe("tapSnap", () => {
+  it("opens from collapsed, grows from half and returns to half from full", () => {
+    expect(tapSnap("collapsed")).toBe("half");
+    expect(tapSnap("half")).toBe("full");
+    expect(tapSnap("full")).toBe("half");
   });
 });
 

@@ -26,7 +26,15 @@
       "button": "Capas del mapa",
       "title": "Mostrar en el mapa",
       "vehicles": "Camiones en vivo",
-      "stops": "Paradas"
+      "stops": "Paradas",
+      "routes": {
+        "title": "Rutas",
+        "filterSwitch": "Solo estas rutas",
+        "empty": "Agrega las rutas que usarás.",
+        "add": "Agregar rutas",
+        "remove": "Quitar ruta {{name}}",
+        "activeDot": "Filtro de rutas activo"
+      }
     },
     "zoomInForStops": "Acerca el mapa para ver todas las paradas",
     "myStop": "Tu parada: {{name}}",
@@ -46,7 +54,9 @@
     "boardingStop": "{{stop}} · {{distance}}",
     "then": "luego {{time}}",
     "rowLabel": "Ruta {{route}} hacia {{headsign}}, se aborda en {{stop}}",
-    "locationDenied": "No pudimos obtener tu ubicación. Puedes buscar una ruta o una parada."
+    "locationDenied": "No pudimos obtener tu ubicación. Puedes buscar una ruta o una parada.",
+    "emptyFiltered": "Ninguna de tus rutas sale cerca en los próximos 90 min.",
+    "emptyFilteredHint": "Desactiva el filtro en Capas para ver todo."
   },
   "stop": {
     "code": "Parada {{code}}",
@@ -114,5 +124,12 @@
     "tomorrow": "Mañana",
     "weekdays": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
     "days": "Día del horario"
+  },
+  "routePicker": {
+    "title": "Elige las rutas que usarás",
+    "hint": "Busca por número y toca para agregar o quitar.",
+    "done": "Listo",
+    "selected": "Seleccionada",
+    "limit": "Máximo {{count}} rutas"
   }
 }

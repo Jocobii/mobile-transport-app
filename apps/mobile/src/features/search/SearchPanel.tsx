@@ -1,39 +1,17 @@
 import type { RouteSummaryDto, SearchResponse, StopSummaryDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from "react-native";
+import { MAX_FILTER_ROUTES, type RouteFilter } from "@/features/map/route-filter";
 import { ChevronIcon } from "@/shared/components/ChevronIcon";
 import { EmptyState, ErrorState } from "@/shared/components/PanelStatus";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { colors, fontSizes, radii, spacing } from "@/shared/theme";
+import { RoutePickerBanner } from "./RoutePickerBanner";
+import { pickerRowState } from "./route-picker";
+import { toSearchSections } from "./search-sections";
 
 /** Example queries offered as chips; tapping one fills the search field. */
 const EXAMPLE_QUERIES = ["436", "54"];
-
-type SearchItem =
-  | { kind: "route"; route: RouteSummaryDto }
-  | { kind: "stop"; stop: StopSummaryDto };
-
-interface SearchSection {
-  title: "search.routes" | "search.stops";
-  data: SearchItem[];
-}
-
-function toSections(data: SearchResponse): SearchSection[] {
-  const sections: SearchSection[] = [];
-  if (data.routes.length > 0) {
-    sections.push({
-      title: "search.routes",
-      data: data.routes.map((route) => ({ kind: "route", route })),
-    });
-  }
-  if (data.stops.length > 0) {
-    sections.push({
-      title: "search.stops",
-      data: data.stops.map((stop) => ({ kind: "stop", stop })),
-    });
-  }
-  return sections;
-}
 
 interface SearchPanelProps {
   /** The normalized query being shown, or undefined before anything was typed. */
@@ -45,9 +23,33 @@ interface SearchPanelProps {
   onRoutePress: (route: RouteSummaryDto) => void;
   onStopPress: (stopId: string) => void;
   onRetry: () => void;
+  /** Route picker for the route filter (E007-T03): results are routes only and tapping toggles. */
+  pickMode?: RoutePickerConfig | undefined;
 }
 
-export function SearchPanel({
+export interface RoutePickerConfig {
+  filter: RouteFilter;
+  onToggleRoute: (route: RouteSummaryDto) => void;
+  onDone: () => void;
+}
+
+/** The search panel; in pick mode a banner with a "done" button sits above the results. */
+export function SearchPanel(props: SearchPanelProps) {
+  const { pickMode } = props;
+  return (
+    <View style={styles.container}>
+      {pickMode ? (
+        <RoutePickerBanner
+          full={pickMode.filter.routes.length >= MAX_FILTER_ROUTES}
+          onDone={pickMode.onDone}
+        />
+      ) : null}
+      <SearchResults {...props} />
+    </View>
+  );
+}
+
+function SearchResults({
   query,
   data,
   error,
@@ -56,13 +58,14 @@ export function SearchPanel({
   onRoutePress,
   onStopPress,
   onRetry,
+  pickMode,
 }: SearchPanelProps) {
   const { t } = useTranslation();
 
   if (query === undefined) {
     return (
       <View style={styles.message}>
-        <Text style={styles.text}>{t("search.hint")}</Text>
+        <Text style={styles.text}>{t(pickMode ? "routePicker.hint" : "search.hint")}</Text>
         <View style={styles.chips}>
           {EXAMPLE_QUERIES.map((example) => (
             <Pressable
@@ -83,7 +86,7 @@ export function SearchPanel({
   if (error !== undefined) return <ErrorState onRetry={onRetry} />;
   if (isLoading || !data) return <ActivityIndicator style={styles.loading} color={colors.ink} />;
 
-  const sections = toSections(data);
+  const sections = toSearchSections(data, pickMode !== undefined);
   if (sections.length === 0) {
     return <EmptyState title={t("search.noResults", { query })} hint={t("search.noResultsHint")} />;
   }
@@ -99,7 +102,15 @@ export function SearchPanel({
       )}
       renderItem={({ item }) =>
         item.kind === "route" ? (
-          <RouteRow route={item.route} onPress={onRoutePress} />
+          pickMode ? (
+            <PickRouteRow
+              route={item.route}
+              {...pickerRowState(item.route.id, pickMode.filter)}
+              onToggle={pickMode.onToggleRoute}
+            />
+          ) : (
+            <RouteRow route={item.route} onPress={onRoutePress} />
+          )
         ) : (
           <StopRow stop={item.stop} onPress={onStopPress} />
         )
@@ -141,6 +152,44 @@ function RouteRow({
   );
 }
 
+function PickRouteRow({
+  route,
+  selected,
+  disabled,
+  onToggle,
+}: {
+  route: RouteSummaryDto;
+  selected: boolean;
+  disabled: boolean;
+  onToggle: (route: RouteSummaryDto) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Pressable
+      onPress={() => onToggle(route)}
+      disabled={disabled}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected, disabled }}
+      accessibilityLabel={`${route.shortName} ${route.longName}`}
+      style={[styles.row, disabled ? pickStyles.disabled : undefined]}
+    >
+      <RouteBadge label={route.shortName} color={route.color} textColor={route.textColor} />
+      <View style={styles.rowText}>
+        <Text style={styles.rowTitle} numberOfLines={2}>
+          {route.longName}
+        </Text>
+        <Text style={styles.rowSubtitle}>
+          {t(`agency.${route.feedId}`, { defaultValue: route.feedId })}
+        </Text>
+        {selected ? <Text style={pickStyles.selectedText}>{t("routePicker.selected")}</Text> : null}
+      </View>
+      <View style={[pickStyles.check, selected ? pickStyles.checkOn : undefined]}>
+        {selected ? <Text style={pickStyles.checkMark}>✓</Text> : null}
+      </View>
+    </Pressable>
+  );
+}
+
 function StopRow({ stop, onPress }: { stop: StopSummaryDto; onPress: (stopId: string) => void }) {
   const { t } = useTranslation();
   return (
@@ -161,7 +210,38 @@ function StopRow({ stop, onPress }: { stop: StopSummaryDto; onPress: (stopId: st
   );
 }
 
+const pickStyles = StyleSheet.create({
+  disabled: {
+    opacity: 0.4,
+  },
+  selectedText: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  check: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkOn: {
+    backgroundColor: colors.ink,
+  },
+  checkMark: {
+    color: colors.surface,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+});
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   message: {
     gap: spacing.lg,
     paddingTop: spacing.sm,

@@ -34,6 +34,7 @@ const TEST_SETTINGS: TransitSettings = {
   areaStopsMaxResults: 250,
   areaVehiclesMaxSpanDegrees: 0.3,
   areaVehiclesMaxResults: 150,
+  routeFilterMaxRoutes: 8,
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,
   pastArrivalGraceSeconds: 60,
@@ -119,6 +120,73 @@ describe("SqliteCatalogProvider (real fixtures: metrotransit + mvta)", () => {
     const limited = await provider.findStopsInBounds(bounds, 1);
     expect(limited.stops).toHaveLength(1);
     expect(limited.truncated).toBe(all.stops.length > 1);
+  });
+
+  describe("route filter (EPIC-007)", () => {
+    const ROUTE_436 = "mvta:436";
+
+    it("findStopsNear only returns stops served by the chosen route", async () => {
+      const filtered = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50, {
+        routeIds: [ROUTE_436],
+      });
+      const unfiltered = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50);
+
+      expect(filtered.some((entry) => entry.stop.id === "56939")).toBe(true);
+      expect(filtered.length).toBeLessThanOrEqual(unfiltered.length);
+      for (const { stop } of filtered) {
+        const routes = await provider.getRoutesServingStop(stop.id);
+        expect(routes.some((route) => route.id === ROUTE_436)).toBe(true);
+      }
+    });
+
+    it("an unknown route matches no stops, and an empty list means no restriction", async () => {
+      const unknown = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50, {
+        routeIds: ["mvta:does-not-exist"],
+      });
+      const emptyList = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50, { routeIds: [] });
+      const unfiltered = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50);
+
+      expect(unknown).toEqual([]);
+      expect(emptyList).toEqual(unfiltered);
+    });
+
+    it("several routes match the union of their stops", async () => {
+      const one = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50, { routeIds: [ROUTE_436] });
+      const both = await provider.findStopsNear(MSP_TERMINAL_1, 1500, 50, {
+        routeIds: [ROUTE_436, "metrotransit:54"],
+      });
+
+      expect(both.length).toBeGreaterThanOrEqual(one.length);
+      for (const entry of one) {
+        expect(both.some((other) => other.stop.id === entry.stop.id)).toBe(true);
+      }
+    });
+
+    it("findNearestStop returns a stop served by the chosen route", async () => {
+      const nearest = await provider.findNearestStop(MSP_TERMINAL_1, 5000, {
+        routeIds: [ROUTE_436],
+      });
+
+      expect(nearest).toBeDefined();
+      const routes = await provider.getRoutesServingStop(nearest?.stop.id ?? "");
+      expect(routes.some((route) => route.id === ROUTE_436)).toBe(true);
+      expect(
+        await provider.findNearestStop(MSP_TERMINAL_1, 5000, { routeIds: ["mvta:does-not-exist"] }),
+      ).toBeUndefined();
+    });
+
+    it("findStopsInBounds only returns stops served by the chosen route", async () => {
+      const bounds = { minLat: 44.85, minLon: -93.25, maxLat: 44.9, maxLon: -93.15 };
+      const filtered = await provider.findStopsInBounds(bounds, 1000, { routeIds: [ROUTE_436] });
+      const unfiltered = await provider.findStopsInBounds(bounds, 1000);
+
+      expect(filtered.stops.length).toBeGreaterThan(0);
+      expect(filtered.stops.length).toBeLessThanOrEqual(unfiltered.stops.length);
+      for (const stop of filtered.stops) {
+        const routes = await provider.getRoutesServingStop(stop.id);
+        expect(routes.some((route) => route.id === ROUTE_436)).toBe(true);
+      }
+    });
   });
 
   it("searchRoutes('436') finds mvta:436", async () => {

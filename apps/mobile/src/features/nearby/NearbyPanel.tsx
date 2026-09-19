@@ -10,6 +10,7 @@ import { colors, fontSizes, spacing } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
 import { groupNearbyByRoute, type NearbyRouteGroup } from "./group-nearby-by-route";
 import { NearbyRouteRow } from "./NearbyRouteRow";
+import { nearbyEmptyKey } from "./nearby-empty";
 
 const RADIUS_ROUNDING_METERS = 100;
 
@@ -20,6 +21,8 @@ interface NearbyPanelProps {
   lastSuccessAt: number | undefined;
   locationUnavailable: boolean;
   highlightedStopId: string | undefined;
+  /** The route filter is on: an empty list points at it. */
+  routeFilterActive: boolean;
   onRoutePress: (group: NearbyRouteGroup) => void;
   onRetry: () => void;
 }
@@ -31,6 +34,7 @@ export function NearbyPanel({
   lastSuccessAt,
   locationUnavailable,
   highlightedStopId,
+  routeFilterActive,
   onRoutePress,
   onRetry,
 }: NearbyPanelProps) {
@@ -54,6 +58,7 @@ export function NearbyPanel({
         locationUnavailable={locationUnavailable}
         now={now}
         highlightedStopId={highlightedStopId}
+        routeFilterActive={routeFilterActive}
         refreshing={refreshing}
         onRefresh={onRefresh}
         onRoutePress={onRoutePress}
@@ -93,6 +98,7 @@ interface BodyProps {
   locationUnavailable: boolean;
   now: number;
   highlightedStopId: string | undefined;
+  routeFilterActive: boolean;
   refreshing: boolean;
   onRefresh: () => void;
   onRoutePress: (group: NearbyRouteGroup) => void;
@@ -107,6 +113,7 @@ function Body({
   locationUnavailable,
   now,
   highlightedStopId,
+  routeFilterActive,
   refreshing,
   onRefresh,
   onRoutePress,
@@ -116,6 +123,7 @@ function Body({
 
   if (locationUnavailable) return <EmptyState title={t("nearby.locationDenied")} />;
   if (data) {
+    const emptyKey = nearbyEmptyKey(data.stops.length, routeFilterActive);
     return (
       <FlatList
         data={groups}
@@ -134,7 +142,8 @@ function Body({
         }
         ListEmptyComponent={
           <EmptyState
-            title={data.stops.length === 0 ? t("nearby.empty") : t("nearby.emptyRoutes")}
+            title={t(`nearby.${emptyKey}`)}
+            hint={routeFilterActive ? t("nearby.emptyFilteredHint") : undefined}
           />
         }
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}

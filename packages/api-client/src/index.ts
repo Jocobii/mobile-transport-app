@@ -55,6 +55,17 @@ function formatBbox(bounds: AreaBounds): string {
   return [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat].map(round).join(",");
 }
 
+/** Comma-joined route ids for the `routeIds` query parameter; undefined when there are none. */
+function joinRouteIds(routeIds: string[] | undefined): string | undefined {
+  return routeIds !== undefined && routeIds.length > 0 ? routeIds.join(",") : undefined;
+}
+
+/** `&routeIds=...` (URL-encoded) to append to a query that already has parameters, or "". */
+function routeIdsParam(routeIds: string[] | undefined): string {
+  const joined = joinRouteIds(routeIds);
+  return joined === undefined ? "" : `&routeIds=${encodeURIComponent(joined)}`;
+}
+
 export function createApiClient(options: ApiClientOptions) {
   const fetchImpl = options.fetchImpl ?? fetch;
   const root = `${options.baseUrl.replace(/\/$/, "")}/api/${API_VERSION}`;
@@ -76,8 +87,20 @@ export function createApiClient(options: ApiClientOptions) {
   }
 
   return {
-    getNearbyStops: (params: { lat: number; lon: number; radius?: number }) =>
-      get<NearbyStopsResponse>(`/stops/nearby${buildQuery(params)}`),
+    getNearbyStops: (params: {
+      lat: number;
+      lon: number;
+      radius?: number;
+      routeIds?: string[] | undefined;
+    }) =>
+      get<NearbyStopsResponse>(
+        `/stops/nearby${buildQuery({
+          lat: params.lat,
+          lon: params.lon,
+          radius: params.radius,
+          routeIds: joinRouteIds(params.routeIds),
+        })}`,
+      ),
 
     search: (q: string) => get<SearchResponse>(`/search${buildQuery({ q })}`),
 
@@ -111,8 +134,10 @@ export function createApiClient(options: ApiClientOptions) {
     getVehicleDetail: (vehicleId: string) =>
       get<VehicleDetailResponse>(`/vehicles/${encodeURIComponent(vehicleId)}`),
 
-    getStopsInArea: (bounds: AreaBounds) =>
-      get<StopsInAreaResponse>(`/stops/in-area?bbox=${formatBbox(bounds)}`),
+    getStopsInArea: (bounds: AreaBounds, options: { routeIds?: string[] | undefined } = {}) =>
+      get<StopsInAreaResponse>(
+        `/stops/in-area?bbox=${formatBbox(bounds)}${routeIdsParam(options.routeIds)}`,
+      ),
 
     getVehiclesInArea: (bounds: AreaBounds) =>
       get<VehiclesInAreaResponse>(`/vehicles/in-area?bbox=${formatBbox(bounds)}`),

@@ -19,6 +19,40 @@ describe("createStopsInAreaHandler", () => {
     expect(await response.json()).toEqual({ stops: [], truncated: false });
   });
 
+  it("passes the parsed routeIds to the service, or undefined when omitted", async () => {
+    const calls: unknown[][] = [];
+    const handler = createStopsInAreaHandler({
+      getService: () =>
+        fakeTransitService({
+          getStopsInArea: async (...args: unknown[]) => {
+            calls.push(args);
+            return EMPTY_RESULT;
+          },
+        }),
+      readConfig: () => OK_CONFIG,
+    });
+
+    await handler(
+      authedRequest(`https://x/api/v1/stops/in-area?${VALID_BBOX}&routeIds=mvta%3A436`),
+    );
+    await handler(authedRequest(`https://x/api/v1/stops/in-area?${VALID_BBOX}`));
+
+    expect(calls[0]?.[1]).toEqual(["mvta:436"]);
+    expect(calls[1]?.[1]).toBeUndefined();
+  });
+
+  it("returns 400 invalid_request for an empty id in routeIds", async () => {
+    const handler = createStopsInAreaHandler({
+      getService: () => fakeTransitService({}),
+      readConfig: () => OK_CONFIG,
+    });
+    const response = await handler(
+      authedRequest(`https://x/api/v1/stops/in-area?${VALID_BBOX}&routeIds=a,,b`),
+    );
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.code).toBe("invalid_request");
+  });
+
   it("returns 400 invalid_request when bbox is missing", async () => {
     const handler = createStopsInAreaHandler({
       getService: () => fakeTransitService({}),

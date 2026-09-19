@@ -133,23 +133,23 @@ Naming: this is a generic **route filter**, not a "trip". No trip concept, no le
 
 ## 5. Tasks (stories)
 
-- [ ] **E007-T01 — Server: `routeIds` on nearby and in-area.** *As a rider, I want the server to return only my routes' stops, so the list is not empty when my route's stop is 2 km away.* Server only (+ deploy to Vercel).
+- [x] **E007-T01 — Server: `routeIds` on nearby and in-area.** (code done; deploy to Vercel pending) *As a rider, I want the server to return only my routes' stops, so the list is not empty when my route's stop is 2 km away.* Server only (+ deploy to Vercel).
   - §4.1–4.4 (core, gtfs catalog adapter, server, api-client).
   - Tests: `parseRouteIds` (valid, empty, >8, too long, whitespace); catalog (`findStopsNear`/`findNearestStop`/`findStopsInBounds` with and without routes; a stop shared by two agencies' routes); core `getNearby` (adaptive radius counts only filtered stops; arrivals filtered before the per-stop limit; `routes` filtered; explicit radius; 5 km fallback with filter); handlers (200, 400, no param = same response as before); api-client query building.
   - Check (after deploy): `curl` nearby at the Eagan test point with `routeIds=mvta:436` returns only 436 arrivals.
 
-- [ ] **E007-T02 — Filter state and persistence.** Client only. Pure model, storage parser, `use-route-filter` (§4.5), tests for every helper (`toggleRoute` at the cap, auto-enable/disable rules, `activeRouteIds`, malformed storage). No visible change yet.
+- [x] **E007-T02 — Filter state and persistence.** Client only. Pure model, storage parser, `use-route-filter` (§4.5), tests for every helper (`toggleRoute` at the cap, auto-enable/disable rules, `activeRouteIds`, malformed storage). No visible change yet.
 
-- [ ] **E007-T03 — Pick routes and manage the list.** *As a rider, I want to choose my routes and see/remove them in Capas.* Depends on T02. Client only.
+- [x] **E007-T03 — Pick routes and manage the list.** *As a rider, I want to choose my routes and see/remove them in Capas.* Depends on T02. Client only.
   - Layers card section, dot on the button, search pick mode, banner, cap message, back handling, i18n.
   - Tests: `resolveBackAction` with `pickingRoutes`; pick-mode view-model (routes only, selected flag, cap disables unselected rows).
   - Phone check: add 68, 345 and 436 (choose the right agency when a number appears twice); badges show in Capas; remove one; close and reopen the app: the list and the dot persist. The map does not change yet.
 
-- [ ] **E007-T04 — Apply the filter to Nearby.** Depends on T01, T02. Client only.
+- [x] **E007-T04 — Apply the filter to Nearby.** (code done; phone check pending, needs T01 deployed) Depends on T01, T02. Client only.
   - `useNearby` with `routeIds`; empty filtered state.
   - Phone check: with the filter on, Nearby lists only your routes, even if their stops are farther than 500 m; switching it off restores everything.
 
-- [ ] **E007-T05 — Apply the filter to the map.** Depends on T01, T02, T04.
+- [x] **E007-T05 — Apply the filter to the map.** (code done; phone check pending, needs T01 deployed) Depends on T01, T02, T04.
   - Area stops with `routeIds`, `use-filtered-vehicles`, area vehicles off while filtered, merge in the screen.
   - Tests: `use-filtered-vehicles` merge/dedupe (pure helper), viewport refetch when `routeIds` change.
   - Phone check: only 68/345/436 buses appear (also when zoomed out), stops shown are only those routes' stops, turning the buses/stops layers off still works, turning the filter off restores the EPIC-005 map.

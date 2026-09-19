@@ -2,6 +2,7 @@ import type { TransitService } from "@transit/core";
 import type { ServerConfigResult } from "@/config/server-config";
 import { TRANSIT_SETTINGS } from "@/config/transit-settings";
 import { handleApiRequest } from "@/http/handle-api-request";
+import { parseRouteIds } from "@/http/params";
 import { parseBbox } from "@/http/parse-bbox";
 import { CATALOG_CACHE, errorResponse, jsonResponse } from "@/http/responses";
 import { mapStopsInAreaResult } from "@/mappers/stops-in-area";
@@ -19,7 +20,10 @@ export function createStopsInAreaHandler(deps: StopsInAreaHandlerDeps) {
       const bbox = parseBbox(params, TRANSIT_SETTINGS.areaStopsMaxSpanDegrees);
       if (!bbox.ok) return errorResponse("invalid_request", bbox.message);
 
-      const result = await deps.getService().getStopsInArea(bbox.value);
+      const routeIds = parseRouteIds(params, TRANSIT_SETTINGS);
+      if (!routeIds.ok) return errorResponse("invalid_request", routeIds.message);
+
+      const result = await deps.getService().getStopsInArea(bbox.value, routeIds.value);
       return jsonResponse(mapStopsInAreaResult(result), { cacheControl: CATALOG_CACHE });
     });
   };

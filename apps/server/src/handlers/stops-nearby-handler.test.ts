@@ -20,6 +20,41 @@ describe("createStopsNearbyHandler", () => {
     expect(await response.json()).toEqual({ stops: [], outsideRadius: false, feeds: [] });
   });
 
+  it("passes the parsed radius and routeIds to the service", async () => {
+    const calls: unknown[][] = [];
+    const handler = createStopsNearbyHandler({
+      getService: () =>
+        fakeTransitService({
+          getNearby: async (...args: unknown[]) => {
+            calls.push(args);
+            return EMPTY_RESULT;
+          },
+        }),
+      readConfig: () => OK_CONFIG,
+    });
+
+    await handler(
+      authedRequest("https://x/api/v1/stops/nearby?lat=44.88&lon=-93.2&routeIds=mvta%3A436,a"),
+    );
+    await handler(authedRequest("https://x/api/v1/stops/nearby?lat=44.88&lon=-93.2"));
+
+    expect(calls[0]).toEqual([{ lat: 44.88, lon: -93.2 }, undefined, ["mvta:436", "a"]]);
+    expect(calls[1]).toEqual([{ lat: 44.88, lon: -93.2 }, undefined, undefined]);
+  });
+
+  it("returns 400 invalid_request for more routeIds than the limit", async () => {
+    const handler = createStopsNearbyHandler({
+      getService: () => fakeTransitService({}),
+      readConfig: () => OK_CONFIG,
+    });
+    const ids = Array.from({ length: 9 }, (_, index) => `r${index}`).join(",");
+    const response = await handler(
+      authedRequest(`https://x/api/v1/stops/nearby?lat=44.88&lon=-93.2&routeIds=${ids}`),
+    );
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.code).toBe("invalid_request");
+  });
+
   it("returns 400 invalid_request for an out-of-range lat", async () => {
     const handler = createStopsNearbyHandler({
       getService: () => fakeTransitService({}),

@@ -11,10 +11,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
-import { resolveSnap, type SheetSnap, stepSnap } from "@/shared/panel/sheet-snap";
+import { resolveSnap, type SheetSnap, stepSnap, tapSnap } from "@/shared/panel/sheet-snap";
 import { colors, radii, spacing } from "@/shared/theme";
 
-const HANDLE_AREA_HEIGHT = 28;
+const HANDLE_AREA_HEIGHT = 48;
 const HANDLE_WIDTH = 40;
 const HANDLE_HEIGHT = 4;
 const SNAP_DURATION_MS = 250;
@@ -47,30 +47,35 @@ export function BottomSheet({ snap, heights, onSnapChange, children }: BottomShe
     translateY.value = withTiming(targetOffset, { duration: SNAP_DURATION_MS });
   }, [targetOffset, translateY]);
 
-  const pan = useMemo(
-    () =>
-      Gesture.Pan()
-        .onStart(() => {
-          startY.value = translateY.value;
-        })
-        .onUpdate((event) => {
-          translateY.value = Math.min(
-            collapsedOffset,
-            Math.max(0, startY.value + event.translationY),
-          );
-        })
-        .onEnd((event) => {
-          const next = resolveSnap(translateY.value, event.velocityY, {
-            full: 0,
-            half: halfOffset,
-            collapsed: collapsedOffset,
-          });
-          const offset = next === "full" ? 0 : next === "half" ? halfOffset : collapsedOffset;
-          translateY.value = withSpring(offset, { damping: 20, stiffness: 200 });
-          scheduleOnRN(onSnapChange, next);
-        }),
-    [collapsedOffset, halfOffset, onSnapChange, startY, translateY],
-  );
+  const gesture = useMemo(() => {
+    const tap = Gesture.Tap()
+      .maxDuration(250)
+      .onEnd((_event, success) => {
+        if (success) scheduleOnRN(onSnapChange, tapSnap(snap));
+      });
+    const pan = Gesture.Pan()
+      .minDistance(4)
+      .onStart(() => {
+        startY.value = translateY.value;
+      })
+      .onUpdate((event) => {
+        translateY.value = Math.min(
+          collapsedOffset,
+          Math.max(0, startY.value + event.translationY),
+        );
+      })
+      .onEnd((event) => {
+        const next = resolveSnap(translateY.value, event.velocityY, {
+          full: 0,
+          half: halfOffset,
+          collapsed: collapsedOffset,
+        });
+        const offset = next === "full" ? 0 : next === "half" ? halfOffset : collapsedOffset;
+        translateY.value = withSpring(offset, { damping: 20, stiffness: 200 });
+        scheduleOnRN(onSnapChange, next);
+      });
+    return Gesture.Race(pan, tap);
+  }, [collapsedOffset, halfOffset, onSnapChange, snap, startY, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -78,7 +83,7 @@ export function BottomSheet({ snap, heights, onSnapChange, children }: BottomShe
 
   return (
     <Animated.View style={[styles.sheet, { height: fullHeight }, animatedStyle]}>
-      <GestureDetector gesture={pan}>
+      <GestureDetector gesture={gesture}>
         <View
           style={styles.handleArea}
           accessible

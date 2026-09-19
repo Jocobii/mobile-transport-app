@@ -185,6 +185,44 @@ describe("createApiClient", () => {
       );
     });
 
+    it("getNearbyStops includes encoded routeIds when given and omits them when empty", async () => {
+      const fetchImpl = fakeFetch({ stops: [], outsideRadius: false, feeds: [] });
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getNearbyStops({
+        lat: 44.88,
+        lon: -93.2,
+        routeIds: ["mvta:436", "metrotransit:68"],
+      });
+      await client.getNearbyStops({ lat: 44.88, lon: -93.2, routeIds: [] });
+
+      expect(fetchImpl).toHaveBeenNthCalledWith(
+        1,
+        `${BASE_URL}/api/v1/stops/nearby?lat=44.88&lon=-93.2&routeIds=mvta%3A436%2Cmetrotransit%3A68`,
+        expect.anything(),
+      );
+      expect(fetchImpl).toHaveBeenNthCalledWith(
+        2,
+        `${BASE_URL}/api/v1/stops/nearby?lat=44.88&lon=-93.2`,
+        expect.anything(),
+      );
+    });
+
+    it("getStopsInArea appends encoded routeIds after the bbox when given", async () => {
+      const fetchImpl = fakeFetch({ stops: [], truncated: false });
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getStopsInArea(
+        { minLat: 44.97, minLon: -93.28, maxLat: 44.99, maxLon: -93.25 },
+        { routeIds: ["mvta:436", "metrotransit:68"] },
+      );
+
+      expect(fetchImpl).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/stops/in-area?bbox=-93.280000,44.970000,-93.250000,44.990000&routeIds=mvta%3A436%2Cmetrotransit%3A68`,
+        expect.anything(),
+      );
+    });
+
     it("getVehiclesInArea builds bbox as minLon,minLat,maxLon,maxLat with 6 decimals", async () => {
       const fetchImpl = fakeFetch({ vehicles: [], truncated: false, feeds: [] });
       const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });

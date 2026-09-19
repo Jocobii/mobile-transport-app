@@ -5,6 +5,7 @@ import {
   parseOptionalLatLon,
   parsePathId,
   parseRadius,
+  parseRouteIds,
   parseSearchQuery,
   parseServiceDateParam,
 } from "./params";
@@ -166,5 +167,46 @@ describe("parseServiceDateParam", () => {
     expect(parseServiceDateParam("20261340").ok).toBe(false);
     expect(parseServiceDateParam("20260231").ok).toBe(false);
     expect(parseServiceDateParam("20270229").ok).toBe(false);
+  });
+});
+
+describe("parseRouteIds", () => {
+  const SETTINGS = { routeFilterMaxRoutes: 8 };
+
+  it("is undefined when omitted or empty", () => {
+    expect(parseRouteIds(params(""), SETTINGS)).toEqual({ ok: true, value: undefined });
+    expect(parseRouteIds(params("routeIds="), SETTINGS)).toEqual({ ok: true, value: undefined });
+    expect(parseRouteIds(params("routeIds=%20"), SETTINGS)).toEqual({ ok: true, value: undefined });
+  });
+
+  it("parses comma-separated ids, decoding ':' and trimming spaces", () => {
+    expect(parseRouteIds(params("routeIds=mvta%3A436%2C%20metrotransit%3A68"), SETTINGS)).toEqual({
+      ok: true,
+      value: ["mvta:436", "metrotransit:68"],
+    });
+  });
+
+  it("de-duplicates ids", () => {
+    expect(parseRouteIds(params("routeIds=a,b,a"), SETTINGS)).toEqual({
+      ok: true,
+      value: ["a", "b"],
+    });
+  });
+
+  it("rejects an empty id in the list", () => {
+    expect(parseRouteIds(params("routeIds=a,,b"), SETTINGS).ok).toBe(false);
+    expect(parseRouteIds(params("routeIds=a,"), SETTINGS).ok).toBe(false);
+  });
+
+  it("rejects an id longer than 64 characters and accepts exactly 64", () => {
+    expect(parseRouteIds(params(`routeIds=${"x".repeat(65)}`), SETTINGS).ok).toBe(false);
+    expect(parseRouteIds(params(`routeIds=${"x".repeat(64)}`), SETTINGS).ok).toBe(true);
+  });
+
+  it("accepts exactly the maximum number of routes and rejects one more", () => {
+    const ids = (count: number) =>
+      Array.from({ length: count }, (_, index) => `r${index}`).join(",");
+    expect(parseRouteIds(params(`routeIds=${ids(8)}`), SETTINGS).ok).toBe(true);
+    expect(parseRouteIds(params(`routeIds=${ids(9)}`), SETTINGS).ok).toBe(false);
   });
 });

@@ -33,7 +33,13 @@ import type {
   Vehicle,
   VehicleId,
 } from "./model";
-import type { CatalogProvider, Clock, RealtimeProvider, RealtimeSnapshot } from "./ports";
+import type {
+  CatalogProvider,
+  Clock,
+  RealtimeProvider,
+  RealtimeSnapshot,
+  StopQueryOptions,
+} from "./ports";
 import type { TransitSettings } from "./settings";
 
 /**
@@ -205,11 +211,21 @@ export function createTransitService(deps: TransitServiceDeps) {
     return mergeArrivals(scheduled, stopPredictions, now, settings);
   }
 
+  /** Route restriction for stop queries; an empty or missing list means no restriction. */
+  function toStopQueryOptions(routeIds: RouteId[] | undefined): StopQueryOptions | undefined {
+    return routeIds !== undefined && routeIds.length > 0 ? { routeIds } : undefined;
+  }
+
   /** Nearest-stop fallback used when no stop was found within the searched radius. */
   async function fallbackToNearest(
     center: LatLon,
+    options: StopQueryOptions | undefined,
   ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
-    const nearest = await catalog.findNearestStop(center, settings.nearbyFallbackMaxDistanceMeters);
+    const nearest = await catalog.findNearestStop(
+      center,
+      settings.nearbyFallbackMaxDistanceMeters,
+      options,
+    );
     return nearest
       ? { stopsWithDistance: [nearest], outsideRadius: true }
       : { stopsWithDistance: [], outsideRadius: false };
@@ -219,10 +235,16 @@ export function createTransitService(deps: TransitServiceDeps) {
   async function findStopsAtRadius(
     center: LatLon,
     radiusMeters: number,
+    options: StopQueryOptions | undefined,
   ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
-    const found = await catalog.findStopsNear(center, radiusMeters, settings.nearbyMaxStops);
+    const found = await catalog.findStopsNear(
+      center,
+      radiusMeters,
+      settings.nearbyMaxStops,
+      options,
+    );
     if (found.length > 0) return { stopsWithDistance: found, outsideRadius: false };
-    return fallbackToNearest(center);
+    return fallbackToNearest(center, options);
   }
 
   /**
@@ -232,23 +254,35 @@ export function createTransitService(deps: TransitServiceDeps) {
    */
   async function findStopsAdaptive(
     center: LatLon,
+    options: StopQueryOptions | undefined,
   ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
     let lastFound: StopWithDistance[] = [];
     for (const step of settings.nearbyRadiusStepsMeters) {
-      lastFound = await catalog.findStopsNear(center, step, settings.nearbyMaxStops);
+      lastFound = await catalog.findStopsNear(center, step, settings.nearbyMaxStops, options);
       if (lastFound.length >= settings.nearbyMinStops) {
         return { stopsWithDistance: lastFound, outsideRadius: false };
       }
     }
     if (lastFound.length > 0) return { stopsWithDistance: lastFound, outsideRadius: false };
-    return fallbackToNearest(center);
+    return fallbackToNearest(center, options);
   }
 
-  async function getNearby(center: LatLon, radiusMeters?: number): Promise<NearbyResult> {
+  /**
+   * Nearby stops with their next arrivals. With `routeIds`, the stop search (including the
+   * adaptive radius and the nearest-stop fallback) only considers stops served by those routes,
+   * and each stop's routes and arrivals are limited to them before the per-stop arrivals limit.
+   */
+  async function getNearby(
+    center: LatLon,
+    radiusMeters?: number,
+    routeIds?: RouteId[],
+  ): Promise<NearbyResult> {
+    const stopOptions = toStopQueryOptions(routeIds);
+    const wantedRoutes = stopOptions?.routeIds ? new Set(stopOptions.routeIds) : undefined;
     const [stopSearch, combined] = await Promise.all([
       radiusMeters !== undefined
-        ? findStopsAtRadius(center, radiusMeters)
-        : findStopsAdaptive(center),
+        ? findStopsAtRadius(center, radiusMeters, stopOptions)
+        : findStopsAdaptive(center, stopOptions),
       fetchRealtime(),
     ]);
     const { stopsWithDistance, outsideRadius } = stopSearch;
@@ -256,10 +290,16 @@ export function createTransitService(deps: TransitServiceDeps) {
     const now = clock.now();
     const stops = await Promise.all(
       stopsWithDistance.map(async ({ stop, distanceMeters }): Promise<NearbyStopResult> => {
-        const [routes, arrivals] = await Promise.all([
+        const [servingRoutes, allArrivals] = await Promise.all([
           catalog.getRoutesServingStop(stop.id),
           arrivalsForStop(stop.id, combined.predictions, now),
         ]);
+        const routes = wantedRoutes
+          ? servingRoutes.filter((route) => wantedRoutes.has(route.id))
+          : servingRoutes;
+        const arrivals = wantedRoutes
+          ? allArrivals.filter((arrival) => wantedRoutes.has(arrival.routeId))
+          : allArrivals;
         const nextArrivals = arrivals.slice(0, settings.nearbyArrivalsPerStop);
         return {
           stop,
@@ -274,8 +314,12 @@ export function createTransitService(deps: TransitServiceDeps) {
     return { stops, outsideRadius, feeds: combined.feeds };
   }
 
-  async function getStopsInArea(bounds: Bounds): Promise<StopsInAreaResult> {
-    return catalog.findStopsInBounds(bounds, settings.areaStopsMaxResults);
+  async function getStopsInArea(bounds: Bounds, routeIds?: RouteId[]): Promise<StopsInAreaResult> {
+    return catalog.findStopsInBounds(
+      bounds,
+      settings.areaStopsMaxResults,
+      toStopQueryOptions(routeIds),
+    );
   }
 
   async function getVehiclesInArea(bounds: Bounds): Promise<VehiclesInAreaResult> {

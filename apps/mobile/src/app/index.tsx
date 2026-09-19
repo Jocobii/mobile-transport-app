@@ -11,11 +11,14 @@ import {
   NEARBY_FOCUS_DELTA,
   STOPS_ZOOM_GATE_DELTA,
 } from "@/features/map/map-config";
+import { toFilterRoute } from "@/features/map/route-filter";
 import { selectMapContent } from "@/features/map/select-map-content";
 import { TransitMap, type TransitMapHandle } from "@/features/map/TransitMap";
 import { useAreaStops } from "@/features/map/use-area-stops";
 import { useAreaVehicles } from "@/features/map/use-area-vehicles";
+import { useFilteredVehicles } from "@/features/map/use-filtered-vehicles";
 import { useMapLayers } from "@/features/map/use-map-layers";
+import { useRouteFilter } from "@/features/map/use-route-filter";
 import { useUserLocation } from "@/features/map/use-user-location";
 import { isWithinZoomGate } from "@/features/map/viewport";
 import { ZoomHint } from "@/features/map/ZoomHint";
@@ -62,6 +65,8 @@ export default function HomeScreen() {
   const [highlightedStopId, setHighlightedStopId] = useState<string | undefined>(undefined);
   const [layersCardOpen, setLayersCardOpen] = useState(false);
   const mapLayers = useMapLayers();
+  const routeFilter = useRouteFilter();
+  const [pickingRoutes, setPickingRoutes] = useState(false);
   const mapRef = useRef<TransitMapHandle>(null);
   const fittedRouteId = useRef<string | undefined>(undefined);
   const vehicleView = useVehicleView(panel, mapRef);
@@ -73,17 +78,27 @@ export default function HomeScreen() {
   const timetableStopId = panel.kind === "timetable" ? panel.stopId : undefined;
   const routeId = panel.kind === "route" ? panel.route.id : undefined;
 
-  const nearby = useNearby(position, panel.kind === "nearby");
+  const nearby = useNearby(position, panel.kind === "nearby", routeFilter.routeIds);
   const stopArrivals = useStopArrivals(stopId);
   const stopTimetable = useTimetableView(timetableStopId);
   const routeVehicles = useRouteVehicles(routeId);
   const search = useSearch(searchText);
   const areaStopsEnabled =
     (panel.kind === "nearby" || panel.kind === "search") && mapLayers.layers.showStops;
-  const areaStops = useAreaStops(debouncedRegion, areaStopsEnabled);
-  const areaVehiclesEnabled =
+  const areaStops = useAreaStops(debouncedRegion, areaStopsEnabled, routeFilter.routeIds);
+  const vehiclesLayerVisible =
     (panel.kind === "nearby" || panel.kind === "search") && mapLayers.layers.showVehicles;
-  const areaVehicles = useAreaVehicles(debouncedRegion, areaVehiclesEnabled);
+  // With the route filter on, buses come from the chosen routes (wherever they are) instead of
+  // the visible-area layer.
+  const areaVehicles = useAreaVehicles(
+    debouncedRegion,
+    vehiclesLayerVisible && routeFilter.routeIds === undefined,
+  );
+  const filteredVehicles = useFilteredVehicles(
+    vehiclesLayerVisible ? routeFilter.routeIds : undefined,
+  );
+  const layerVehicles =
+    routeFilter.routeIds !== undefined ? (filteredVehicles ?? []) : (areaVehicles?.vehicles ?? []);
   const stopsZoomGateHidden =
     mapLayers.layers.showStops &&
     region !== undefined &&
@@ -114,8 +129,13 @@ export default function HomeScreen() {
         panel.kind === "nearby" ? "nearby" : "other",
         highlightedStopId !== undefined,
         canGoBack,
+        pickingRoutes,
       );
       switch (action) {
+        case "exitPickMode":
+          setPickingRoutes(false);
+          back();
+          return true;
         case "clearHighlightedStop":
           setHighlightedStopId(undefined);
           return true;
@@ -127,11 +147,16 @@ export default function HomeScreen() {
       }
     });
     return () => subscription.remove();
-  }, [panel.kind, highlightedStopId, canGoBack, back]);
+  }, [panel.kind, highlightedStopId, canGoBack, pickingRoutes, back]);
 
   // Closing the search (back to Nearby) forgets the typed text.
   useEffect(() => {
     if (panel.kind === "nearby") setSearchText("");
+  }, [panel.kind]);
+
+  // Picking routes for the filter only happens inside the search panel.
+  useEffect(() => {
+    if (panel.kind !== "search") setPickingRoutes(false);
   }, [panel.kind]);
 
   // The layers card only makes sense over the Nearby panel.
@@ -198,7 +223,7 @@ export default function HomeScreen() {
     mapLayers.layers,
     highlightedStopId,
     areaStops?.stops ?? [],
-    areaVehicles?.vehicles ?? [],
+    layerVehicles,
   );
   const selectedStopId =
     panel.kind === "vehicle" || panel.kind === "trip"
@@ -244,6 +269,16 @@ export default function HomeScreen() {
     },
     [nearby.data, highlightedStopId, push],
   );
+  /** Opens the search panel in route-picker mode (from the layers card). */
+  const startPickingRoutes = () => {
+    setLayersCardOpen(false);
+    setPickingRoutes(true);
+    push({ kind: "search" });
+  };
+  const finishPickingRoutes = () => {
+    setPickingRoutes(false);
+    back();
+  };
   const focusVehicle = (vehicle: VehicleDto) =>
     mapRef.current?.focusOn({ lat: vehicle.lat, lon: vehicle.lon });
 
@@ -324,17 +359,24 @@ export default function HomeScreen() {
 
       {panel.kind === "nearby" ? (
         <View style={[styles.layersButton, { bottom: layersButtonBottom }]}>
-          <LayersButton onPress={() => setLayersCardOpen((open) => !open)} />
+          <LayersButton
+            filterActive={routeFilter.routeIds !== undefined}
+            onPress={() => setLayersCardOpen((open) => !open)}
+          />
         </View>
       ) : null}
 
       <LayersCard
         visible={panel.kind === "nearby" && layersCardOpen}
         layers={mapLayers.layers}
+        routeFilter={routeFilter.filter}
         style={{ right: spacing.lg, bottom: layersCardBottom }}
         onClose={() => setLayersCardOpen(false)}
         onChangeShowVehicles={mapLayers.setShowVehicles}
         onChangeShowStops={mapLayers.setShowStops}
+        onChangeFilterEnabled={routeFilter.setEnabled}
+        onRemoveRoute={routeFilter.removeRoute}
+        onAddRoutes={startPickingRoutes}
       />
 
       <BottomSheet snap={snap} heights={sheetHeights} onSnapChange={setSnap}>
@@ -346,6 +388,7 @@ export default function HomeScreen() {
             lastSuccessAt={nearby.lastSuccessAt}
             locationUnavailable={location.status === "unavailable"}
             highlightedStopId={highlightedStopId}
+            routeFilterActive={routeFilter.routeIds !== undefined}
             onRoutePress={openNearbyRoute}
             onRetry={nearby.refetch}
           />
@@ -383,6 +426,15 @@ export default function HomeScreen() {
             onRoutePress={openRoute}
             onStopPress={openStop}
             onRetry={search.retry}
+            pickMode={
+              pickingRoutes
+                ? {
+                    filter: routeFilter.filter,
+                    onToggleRoute: (route) => routeFilter.toggleRoute(toFilterRoute(route)),
+                    onDone: finishPickingRoutes,
+                  }
+                : undefined
+            }
           />
         ) : null}
         {panel.kind === "route" ? (

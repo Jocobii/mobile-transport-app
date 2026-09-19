@@ -36,6 +36,8 @@ export interface TransitSettings {
   areaVehiclesMaxSpanDegrees: number;
   /** Max vehicles returned by `vehicles/in-area`. */
   areaVehiclesMaxResults: number;
+  /** Max routes accepted by the optional `routeIds` filter of `stops/nearby` and `stops/in-area`. */
+  routeFilterMaxRoutes: number;
 
   /** Lookahead window for nearby and stop arrivals. */
   arrivalsWindowMinutes: number;

@@ -11,6 +11,7 @@ import type {
   ServiceDate,
   Stop,
   StopId,
+  StopQueryOptions,
   StopWithDistance,
   Trip,
   TripId,
@@ -123,6 +124,41 @@ export function createSqliteCatalogProvider(
   const stmtStopsInBox = db.prepare(
     "SELECT * FROM stops WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?",
   );
+  // Stops in a box that are served by at least one of N routes; one statement per N (N <= 8).
+  const stmtsStopsInBoxForRoutes = new Map<number, ReturnType<DatabaseSync["prepare"]>>();
+  function stmtStopsInBoxForRoutes(routeCount: number): ReturnType<DatabaseSync["prepare"]> {
+    const cached = stmtsStopsInBoxForRoutes.get(routeCount);
+    if (cached) return cached;
+    const placeholders = Array.from({ length: routeCount }, () => "?").join(", ");
+    const statement = db.prepare(
+      `SELECT s.* FROM stops s
+       WHERE s.lat BETWEEN ? AND ? AND s.lon BETWEEN ? AND ?
+         AND EXISTS (
+           SELECT 1 FROM route_stops rs WHERE rs.stop_id = s.id AND rs.route_id IN (${placeholders})
+         )`,
+    );
+    stmtsStopsInBoxForRoutes.set(routeCount, statement);
+    return statement;
+  }
+
+  /** Stops inside a bounding box, optionally only those served by one of `options.routeIds`. */
+  function stopsInBox(
+    box: { minLat: number; maxLat: number; minLon: number; maxLon: number },
+    options: StopQueryOptions | undefined,
+  ): Row[] {
+    const routeIds = options?.routeIds;
+    if (routeIds === undefined || routeIds.length === 0) {
+      return stmtStopsInBox.all(box.minLat, box.maxLat, box.minLon, box.maxLon) as Row[];
+    }
+    return stmtStopsInBoxForRoutes(routeIds.length).all(
+      box.minLat,
+      box.maxLat,
+      box.minLon,
+      box.maxLon,
+      ...routeIds,
+    ) as Row[];
+  }
+
   const stmtRouteExact = db.prepare("SELECT * FROM routes WHERE lower(short_name) = ?");
   const stmtRouteStartsWith = db.prepare(
     "SELECT * FROM routes WHERE short_name != '' AND lower(short_name) LIKE ? || '%'",
@@ -219,9 +255,10 @@ export function createSqliteCatalogProvider(
     center: LatLon,
     radiusMeters: number,
     limit: number,
+    options?: StopQueryOptions,
   ): Promise<StopWithDistance[]> {
     const box = boundingBox(center, radiusMeters);
-    const rows = stmtStopsInBox.all(box.minLat, box.maxLat, box.minLon, box.maxLon) as Row[];
+    const rows = stopsInBox(box, options);
     const withDistance = rows
       .map((row) => {
         const stop = toStop(row);
@@ -235,13 +272,9 @@ export function createSqliteCatalogProvider(
   async function findStopsInBounds(
     bounds: Bounds,
     limit: number,
+    options?: StopQueryOptions,
   ): Promise<{ stops: Stop[]; truncated: boolean }> {
-    const rows = stmtStopsInBox.all(
-      bounds.minLat,
-      bounds.maxLat,
-      bounds.minLon,
-      bounds.maxLon,
-    ) as Row[];
+    const rows = stopsInBox(bounds, options);
     const center = boundsCenter(bounds);
     const sorted = rows
       .map(toStop)
@@ -252,9 +285,10 @@ export function createSqliteCatalogProvider(
   async function findNearestStop(
     center: LatLon,
     maxDistanceMeters: number,
+    options?: StopQueryOptions,
   ): Promise<StopWithDistance | undefined> {
     const box = boundingBox(center, maxDistanceMeters);
-    const rows = stmtStopsInBox.all(box.minLat, box.maxLat, box.minLon, box.maxLon) as Row[];
+    const rows = stopsInBox(box, options);
     let best: StopWithDistance | undefined;
     for (const row of rows) {
       const stop = toStop(row);

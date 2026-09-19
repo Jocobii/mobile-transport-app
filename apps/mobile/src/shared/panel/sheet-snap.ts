@@ -8,7 +8,7 @@ export interface SnapOffsets {
 }
 
 /** How far ahead (seconds) a fling is projected when picking the snap point. */
-const PROJECTION_SECONDS = 0.15;
+const PROJECTION_SECONDS = 0.25;
 
 /** Snap point nearest to where the sheet would rest, given its offset and release velocity. */
 export function resolveSnap(offset: number, velocityY: number, offsets: SnapOffsets): SheetSnap {
@@ -26,4 +26,11 @@ export function resolveSnap(offset: number, velocityY: number, offsets: SnapOffs
 export function stepSnap(snap: SheetSnap, direction: "up" | "down"): SheetSnap {
   if (direction === "up") return snap === "collapsed" ? "half" : "full";
   return snap === "full" ? "half" : "collapsed";
+}
+
+/** Snap point after tapping the handle: opens from collapsed, grows from half, shrinks from full. */
+export function tapSnap(snap: SheetSnap): SheetSnap {
+  "worklet";
+  if (snap === "collapsed") return "half";
+  return snap === "half" ? "full" : "half";
 }

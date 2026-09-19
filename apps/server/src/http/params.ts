@@ -60,6 +60,33 @@ export function parseRadius(
   return ok(value);
 }
 
+const MAX_ROUTE_ID_LENGTH = 64;
+
+/**
+ * Optional `routeIds` query parameter: comma-separated route ids (they contain `:`, e.g.
+ * `mvta:436`). Trimmed and de-duplicated; each id is non-empty and at most 64 characters, and at
+ * most `routeFilterMaxRoutes` are accepted. `undefined` when omitted or empty (no route filter).
+ */
+export function parseRouteIds(
+  params: URLSearchParams,
+  settings: Pick<TransitSettings, "routeFilterMaxRoutes">,
+): ParseResult<string[] | undefined> {
+  const raw = params.get("routeIds");
+  if (raw === null || raw.trim() === "") return ok(undefined);
+
+  const ids = raw.split(",").map((id) => id.trim());
+  if (ids.some((id) => id === "")) return fail("`routeIds` must not contain empty ids.");
+  if (ids.some((id) => id.length > MAX_ROUTE_ID_LENGTH)) {
+    return fail(`Each id in \`routeIds\` must be at most ${MAX_ROUTE_ID_LENGTH} characters.`);
+  }
+
+  const unique = [...new Set(ids)];
+  if (unique.length > settings.routeFilterMaxRoutes) {
+    return fail(`\`routeIds\` accepts at most ${settings.routeFilterMaxRoutes} routes.`);
+  }
+  return ok(unique);
+}
+
 /** Optional `directionId` query parameter, must be `"0"` or `"1"` when present. */
 export function parseDirectionId(params: URLSearchParams): ParseResult<DirectionId | undefined> {
   const raw = params.get("directionId");

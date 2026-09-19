@@ -31,14 +31,33 @@ export interface ProviderCapabilities {
   idsMatchCatalog: boolean;
 }
 
+/** Optional restriction for the catalog's stop queries. */
+export interface StopQueryOptions {
+  /** Only stops served by at least one of these routes. Undefined or empty means no restriction. */
+  routeIds?: RouteId[] | undefined;
+}
+
 /** Static data: agencies, routes, stops, shapes and schedules. */
 export interface CatalogProvider {
   getCatalogVersion(): Promise<string>;
   getStop(stopId: StopId): Promise<Stop | undefined>;
-  findStopsNear(center: LatLon, radiusMeters: number, limit: number): Promise<StopWithDistance[]>;
-  findNearestStop(center: LatLon, maxDistanceMeters: number): Promise<StopWithDistance | undefined>;
+  findStopsNear(
+    center: LatLon,
+    radiusMeters: number,
+    limit: number,
+    options?: StopQueryOptions,
+  ): Promise<StopWithDistance[]>;
+  findNearestStop(
+    center: LatLon,
+    maxDistanceMeters: number,
+    options?: StopQueryOptions,
+  ): Promise<StopWithDistance | undefined>;
   /** Every stop inside `bounds`, ordered by distance to its center, capped at `limit`. */
-  findStopsInBounds(bounds: Bounds, limit: number): Promise<{ stops: Stop[]; truncated: boolean }>;
+  findStopsInBounds(
+    bounds: Bounds,
+    limit: number,
+    options?: StopQueryOptions,
+  ): Promise<{ stops: Stop[]; truncated: boolean }>;
   searchRoutes(normalizedQuery: string, limit: number): Promise<Route[]>;
   searchStops(normalizedQuery: string, limit: number): Promise<Stop[]>;
   getRoute(routeId: RouteId): Promise<Route | undefined>;

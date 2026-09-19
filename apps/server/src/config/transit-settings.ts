@@ -21,6 +21,7 @@ export const TRANSIT_SETTINGS: TransitSettings = {
   areaStopsMaxResults: 250,
   areaVehiclesMaxSpanDegrees: 0.3,
   areaVehiclesMaxResults: 150,
+  routeFilterMaxRoutes: 8,
 
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,
