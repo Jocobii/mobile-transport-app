@@ -325,6 +325,7 @@ describe("getVehicleDetail (10.14)", () => {
       routeId: ROUTE.id,
       directionId: 0,
       tripId: TRIP.id,
+      headsign: TRIP.headsign,
       currentStopSequence: 1,
       updatedAt: NOW,
     };

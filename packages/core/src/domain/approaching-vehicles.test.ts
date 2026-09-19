@@ -13,6 +13,7 @@ function vehicle(overrides: Partial<Vehicle> = {}): Vehicle {
     routeId: "metrotransit:54",
     directionId: 0,
     tripId: "t1",
+    headsign: "Downtown",
     updatedAt: NOW,
     ...overrides,
   };

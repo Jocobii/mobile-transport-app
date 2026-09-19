@@ -42,6 +42,7 @@ describe("applyFreshnessRules (10.8)", () => {
           routeId: "r",
           directionId: 0,
           tripId: "t1",
+          headsign: "Downtown",
           updatedAt: 950,
         },
       ],
@@ -76,6 +77,7 @@ describe("applyFreshnessRules (10.8)", () => {
           routeId: "r",
           directionId: 0,
           tripId: "t1",
+          headsign: "Downtown",
           updatedAt: 950,
         },
         {
@@ -86,6 +88,7 @@ describe("applyFreshnessRules (10.8)", () => {
           routeId: "r",
           directionId: 0,
           tripId: "t2",
+          headsign: "Downtown",
           updatedAt: 700,
         },
       ],

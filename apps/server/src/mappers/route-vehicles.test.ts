@@ -19,6 +19,7 @@ describe("mapRouteVehiclesResult", () => {
       routeId: "mvta:436",
       directionId: 1,
       tripId: "mvta:t1",
+      headsign: "Eagan Transit Station",
       updatedAt: 1000,
     };
     const result: RouteVehiclesResult = {

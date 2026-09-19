@@ -19,6 +19,7 @@ const VEHICLE: Vehicle = {
   routeId: "mvta:436",
   directionId: 1,
   tripId: "mvta:t1",
+  headsign: "Eagan Transit Station",
   bearing: 90,
   currentStopSequence: 2,
   updatedAt: 1000,
@@ -26,14 +27,14 @@ const VEHICLE: Vehicle = {
 };
 
 describe("mapVehicle", () => {
-  it("maps every DTO field, using the route for routeShortName, with headsign always empty", () => {
+  it("maps every DTO field, using the route for routeShortName and carrying the vehicle headsign", () => {
     expect(mapVehicle(VEHICLE, ROUTE)).toEqual({
       id: "mvta:v1",
       label: "101",
       routeId: "mvta:436",
       routeShortName: "436",
       directionId: 1,
-      headsign: "",
+      headsign: "Eagan Transit Station",
       tripId: "mvta:t1",
       bearing: 90,
       updatedAt: 1000,

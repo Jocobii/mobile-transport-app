@@ -1,0 +1,58 @@
+{
+  "common": {
+    "back": "Atrás",
+    "retry": "Reintentar",
+    "error": "No pudimos cargar la información."
+  },
+  "agency": {
+    "metrotransit": "Metro Transit",
+    "mvta": "MVTA"
+  },
+  "search": {
+    "placeholder": "Buscar ruta o parada",
+    "hint": "Escribe el número de una ruta o el nombre o número de una parada.",
+    "noResults": "No encontramos «{{query}}»",
+    "noResultsHint": "Busca rutas de Metro Transit y MVTA por número, o paradas por nombre o número.",
+    "routes": "Rutas",
+    "stops": "Paradas",
+    "clear": "Borrar búsqueda",
+    "close": "Cerrar búsqueda"
+  },
+  "map": {
+    "recenter": "Centrar en mi ubicación"
+  },
+  "nearby": {
+    "title": "Cerca de ti",
+    "loading": "Buscando paradas cerca de ti… La primera carga puede tardar unos segundos.",
+    "outsideRadius": "No hay paradas a menos de 500 m. Mostrando la más cercana.",
+    "locationDenied": "No pudimos obtener tu ubicación. Puedes buscar una ruta o una parada."
+  },
+  "stop": {
+    "code": "Parada {{code}}",
+    "codeWithDistance": "Parada {{code}} · a {{distance}}",
+    "empty": "No hay llegadas en los próximos 90 min",
+    "emptyHint": "Puede que el servicio ya haya terminado por hoy."
+  },
+  "route": {
+    "vehicleCount_one": "{{count}} camión en vivo",
+    "vehicleCount_other": "{{count}} camiones en vivo",
+    "towards": "Hacia {{headsign}}",
+    "noHeadsign": "Sin destino",
+    "empty": "No hay camiones en vivo de esta ruta ahora."
+  },
+  "arrival": {
+    "now": "Ahora",
+    "minutes": "min",
+    "scheduled": "Programado",
+    "liveOnTime": "En vivo · a tiempo",
+    "liveLate": "En vivo · {{minutes}} min tarde",
+    "liveEarly": "En vivo · {{minutes}} min antes",
+    "canceled": "Cancelado",
+    "skipped": "No pasará por esta parada",
+    "liveIconLabel": "En vivo"
+  },
+  "freshness": {
+    "seconds": "Actualizado hace {{seconds}} s",
+    "minutes": "Actualizado hace {{minutes}} min"
+  }
+}

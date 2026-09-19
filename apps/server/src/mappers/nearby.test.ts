@@ -25,6 +25,7 @@ const VEHICLE: Vehicle = {
   routeId: "metrotransit:54",
   directionId: 0,
   tripId: "metrotransit:t1",
+  headsign: "MSP - St Paul",
   updatedAt: 1000,
 };
 

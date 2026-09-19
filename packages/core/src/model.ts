@@ -139,6 +139,8 @@ export interface Vehicle extends LatLon {
   routeId: RouteId;
   directionId: DirectionId;
   tripId: TripId;
+  /** Destination of the vehicle's trip, from the catalog. Empty only when the trip has no headsign. */
+  headsign: string;
   bearing?: number | undefined;
   currentStopSequence?: number | undefined;
   /** When the position was reported by the vehicle. */

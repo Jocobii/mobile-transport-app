@@ -8,7 +8,7 @@ Epics are written so an AI coding agent (or a person) can execute them **without
 | ID | Title | Status |
 |---|---|---|
 | [EPIC-001](EPIC-001-transit-data-api.md) | Transit data API (catalog, realtime, endpoints) | Done |
-| [EPIC-002](EPIC-002-mobile-mvp.md) | Mobile MVP (Nearby, Stop, Search) | Ready |
+| [EPIC-002](EPIC-002-mobile-mvp.md) | Mobile MVP (Nearby, Stop, Search) | In progress |
 
 Statuses: `Draft` → `Ready` → `In progress` → `Done` (or `Blocked`).
 

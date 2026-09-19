@@ -31,7 +31,7 @@ function parseEpoch(value: unknown): EpochSeconds | undefined {
 
 /**
  * Normalizes a decoded VehiclePosition `FeedMessage` into canonical `Vehicle`s (10.7).
- * The catalog trip is authoritative for `routeId`/`directionId`; entities whose trip is
+ * The catalog trip is authoritative for `routeId`/`directionId`/`headsign`; entities whose trip is
  * not in the catalog, or that have no usable position, are skipped.
  */
 export async function normalizeVehiclePositions(
@@ -71,6 +71,7 @@ export async function normalizeVehiclePositions(
         routeId: trip.routeId,
         directionId: trip.directionId,
         tripId,
+        headsign: trip.headsign,
         bearing: position.bearing ?? undefined,
         currentStopSequence: vehicle.currentStopSequence ?? undefined,
         updatedAt,

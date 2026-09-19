@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Ready |
+| Status | In progress |
 | Depends on | EPIC-001 (Done): `/api/v1` deployed at `https://mobile-transport-app.vercel.app`, `@transit/api-client`, `@transit/contracts` |
 | Related decisions | Project decisions document: "Flujo propuesto", "EPIC-002 — App móvil", UX principles; wireframes canvas "Wireframes EPIC-002" |
 | Read first | `AGENTS.md`, `docs/engineering/mobile.md`, `architecture.md`, `principles.md`, `typescript.md`, `testing.md`, `workflow.md`, `apps/mobile/AGENTS.md` |
@@ -228,17 +228,17 @@ matching §6.
 
 Execute in order. Mark each checkbox when done. Commit per task (Conventional Commits, English).
 
-- [ ] **E002-T01 — Vehicle headsign (server).** §4. Tests first. `pnpm verify`.
-- [ ] **E002-T02 — Mobile dependencies and config.** Install with `npx expo install react-native-maps expo-location
+- [x] **E002-T01 — Vehicle headsign (server).** §4. Tests first. `pnpm verify`.
+- [x] **E002-T02 — Mobile dependencies and config.** Install with `npx expo install react-native-maps expo-location
   expo-localization` and `pnpm --filter @transit/mobile add i18next react-i18next @transit/api-client @transit/contracts`
   (workspace deps as `workspace:*`). Configure `react-native-maps` (Google Maps API key for Android via env
   `GOOGLE_MAPS_ANDROID_API_KEY`, read in `app.config.ts`, never committed) and `expo-location` permission text in
   Spanish, following the SDK 57 versioned docs. Add `apps/mobile/.env.example`. Add Vitest to `apps/mobile`
   (`test` script, pure TS tests only, no React Native renderer). Acceptance: `pnpm verify` passes.
-- [ ] **E002-T03 — Remove the template.** Delete template screens/components/hooks (`explore.tsx`, `app-tabs*`,
+- [x] **E002-T03 — Remove the template.** Delete template screens/components/hooks (`explore.tsx`, `app-tabs*`,
   `animated-icon*`, `hint-row`, `web-badge`, `collapsible`, `external-link`, `themed-*`, template `constants/theme.ts`,
   template color-scheme hooks) and unused template assets. `_layout.tsx` becomes a plain stack with no header.
-- [ ] **E002-T04 — Foundations.** `src/api/client.ts`, `src/i18n/`, `src/shared/theme.ts`, `src/shared/config.ts`,
+- [x] **E002-T04 — Foundations.** `src/api/client.ts`, `src/i18n/`, `src/shared/theme.ts`, `src/shared/config.ts`,
   formatters (§7.1–7.4) with tests, `poll-controller` + `usePolledQuery` (§7.5) with tests, panel state reducer with tests.
 - [ ] **E002-T05 — Map and location.** `TransitMap`, markers, `useUserLocation` (permission, denied fallback §3),
   recenter button.

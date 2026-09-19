@@ -40,6 +40,18 @@ function fakeTripLookup(directionId: 0 | 1 = 0): TripLookup {
 }
 
 describe("normalizeVehiclePositions", () => {
+  it("carries the catalog trip headsign on every vehicle", async () => {
+    const message = loadFeedMessage("mvta/vehicle-positions.pb");
+
+    const vehicles = await normalizeVehiclePositions(message, {
+      feedId: "mvta",
+      tripLookup: fakeTripLookup(),
+    });
+
+    expect(vehicles.length > 0).toBe(true);
+    expect(vehicles.every((v) => v.headsign === "Fake headsign")).toBe(true);
+  });
+
   it("resolves directionId from the catalog for MVTA vehicles (the feed has none)", async () => {
     const message = loadFeedMessage("mvta/vehicle-positions.pb");
     const directions: Record<string, 0 | 1> = {
