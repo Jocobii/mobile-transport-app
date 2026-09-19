@@ -1,5 +1,6 @@
 import type { VehicleDto } from "@transit/contracts";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { Marker } from "react-native-maps";
 import Svg, { Path, Rect } from "react-native-svg";
@@ -41,6 +42,7 @@ export function vehicleMarkerKey(vehicle: VehicleDto): string {
  * `tracksViewChanges` can be turned off after the first render (a Google Maps performance need).
  */
 export function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
+  const { t } = useTranslation();
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
   const bearing = markerBearing(vehicle);
   const palette = routeColors(vehicle.routeColor, vehicle.routeTextColor);
@@ -57,7 +59,14 @@ export function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
       tracksViewChanges={tracksViewChanges}
       onPress={onPress ? () => onPress(vehicle) : undefined}
     >
-      <View style={styles.container}>
+      <View
+        style={styles.container}
+        accessible
+        accessibilityLabel={t("map.busMarkerLabel", {
+          route: vehicle.routeShortName,
+          headsign: vehicle.headsign,
+        })}
+      >
         <View style={[styles.halo, { backgroundColor: `${palette.background}${HALO_ALPHA}` }]} />
         <View style={[styles.pill, { backgroundColor: palette.background }]}>
           <BusGlyph color={palette.text} />

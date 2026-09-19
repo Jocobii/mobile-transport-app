@@ -19,7 +19,9 @@
     "close": "Cerrar búsqueda"
   },
   "map": {
-    "recenter": "Centrar en mi ubicación"
+    "recenter": "Centrar en mi ubicación",
+    "busMarkerLabel": "Camión {{route}} hacia {{headsign}}",
+    "stopMarkerLabel": "Parada {{name}}"
   },
   "nearby": {
     "title": "Cerca de ti",

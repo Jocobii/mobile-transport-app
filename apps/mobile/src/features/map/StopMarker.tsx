@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { Marker } from "react-native-maps";
 import { colors, fontSizes, spacing } from "@/shared/theme";
@@ -31,6 +32,7 @@ function useSettledView(): boolean {
  * The parent keys it by id and `selected`, so it remounts when its look changes.
  */
 export function StopMarker({ id, name, lat, lon, selected, onPress }: StopMarkerProps) {
+  const { t } = useTranslation();
   const tracksViewChanges = useSettledView();
   const coordinate = { latitude: lat, longitude: lon };
 
@@ -43,7 +45,11 @@ export function StopMarker({ id, name, lat, lon, selected, onPress }: StopMarker
         zIndex={selected ? 2 : 1}
         onPress={() => onPress(id)}
       >
-        <View style={selected ? styles.selected : styles.normal} />
+        <View
+          style={selected ? styles.selected : styles.normal}
+          accessible
+          accessibilityLabel={t("map.stopMarkerLabel", { name })}
+        />
       </Marker>
       {selected ? <StopLabel name={name} coordinate={coordinate} /> : null}
     </>

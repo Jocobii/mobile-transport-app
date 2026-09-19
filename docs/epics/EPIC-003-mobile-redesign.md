@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Ready |
+| Status | Done |
 | Depends on | EPIC-002 closed (E002-T11). If E002-T11 is still open, do it first. |
 | Related decisions | Project decisions document: "EPIC-002 — App móvil (MVP)" → field test 2026-09-19 and redesign v2; wireframes canvas "Wireframes EPIC-002", row 4 ("Rediseño v2") and its notes |
 | Read first | `AGENTS.md`, `docs/engineering/mobile.md`, `architecture.md`, `principles.md`, `typescript.md`, `testing.md`, `apps/mobile/AGENTS.md`, SDK 57 versioned docs |
@@ -221,10 +221,10 @@ Execute in order. Mark each checkbox. Commit per task (Conventional Commits, Eng
   pull-to-refresh, row ↔ map highlight.
 - [x] **E003-T06 — Vehicle view.** Panel kinds (reducer tests), `useVehicleDetail` (polled), `segmentToStop` and
   `stopsUntil` (tests), live/scheduled/passed/canceled/gone variants, follow mode, bus marker tap.
-- [ ] **E003-T07 — Stop, Search and Route vehicles restyle.** §6.4, §6.5.
-- [ ] **E003-T08 — Accessibility and polish.** Labels on markers and icon buttons, touch targets ≥ 44 dp,
+- [x] **E003-T07 — Stop, Search and Route vehicles restyle.** §6.4, §6.5.
+- [x] **E003-T08 — Accessibility and polish.** Labels on markers and icon buttons, touch targets ≥ 44 dp,
   status never by color alone, distances without monospace, no Spanish outside `es.json`.
-- [ ] **E003-T09 — Closing.** `pnpm verify`; update `docs/engineering/mobile.md` (feature folders `vehicle/`,
+- [x] **E003-T09 — Closing.** `pnpm verify`; update `docs/engineering/mobile.md` (feature folders `vehicle/`,
   status system, sheet); set epic and index to `Done`; list decisions introduced for the decisions document.
 
 ---
