@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Ready |
+| Status | Done |
 | Depends on | Monorepo setup (done): `@transit/core`, `@transit/gtfs`, `@transit/contracts`, `@transit/api-client`, `@transit/server`, `GET /api/v1/health` |
 | Related decisions | Project decisions document: data architecture, GTFS-RT normalization rules, Merger rules, Vercel server design |
 | Read first | `AGENTS.md`, `docs/engineering/architecture.md`, `principles.md`, `typescript.md`, `testing.md`, `server.md`, `workflow.md` |
