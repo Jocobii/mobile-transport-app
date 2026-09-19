@@ -9,7 +9,7 @@ before using any Expo or React Native API.
 
 ```
 src/app/            Expo Router screens (thin: compose hooks + components)
-src/features/<x>/   feature folders: nearby, stop, route, vehicle, search
+src/features/<x>/   feature folders: nearby, stop, route, search, map
     components/     presentational components (props in, UI out, no data fetching)
     hooks/          data hooks (use @transit/api-client), view-model logic
 src/shared/         cross-feature UI components, formatting, theme tokens

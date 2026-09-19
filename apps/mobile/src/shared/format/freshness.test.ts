@@ -20,4 +20,9 @@ describe("formatFreshness", () => {
     expect(formatFreshness(60)).toEqual({ key: "freshness.minutes", params: { minutes: 1 } });
     expect(formatFreshness(185).params).toEqual({ minutes: 3 });
   });
+
+  it("uses the inline keys for the inline variant", () => {
+    expect(formatFreshness(5, "inline").key).toBe("freshness.inlineSeconds");
+    expect(formatFreshness(120, "inline").key).toBe("freshness.inlineMinutes");
+  });
 });

@@ -240,13 +240,13 @@ Execute in order. Mark each checkbox when done. Commit per task (Conventional Co
   template color-scheme hooks) and unused template assets. `_layout.tsx` becomes a plain stack with no header.
 - [x] **E002-T04 — Foundations.** `src/api/client.ts`, `src/i18n/`, `src/shared/theme.ts`, `src/shared/config.ts`,
   formatters (§7.1–7.4) with tests, `poll-controller` + `usePolledQuery` (§7.5) with tests, panel state reducer with tests.
-- [ ] **E002-T05 — Map and location.** `TransitMap`, markers, `useUserLocation` (permission, denied fallback §3),
+- [x] **E002-T05 — Map and location.** `TransitMap`, markers, `useUserLocation` (permission, denied fallback §3),
   recenter button.
-- [ ] **E002-T06 — Nearby panel.** §6.1 including loading, error, `outsideRadius`, approaching vehicle markers.
-- [ ] **E002-T07 — Stop panel.** §6.2 including canceled/skipped and empty state.
-- [ ] **E002-T08 — Search panel.** §6.3.
-- [ ] **E002-T09 — Route vehicles panel.** §6.4.
-- [ ] **E002-T10 — Back behavior and polish.** Android back per §3, accessibility labels on icon buttons,
+- [x] **E002-T06 — Nearby panel.** §6.1 including loading, error, `outsideRadius`, approaching vehicle markers.
+- [x] **E002-T07 — Stop panel.** §6.2 including canceled/skipped and empty state.
+- [x] **E002-T08 — Search panel.** §6.3.
+- [x] **E002-T09 — Route vehicles panel.** §6.4.
+- [x] **E002-T10 — Back behavior and polish.** Android back per §3, accessibility labels on icon buttons,
   touch targets ≥ 44 dp, no Spanish outside `es.json`.
 - [ ] **E002-T11 — Closing.** `pnpm verify`; update `docs/engineering/mobile.md` if the structure changed;
   set this epic and the index to `Done`; list decisions introduced during implementation for the decisions document.

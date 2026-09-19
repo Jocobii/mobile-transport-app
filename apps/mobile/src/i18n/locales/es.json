@@ -25,6 +25,7 @@
     "title": "Cerca de ti",
     "loading": "Buscando paradas cerca de ti… La primera carga puede tardar unos segundos.",
     "outsideRadius": "No hay paradas a menos de 500 m. Mostrando la más cercana.",
+    "empty": "No encontramos paradas cerca de ti.",
     "locationDenied": "No pudimos obtener tu ubicación. Puedes buscar una ruta o una parada."
   },
   "stop": {
@@ -53,6 +54,8 @@
   },
   "freshness": {
     "seconds": "Actualizado hace {{seconds}} s",
-    "minutes": "Actualizado hace {{minutes}} min"
+    "minutes": "Actualizado hace {{minutes}} min",
+    "inlineSeconds": "actualizado hace {{seconds}} s",
+    "inlineMinutes": "actualizado hace {{minutes}} min"
   }
 }

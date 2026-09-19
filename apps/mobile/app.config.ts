@@ -1,6 +1,6 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
-const ANDROID_PACKAGE = "dev.gamoro.transit";
+const APP_ID = "dev.gamoro.transit";
 
 /** Native permission prompt shown by the OS; it is not part of the in-app i18n files. */
 const LOCATION_PERMISSION_TEXT =
@@ -17,6 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: "automatic",
   ios: {
     icon: "./assets/expo.icon",
+    bundleIdentifier: APP_ID,
   },
   android: {
     adaptiveIcon: {
@@ -26,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
     predictiveBackGestureEnabled: false,
-    package: ANDROID_PACKAGE,
+    package: APP_ID,
   },
   web: {
     output: "static",

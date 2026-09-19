@@ -9,6 +9,7 @@ export const colors = {
   map: "#e4e2dc",
   live: "#1f7a4d",
   problem: "#a3281c",
+  highlight: "#1a56db",
 } as const;
 
 export const radii = {

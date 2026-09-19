@@ -1,8 +1,11 @@
+import type { RouteSummaryDto } from "@transit/contracts";
+
 export type Panel =
   | { kind: "nearby" }
   | { kind: "stop"; stopId: string }
   | { kind: "search" }
-  | { kind: "route"; routeId: string };
+  /** Carries the summary because the route vehicles endpoint returns no route name. */
+  | { kind: "route"; route: RouteSummaryDto };
 
 export interface PanelState {
   /** Bottom of the stack is always the Nearby panel. */
@@ -31,7 +34,7 @@ function isSamePanel(a: Panel, b: Panel): boolean {
     case "stop":
       return b.kind === "stop" && a.stopId === b.stopId;
     case "route":
-      return b.kind === "route" && a.routeId === b.routeId;
+      return b.kind === "route" && a.route.id === b.route.id;
   }
 }
 

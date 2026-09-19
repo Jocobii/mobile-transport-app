@@ -8,6 +8,13 @@ import {
   panelReducer,
 } from "./panel-state";
 
+const ROUTE = {
+  id: "mvta:436",
+  feedId: "mvta",
+  shortName: "436",
+  longName: "46th St Station-MSP-Viking Lakes-Eagan",
+};
+
 function run(actions: PanelAction[], from: PanelState = initialPanelState): PanelState {
   return actions.reduce(panelReducer, from);
 }
@@ -31,7 +38,7 @@ describe("panelReducer", () => {
   it("walks back through the stack one panel at a time", () => {
     const state = run([
       { type: "push", panel: { kind: "search" } },
-      { type: "push", panel: { kind: "route", routeId: "mvta:436" } },
+      { type: "push", panel: { kind: "route", route: ROUTE } },
       { type: "back" },
     ]);
 
@@ -61,7 +68,7 @@ describe("panelReducer", () => {
   it("resets to the nearby panel from any depth", () => {
     const state = run([
       { type: "push", panel: { kind: "search" } },
-      { type: "push", panel: { kind: "route", routeId: "mvta:436" } },
+      { type: "push", panel: { kind: "route", route: ROUTE } },
       { type: "reset" },
     ]);
 
