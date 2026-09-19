@@ -34,7 +34,7 @@ export function RouteVehiclesPanel({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <RouteBadge label={route.shortName} />
+          <RouteBadge label={route.shortName} color={route.color} textColor={route.textColor} />
           <Text style={styles.title} numberOfLines={2}>
             {route.longName}
           </Text>

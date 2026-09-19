@@ -6,14 +6,7 @@ import { RouteBadge } from "@/shared/components/RouteBadge";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { formatArrivalTime } from "@/shared/format/arrival-time";
-import {
-  colors,
-  fontSizes,
-  monospaceFont,
-  radii,
-  spacing,
-  statusTimeColors,
-} from "@/shared/theme";
+import { colors, fontSizes, monospaceFont, radii, spacing, statusTimeColors } from "@/shared/theme";
 
 interface StopArrivalRowProps {
   arrival: ArrivalDto;

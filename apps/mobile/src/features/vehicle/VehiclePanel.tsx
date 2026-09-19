@@ -9,8 +9,8 @@ import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { routeColors } from "@/shared/format/route-colors";
 import { colors, fontSizes, radii, spacing, statusColors } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
-import { stopsUntil } from "./stops-until";
 import { StopTimeline } from "./StopTimeline";
+import { stopsUntil } from "./stops-until";
 import { isVehicleGone } from "./use-vehicle-detail";
 
 const STOPS_AFTER_TARGET = 2;
@@ -50,9 +50,7 @@ export function VehiclePanel({
     );
   }
   if (data) {
-    return (
-      <LiveView data={data} stopId={stopId} now={now} onSeeStopArrivals={onSeeStopArrivals} />
-    );
+    return <LiveView data={data} stopId={stopId} now={now} onSeeStopArrivals={onSeeStopArrivals} />;
   }
   if (error !== undefined) return <ErrorState onRetry={onRetry} />;
   if (isInitialLoading) return <LoadingState />;

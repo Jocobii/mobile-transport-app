@@ -1,6 +1,7 @@
 import type { RouteSummaryDto, SearchResponse, StopSummaryDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from "react-native";
+import { ChevronIcon } from "@/shared/components/ChevronIcon";
 import { EmptyState, ErrorState } from "@/shared/components/PanelStatus";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { colors, fontSizes, radii, spacing } from "@/shared/theme";
@@ -126,7 +127,7 @@ function RouteRow({
       accessibilityLabel={`${route.shortName} ${route.longName}`}
       style={styles.row}
     >
-      <RouteBadge label={route.shortName} />
+      <RouteBadge label={route.shortName} color={route.color} textColor={route.textColor} />
       <View style={styles.rowText}>
         <Text style={styles.rowTitle} numberOfLines={2}>
           {route.longName}
@@ -135,6 +136,7 @@ function RouteRow({
           {t(`agency.${route.feedId}`, { defaultValue: route.feedId })}
         </Text>
       </View>
+      <ChevronIcon />
     </Pressable>
   );
 }
@@ -154,6 +156,7 @@ function StopRow({ stop, onPress }: { stop: StopSummaryDto; onPress: (stopId: st
         </Text>
         <Text style={styles.rowSubtitle}>{t("stop.code", { code: stop.code })}</Text>
       </View>
+      <ChevronIcon />
     </Pressable>
   );
 }

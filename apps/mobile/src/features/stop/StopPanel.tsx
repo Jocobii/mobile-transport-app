@@ -1,10 +1,11 @@
 import type { ArrivalDto, StopArrivalsResponse } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { FreshnessLabel } from "@/shared/components/FreshnessLabel";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
 import { formatDistance } from "@/shared/format/distance";
 import { distanceMeters, type Position } from "@/shared/geo/position";
+import { usePullToRefresh } from "@/shared/polling/use-pull-to-refresh";
 import { colors, fontSizes, spacing } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
 import { StopArrivalRow } from "./StopArrivalRow";
@@ -31,6 +32,7 @@ export function StopPanel({
 }: StopPanelProps) {
   const { t } = useTranslation();
   const now = useNow();
+  const { refreshing, onRefresh } = usePullToRefresh(onRetry, lastSuccessAt);
 
   return (
     <View style={styles.container}>
@@ -48,9 +50,7 @@ export function StopPanel({
               : t("stop.code", { code: data.stop.code })}
           </Text>
           <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
-          {data.arrivals.length > 0 ? (
-            <Text style={styles.hint}>{t("stop.tapHint")}</Text>
-          ) : null}
+          {data.arrivals.length > 0 ? <Text style={styles.hint}>{t("stop.tapHint")}</Text> : null}
         </View>
       ) : null}
 
@@ -58,9 +58,12 @@ export function StopPanel({
         <FlatList
           data={data.arrivals}
           keyExtractor={(arrival, index) => `${arrival.tripId}:${index}`}
-          renderItem={({ item }) => <StopArrivalRow arrival={item} now={now} onPress={onArrivalPress} />}
+          renderItem={({ item }) => (
+            <StopArrivalRow arrival={item} now={now} onPress={onArrivalPress} />
+          )}
           ItemSeparatorComponent={Separator}
           ListEmptyComponent={<EmptyState title={t("stop.empty")} hint={t("stop.emptyHint")} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           contentContainerStyle={styles.list}
         />
       ) : error !== undefined ? (

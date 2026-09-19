@@ -27,7 +27,8 @@ export function useVehicleView(panel: Panel, mapRef: RefObject<TransitMapHandle 
   const skipNextFollow = useRef(false);
 
   const data = detail.data;
-  const until = data && vehiclePanel ? stopsUntil(data.upcomingStops, vehiclePanel.stopId) : undefined;
+  const until =
+    data && vehiclePanel ? stopsUntil(data.upcomingStops, vehiclePanel.stopId) : undefined;
   const targetStop = until?.target?.stop;
   const busLat = data?.vehicle.lat;
   const busLon = data?.vehicle.lon;

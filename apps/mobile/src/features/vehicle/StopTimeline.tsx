@@ -36,7 +36,9 @@ export function StopTimeline({ stops, targetStopId, lineColor, now }: StopTimeli
                   index === stops.length - 1 && styles.lineEnd,
                 ]}
               />
-              <View style={[styles.dot, { borderColor: lineColor }, isTarget && styles.targetDot]} />
+              <View
+                style={[styles.dot, { borderColor: lineColor }, isTarget && styles.targetDot]}
+              />
             </View>
             <View style={styles.names}>
               <Text style={[styles.name, isTarget && styles.targetName]} numberOfLines={2}>

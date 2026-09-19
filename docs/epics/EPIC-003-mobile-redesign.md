@@ -219,7 +219,7 @@ Execute in order. Mark each checkbox. Commit per task (Conventional Commits, Eng
 - [x] **E003-T04 — Bottom sheet.** §3 bottom sheet decision; replace `BottomPanel`; three snap points; keep Android back behavior.
 - [x] **E003-T05 — Route-first Nearby.** `groupNearbyByRoute` (§7.1, tests), `NearbyRouteRow`, header, empty state,
   pull-to-refresh, row ↔ map highlight.
-- [ ] **E003-T06 — Vehicle view.** Panel kinds (reducer tests), `useVehicleDetail` (polled), `segmentToStop` and
+- [x] **E003-T06 — Vehicle view.** Panel kinds (reducer tests), `useVehicleDetail` (polled), `segmentToStop` and
   `stopsUntil` (tests), live/scheduled/passed/canceled/gone variants, follow mode, bus marker tap.
 - [ ] **E003-T07 — Stop, Search and Route vehicles restyle.** §6.4, §6.5.
 - [ ] **E003-T08 — Accessibility and polish.** Labels on markers and icon buttons, touch targets ≥ 44 dp,

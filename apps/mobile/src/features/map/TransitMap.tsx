@@ -1,7 +1,7 @@
 import type { VehicleDto } from "@transit/contracts";
 import { type Ref, useImperativeHandle, useRef } from "react";
 import { StyleSheet } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Polyline } from "react-native-maps";
+import MapView, { Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import type { Position } from "@/shared/geo/position";
 import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";

@@ -13,7 +13,12 @@ const at = (step: number): Position => ({ lat: 44.9, lon: -93.2 + step * 0.001 }
 
 describe("segmentToStop", () => {
   it("cuts the shape between the point nearest the bus and the one nearest the stop", () => {
-    expect(segmentToStop(SHAPE, at(1.1), at(3.9))).toEqual([SHAPE[1], SHAPE[2], SHAPE[3], SHAPE[4]]);
+    expect(segmentToStop(SHAPE, at(1.1), at(3.9))).toEqual([
+      SHAPE[1],
+      SHAPE[2],
+      SHAPE[3],
+      SHAPE[4],
+    ]);
   });
 
   it("returns bus and stop when the shape is empty", () => {
