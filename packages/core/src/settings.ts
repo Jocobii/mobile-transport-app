@@ -11,8 +11,13 @@ export interface TransitSettings {
   /** Timeout for realtime feed downloads. */
   feedFetchTimeoutMs: number;
 
-  /** `stops/nearby` radius when `radius` is omitted. */
-  nearbyDefaultRadiusMeters: number;
+  /**
+   * `stops/nearby` radius steps (meters) tried in order when `radius` is omitted; the first step
+   * that finds at least `nearbyMinStops` stops is used. The first step is the default radius.
+   */
+  nearbyRadiusStepsMeters: number[];
+  /** Minimum stop count that stops the adaptive radius from growing further. */
+  nearbyMinStops: number;
   /** Validation bounds for the `radius` query parameter. */
   nearbyMinRadiusMeters: number;
   nearbyMaxRadiusMeters: number;
@@ -22,6 +27,15 @@ export interface TransitSettings {
   nearbyFallbackMaxDistanceMeters: number;
   /** Arrivals returned per stop in `stops/nearby`. */
   nearbyArrivalsPerStop: number;
+
+  /** Validation bound for `stops/in-area`'s `bbox` span (degrees, per axis). */
+  areaStopsMaxSpanDegrees: number;
+  /** Max stops returned by `stops/in-area`. */
+  areaStopsMaxResults: number;
+  /** Validation bound for `vehicles/in-area`'s `bbox` span (degrees, per axis). */
+  areaVehiclesMaxSpanDegrees: number;
+  /** Max vehicles returned by `vehicles/in-area`. */
+  areaVehiclesMaxResults: number;
 
   /** Lookahead window for nearby and stop arrivals. */
   arrivalsWindowMinutes: number;

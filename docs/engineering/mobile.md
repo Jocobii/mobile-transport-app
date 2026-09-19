@@ -80,8 +80,44 @@ src/api/            api client instance and configuration
 
 ## Vehicle view
 
-- `features/vehicle/`: polled `useVehicleDetail`, one-time `useRouteShape`, `useVehicleView` (segment to the user's
-  stop, one fit per vehicle, follow mode), pure `stopsUntil` and `segmentToStop`.
+- `features/vehicle/`: polled `useVehicleDetail`, one-time `useRouteShape`, `useVehicleView` (segment to the target
+  stop, one fit per vehicle, follow mode), pure `stopsUntil`, `segmentToStop` and `resolveSegmentTarget`.
 - Follow mode re-centers on every refresh keeping the zoom (`panTo`); dragging the map turns it off and the chip resumes it.
 - Variants: live, passed, canceled/skipped, gone (vehicle left the feed) and Trip (scheduled, nothing to poll).
 - Map markers are bitmaps, so screen-reader access to vehicles and stops goes through the lists, not the markers.
+- **Opening a bus** (`resolve-vehicle-stop.ts`, pure): tapping any bus marker in Nearby, Search or Route resolves a
+  stop context: "my stop" if the bus approaches it, otherwise no stop. A stop is never picked automatically, and
+  opening a bus never sets "my stop" itself.
+- **Nearby initial view**: on start and recenter the map frames `NEARBY_FOCUS_DELTA` (~1500 m, the largest adaptive
+  Nearby radius), inside the stops zoom gate, so stops and buses show immediately.
+- **Vehicle view without a stop**: same panel and follow mode, no "Llega a tu parada…" line and no "faltan N
+  paradas". Timeline shows the next 10 upcoming stops; the route segment runs to the last upcoming stop instead
+  (`resolveSegmentTarget`); first fit centers the bus alone (`TransitMapHandle.fitTo` degrades to `focusOn` with a
+  single point).
+- **Bus stops on the map** (`vehicle-map-content.ts`, pure `buildVehicleMapContent`): the Vehicle view draws every
+  upcoming stop (deduped by id), not only the target; the resolved stop (if any) stays the selected marker. Tapping
+  any of them opens the Stop panel like elsewhere on the map.
+
+## Map layers and the visible-area viewport (EPIC-005)
+
+- **Layer toggles** (`features/map/map-layers.ts`, `use-map-layers.ts`): `showVehicles` / `showStops`, both on by
+  default, only applied to the Nearby and Search panels (`select-map-content.ts`). Persisted to `AsyncStorage`
+  (`map-layers-storage.ts`, pure `parseStoredLayers`: defaults for missing, malformed or partial data), loaded once
+  on mount and saved on every change.
+- **Adaptive Nearby radius** (`@transit/core` `getNearby`): widens the search radius in configured steps until it
+  has enough stops, independent of the viewport layers below.
+- **Viewport-driven layers** (`viewport.ts`, pure): `stops/in-area` and `vehicles/in-area` are cheap,
+  position-agnostic endpoints — positions only, no arrivals. `TransitMap.onRegionChangeComplete` feeds a debounced
+  region (`AREA_FETCH_DEBOUNCE_MS`, `useDebouncedValue`) into `useAreaStops` / `useAreaVehicles`, each gated by its
+  own zoom level (`STOPS_ZOOM_GATE_DELTA` ≈ 3.3 km, `VEHICLES_ZOOM_GATE_DELTA` ≈ 16 km — outside it only approaching
+  buses show, as before this epic) and capped/expanded/grid-snapped (`AREA_EXPAND_FACTOR`, `AREA_SNAP_GRID_DEGREES`)
+  so panning inside an already-fetched area does not refetch. `useAreaVehicles` also polls every 20 s
+  (`REFRESH_INTERVAL_MS`) while active. `ZoomHint` tells the user to zoom in when the stops layer is on but gated
+  out.
+- `select-map-content.ts` merges the area layers with the existing ones, deduped by id: area stops merge with
+  Nearby stops; area vehicles merge with approaching vehicles, with the approaching version winning (it carries the
+  stop it approaches, so tapping it still opens the Vehicle view — non-approaching bus markers get no `onPress`
+  unless "Opening a bus" resolves a stop for them).
+- **Clearing "my stop"** (`MyStopChip`, `shared/panel/back-decision.ts`): shown under the search bar in Nearby while
+  a stop is highlighted, hidden once it falls out of the Nearby data. Android back clears it before it ever walks
+  the panel stack (pure `resolveBackAction`, tested for every `nearby | other panel` × `stop set | not set` case).

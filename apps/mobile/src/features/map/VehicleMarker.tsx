@@ -1,12 +1,12 @@
 import type { VehicleDto } from "@transit/contracts";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { Marker } from "react-native-maps";
 import Svg, { Path, Rect } from "react-native-svg";
 import { routeColors } from "@/shared/format/route-colors";
 import { colors, monospaceFont, spacing } from "@/shared/theme";
-import { BEARING_STEP_DEGREES } from "./map-config";
+import { markerBearing } from "./vehicle-marker-key";
 
 interface VehicleMarkerProps {
   vehicle: VehicleDto;
@@ -18,22 +18,7 @@ const ARROW_CIRCLE = 20;
 const MARKER_PADDING = 10;
 const HALO_ALPHA = "40";
 
-/** Bearing rounded to the marker step, or undefined when the vehicle reports none. */
-export function markerBearing(vehicle: VehicleDto): number | undefined {
-  if (vehicle.bearing === undefined) return undefined;
-  return Math.round(vehicle.bearing / BEARING_STEP_DEGREES) * BEARING_STEP_DEGREES;
-}
-
-/** Key that changes whenever the marker's look changes (route, colors, rounded bearing). */
-export function vehicleMarkerKey(vehicle: VehicleDto): string {
-  return [
-    vehicle.id,
-    vehicle.routeShortName,
-    vehicle.routeColor ?? "none",
-    vehicle.routeTextColor ?? "none",
-    markerBearing(vehicle) ?? "none",
-  ].join(":");
-}
+export { markerBearing, vehicleMarkerKey } from "./vehicle-marker-key";
 
 /**
  * Pill in the official route colors with a bus glyph and the route number, a faint halo in the
@@ -41,7 +26,7 @@ export function vehicleMarkerKey(vehicle: VehicleDto): string {
  * The parent keys it with `vehicleMarkerKey`, so it remounts when its look changes and
  * `tracksViewChanges` can be turned off after the first render (a Google Maps performance need).
  */
-export function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
+export const VehicleMarker = memo(function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
   const { t } = useTranslation();
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
   const bearing = markerBearing(vehicle);
@@ -84,7 +69,7 @@ export function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
       </View>
     </Marker>
   );
-}
+});
 
 function BusGlyph({ color }: { color: string }) {
   return (

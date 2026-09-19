@@ -22,12 +22,17 @@ const TEST_SETTINGS: TransitSettings = {
   realtimeCacheTtlSeconds: 20,
   realtimeStaleAfterSeconds: 120,
   feedFetchTimeoutMs: 8000,
-  nearbyDefaultRadiusMeters: 500,
+  nearbyRadiusStepsMeters: [500, 1000, 1500],
+  nearbyMinStops: 3,
   nearbyMinRadiusMeters: 50,
   nearbyMaxRadiusMeters: 2000,
   nearbyMaxStops: 10,
   nearbyFallbackMaxDistanceMeters: 5000,
   nearbyArrivalsPerStop: 3,
+  areaStopsMaxSpanDegrees: 0.06,
+  areaStopsMaxResults: 250,
+  areaVehiclesMaxSpanDegrees: 0.3,
+  areaVehiclesMaxResults: 150,
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,
   pastArrivalGraceSeconds: 60,
@@ -90,6 +95,29 @@ describe("SqliteCatalogProvider (real fixtures: metrotransit + mvta)", () => {
     const near = await provider.findStopsNear(MSP_TERMINAL_1, 500, 10);
     expect(near.length > 0).toBe(true);
     expect(near[0]?.stop.id).toBe("56939");
+  });
+
+  it("findStopsInBounds returns stop 56939 ordered by distance to the box center, capped and truncated", async () => {
+    const bounds = { minLat: 44.878, minLon: -93.207, maxLat: 44.883, maxLon: -93.202 };
+    const all = await provider.findStopsInBounds(bounds, 1000);
+    expect(all.stops.some((stop) => stop.id === "56939")).toBe(true);
+    expect(all.truncated).toBe(false);
+    for (let i = 1; i < all.stops.length; i++) {
+      const prev = all.stops[i - 1];
+      const curr = all.stops[i];
+      if (!prev || !curr) continue;
+      const center = {
+        lat: (bounds.minLat + bounds.maxLat) / 2,
+        lon: (bounds.minLon + bounds.maxLon) / 2,
+      };
+      const distPrev = Math.hypot(prev.lat - center.lat, prev.lon - center.lon);
+      const distCurr = Math.hypot(curr.lat - center.lat, curr.lon - center.lon);
+      expect(distPrev).toBeLessThanOrEqual(distCurr + 1e-9);
+    }
+
+    const limited = await provider.findStopsInBounds(bounds, 1);
+    expect(limited.stops).toHaveLength(1);
+    expect(limited.truncated).toBe(all.stops.length > 1);
   });
 
   it("searchRoutes('436') finds mvta:436", async () => {

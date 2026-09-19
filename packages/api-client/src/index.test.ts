@@ -148,6 +148,35 @@ describe("createApiClient", () => {
 
       expect(fetchImpl).toHaveBeenCalledWith(`${BASE_URL}/api/v1/health`, expect.anything());
     });
+
+    it("getStopsInArea builds bbox as minLon,minLat,maxLon,maxLat with 6 decimals", async () => {
+      const fetchImpl = fakeFetch({ stops: [], truncated: false });
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getStopsInArea({ minLat: 44.97, minLon: -93.28, maxLat: 44.99, maxLon: -93.25 });
+
+      expect(fetchImpl).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/stops/in-area?bbox=-93.280000,44.970000,-93.250000,44.990000`,
+        expect.anything(),
+      );
+    });
+
+    it("getVehiclesInArea builds bbox as minLon,minLat,maxLon,maxLat with 6 decimals", async () => {
+      const fetchImpl = fakeFetch({ vehicles: [], truncated: false, feeds: [] });
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getVehiclesInArea({
+        minLat: 44.85,
+        minLon: -93.4,
+        maxLat: 45.05,
+        maxLon: -93.1,
+      });
+
+      expect(fetchImpl).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/vehicles/in-area?bbox=-93.400000,44.850000,-93.100000,45.050000`,
+        expect.anything(),
+      );
+    });
   });
 
   describe("x-api-key header", () => {

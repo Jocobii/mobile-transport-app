@@ -1,5 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import type {
+  Bounds,
   CatalogProvider,
   EpochSeconds,
   LatLon,
@@ -14,7 +15,7 @@ import type {
   Trip,
   TripId,
 } from "@transit/core";
-import { boundingBox, haversineMeters, VARIANT_SUFFIX_PATTERN } from "@transit/core";
+import { boundingBox, boundsCenter, haversineMeters, VARIANT_SUFFIX_PATTERN } from "@transit/core";
 import { addDays, epochFor, localServiceDate } from "../time/gtfs-time";
 
 export class CatalogUnavailableError extends Error {
@@ -211,6 +212,23 @@ export function createSqliteCatalogProvider(
       .filter((entry) => entry.distanceMeters <= radiusMeters)
       .sort((a, b) => a.distanceMeters - b.distanceMeters || (a.stop.id < b.stop.id ? -1 : 1));
     return withDistance.slice(0, limit);
+  }
+
+  async function findStopsInBounds(
+    bounds: Bounds,
+    limit: number,
+  ): Promise<{ stops: Stop[]; truncated: boolean }> {
+    const rows = stmtStopsInBox.all(
+      bounds.minLat,
+      bounds.maxLat,
+      bounds.minLon,
+      bounds.maxLon,
+    ) as Row[];
+    const center = boundsCenter(bounds);
+    const sorted = rows
+      .map(toStop)
+      .sort((a, b) => haversineMeters(center, a) - haversineMeters(center, b));
+    return { stops: sorted.slice(0, limit), truncated: sorted.length > limit };
   }
 
   async function findNearestStop(
@@ -411,6 +429,7 @@ export function createSqliteCatalogProvider(
     getStop,
     findStopsNear,
     findNearestStop,
+    findStopsInBounds,
     searchRoutes,
     searchStops,
     getRoute,

@@ -9,12 +9,18 @@ export const TRANSIT_SETTINGS: TransitSettings = {
   realtimeStaleAfterSeconds: 120,
   feedFetchTimeoutMs: 8000,
 
-  nearbyDefaultRadiusMeters: 500,
+  nearbyRadiusStepsMeters: [500, 1000, 1500],
+  nearbyMinStops: 3,
   nearbyMinRadiusMeters: 50,
   nearbyMaxRadiusMeters: 2000,
   nearbyMaxStops: 10,
   nearbyFallbackMaxDistanceMeters: 5000,
   nearbyArrivalsPerStop: 3,
+
+  areaStopsMaxSpanDegrees: 0.06,
+  areaStopsMaxResults: 250,
+  areaVehiclesMaxSpanDegrees: 0.3,
+  areaVehiclesMaxResults: 150,
 
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,

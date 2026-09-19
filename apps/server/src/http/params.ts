@@ -38,18 +38,18 @@ export function parseOptionalLatLon(params: URLSearchParams): ParseResult<LatLon
   return parseLatLon(params);
 }
 
-/** Optional `radius` query parameter (integer meters within the configured bounds). */
-type RadiusSettings = Pick<
-  TransitSettings,
-  "nearbyDefaultRadiusMeters" | "nearbyMinRadiusMeters" | "nearbyMaxRadiusMeters"
->;
+/**
+ * Optional `radius` query parameter (integer meters within the configured bounds).
+ * `undefined` when the client omits it, so the caller can run the adaptive radius search.
+ */
+type RadiusSettings = Pick<TransitSettings, "nearbyMinRadiusMeters" | "nearbyMaxRadiusMeters">;
 
 export function parseRadius(
   params: URLSearchParams,
   settings: RadiusSettings,
-): ParseResult<number> {
+): ParseResult<number | undefined> {
   const raw = params.get("radius");
-  if (raw === null || raw.trim() === "") return ok(settings.nearbyDefaultRadiusMeters);
+  if (raw === null || raw.trim() === "") return ok(undefined);
 
   const value = Number(raw);
   if (!Number.isInteger(value)) return fail("`radius` must be an integer.");

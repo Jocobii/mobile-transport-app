@@ -9,7 +9,6 @@ import {
 } from "./params";
 
 const RADIUS_SETTINGS = {
-  nearbyDefaultRadiusMeters: 500,
   nearbyMinRadiusMeters: 50,
   nearbyMaxRadiusMeters: 2000,
 };
@@ -67,8 +66,8 @@ describe("parseOptionalLatLon", () => {
 });
 
 describe("parseRadius", () => {
-  it("defaults when omitted", () => {
-    expect(parseRadius(params(""), RADIUS_SETTINGS)).toEqual({ ok: true, value: 500 });
+  it("is undefined when omitted, so the caller runs the adaptive radius search", () => {
+    expect(parseRadius(params(""), RADIUS_SETTINGS)).toEqual({ ok: true, value: undefined });
   });
 
   it("rejects a non-integer radius", () => {

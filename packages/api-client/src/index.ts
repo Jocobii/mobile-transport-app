@@ -9,7 +9,9 @@ import {
   type RouteVehiclesResponse,
   type SearchResponse,
   type StopArrivalsResponse,
+  type StopsInAreaResponse,
   type VehicleDetailResponse,
+  type VehiclesInAreaResponse,
 } from "@transit/contracts";
 
 export interface ApiClientOptions {
@@ -37,6 +39,19 @@ function buildQuery(params: Record<string, string | number | undefined>): string
   }
   const query = search.toString();
   return query === "" ? "" : `?${query}`;
+}
+
+export interface AreaBounds {
+  minLat: number;
+  minLon: number;
+  maxLat: number;
+  maxLon: number;
+}
+
+/** `minLon,minLat,maxLon,maxLat` (GeoJSON order), 6 decimals. */
+function formatBbox(bounds: AreaBounds): string {
+  const round = (value: number) => value.toFixed(6);
+  return [bounds.minLon, bounds.minLat, bounds.maxLon, bounds.maxLat].map(round).join(",");
 }
 
 export function createApiClient(options: ApiClientOptions) {
@@ -89,6 +104,12 @@ export function createApiClient(options: ApiClientOptions) {
 
     getVehicleDetail: (vehicleId: string) =>
       get<VehicleDetailResponse>(`/vehicles/${encodeURIComponent(vehicleId)}`),
+
+    getStopsInArea: (bounds: AreaBounds) =>
+      get<StopsInAreaResponse>(`/stops/in-area?bbox=${formatBbox(bounds)}`),
+
+    getVehiclesInArea: (bounds: AreaBounds) =>
+      get<VehiclesInAreaResponse>(`/vehicles/in-area?bbox=${formatBbox(bounds)}`),
 
     getHealth: () => get<HealthResponse>("/health"),
   };

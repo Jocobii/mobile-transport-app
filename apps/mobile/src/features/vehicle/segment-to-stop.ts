@@ -1,5 +1,6 @@
-import type { UpcomingStopDto } from "@transit/contracts";
+import type { StopSummaryDto, UpcomingStopDto } from "@transit/contracts";
 import { distanceMeters, type Position } from "@/shared/geo/position";
+import type { StopsUntil } from "./stops-until";
 
 function nearestIndex(shape: Position[], point: Position): number {
   let bestIndex = 0;
@@ -33,4 +34,26 @@ export function fallbackSegment(
   targetIndex: number,
 ): Position[] {
   return [bus, ...upcomingStops.slice(0, targetIndex + 1).map((upcoming) => upcoming.stop)];
+}
+
+export interface SegmentTarget {
+  stop: StopSummaryDto;
+  remaining: number;
+}
+
+/**
+ * The stop the route segment is drawn to (E005-T08, §3 "Vehicle view without a stop"): the
+ * resolved target stop when there is one; otherwise, with no stop context, the last upcoming
+ * stop, so the segment still traces the bus's remaining path. No segment once the target has
+ * been passed (unchanged from before T08).
+ */
+export function resolveSegmentTarget(
+  upcomingStops: UpcomingStopDto[],
+  until: StopsUntil,
+): SegmentTarget | undefined {
+  if (until.target) return { stop: until.target.stop, remaining: until.remaining };
+  if (until.passed || upcomingStops.length === 0) return undefined;
+  const last = upcomingStops.length - 1;
+  const lastStop = upcomingStops[last];
+  return lastStop ? { stop: lastStop.stop, remaining: last } : undefined;
 }

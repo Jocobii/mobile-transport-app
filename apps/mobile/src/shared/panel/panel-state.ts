@@ -6,8 +6,14 @@ export type Panel =
   | { kind: "search" }
   /** Carries the summary because the route vehicles endpoint returns no route name. */
   | { kind: "route"; route: RouteSummaryDto }
-  /** Live vehicle heading to the user's stop; polls the vehicle detail. */
-  | { kind: "vehicle"; vehicleId: string; stopId: string; routeId: string; directionId: 0 | 1 }
+  /** Live vehicle; `stopId` is the resolved stop context (E005-T08), if any. */
+  | {
+      kind: "vehicle";
+      vehicleId: string;
+      stopId?: string | undefined;
+      routeId: string;
+      directionId: 0 | 1;
+    }
   /** Scheduled (or vehicle-less) trip: no vehicle to poll. */
   | { kind: "trip"; arrival: ArrivalDto; stopId: string };
 

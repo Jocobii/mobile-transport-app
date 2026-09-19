@@ -15,6 +15,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",
     "@expo/ui": "~57.0.19",
+    "@react-native-async-storage/async-storage": "^3.1.1",
     "@transit/api-client": "workspace:*",
     "@transit/contracts": "workspace:*",
     "expo": "~57.0.24",
@@ -33,6 +34,7 @@
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
     "i18next": "^26.4.2",
+    "install": "^0.13.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-i18next": "^17.0.14",

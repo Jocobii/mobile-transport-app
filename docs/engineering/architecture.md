@@ -35,13 +35,21 @@ per-use-case algorithm.
 
 | Use case | Screen |
 |---|---|
-| `getNearby(center, radiusMeters)` | Nearby (initial state) |
+| `getNearby(center, radiusMeters?)` | Nearby (initial state; adaptive radius, EPIC-005) |
 | `search(query)` | Search (routes and stops) |
 | `getStopArrivals(stopId)` | Stop |
 | `getRouteDetail(routeId, options)` | Route |
 | `getRouteVehicles(routeId, directionId?)` | Route / Nearby |
 | `getVehicleDetail(vehicleId)` | Vehicle |
+| `getStopsInArea(bounds)` | Map stops layer (viewport-driven, EPIC-005) |
+| `getVehiclesInArea(bounds)` | Map buses layer (viewport-driven, EPIC-005) |
 | `getHealth()` | Diagnostics / `/api/v1/health` |
+
+`getStopsInArea`/`getVehiclesInArea` (EPIC-005) are cheap, position-only queries for the map's
+viewport layers — no arrivals, capped and truncation-flagged — distinct from `getNearby`'s
+adaptive-radius, arrival-bearing list. They use the new `CatalogProvider.findStopsInBounds(bounds)`
+port method (`packages/core/src/ports.ts`), implemented by `SqliteCatalogProvider` with a bounding-box
+query (`packages/gtfs/src/catalog/sqlite-catalog-provider.ts`).
 
 `TransitServiceDeps` also takes `feeds: FeedConfig[]` (beyond `catalog`, `realtime`, `clock`, `settings`),
 so the service can resolve each feed's IANA time zone when computing a fallback service date for

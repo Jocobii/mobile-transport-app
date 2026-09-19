@@ -1,4 +1,5 @@
 export * from "./approaching-vehicles";
+export * from "./bounds";
 export * from "./direction";
 export * from "./freshness";
 export * from "./geo";

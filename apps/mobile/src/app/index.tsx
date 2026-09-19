@@ -1,18 +1,26 @@
-import type {
-  ArrivalDto,
-  NearbyStopDto,
-  RouteSummaryDto,
-  StopSummaryDto,
-  VehicleDto,
-} from "@transit/contracts";
-import { useEffect, useRef, useState } from "react";
+import type { ArrivalDto, RouteSummaryDto, VehicleDto } from "@transit/contracts";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BackHandler, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import type { Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LAYERS_BUTTON_SIZE, LayersButton } from "@/features/map/LayersButton";
+import { LayersCard } from "@/features/map/LayersCard";
+import {
+  AREA_FETCH_DEBOUNCE_MS,
+  NEARBY_FOCUS_DELTA,
+  STOPS_ZOOM_GATE_DELTA,
+} from "@/features/map/map-config";
+import { selectMapContent } from "@/features/map/select-map-content";
 import { TransitMap, type TransitMapHandle } from "@/features/map/TransitMap";
+import { useAreaStops } from "@/features/map/use-area-stops";
+import { useAreaVehicles } from "@/features/map/use-area-vehicles";
+import { useMapLayers } from "@/features/map/use-map-layers";
 import { useUserLocation } from "@/features/map/use-user-location";
-import { collectApproachingVehicles } from "@/features/nearby/collect-approaching-vehicles";
+import { isWithinZoomGate } from "@/features/map/viewport";
+import { ZoomHint } from "@/features/map/ZoomHint";
 import type { NearbyRouteGroup } from "@/features/nearby/group-nearby-by-route";
+import { MyStopChip } from "@/features/nearby/MyStopChip";
 import { NearbyPanel } from "@/features/nearby/NearbyPanel";
 import { useNearby } from "@/features/nearby/use-nearby";
 import { RouteVehiclesPanel } from "@/features/route/RouteVehiclesPanel";
@@ -22,52 +30,22 @@ import { useSearch } from "@/features/search/use-search";
 import { StopPanel } from "@/features/stop/StopPanel";
 import { useStopArrivals } from "@/features/stop/use-stop-arrivals";
 import { FollowChip } from "@/features/vehicle/FollowChip";
+import { resolveVehicleStop } from "@/features/vehicle/resolve-vehicle-stop";
 import { TripPanel } from "@/features/vehicle/TripPanel";
-import { useVehicleView, type VehicleMapContent } from "@/features/vehicle/use-vehicle-view";
+import { useVehicleView } from "@/features/vehicle/use-vehicle-view";
 import { VehiclePanel } from "@/features/vehicle/VehiclePanel";
 import { BackButton } from "@/shared/components/BackButton";
 import { BottomSheet } from "@/shared/components/BottomSheet";
 import { SEARCH_BAR_HEIGHT, SearchBar } from "@/shared/components/SearchBar";
 import { SearchInput } from "@/shared/components/SearchInput";
-import type { Panel } from "@/shared/panel/panel-state";
+import { resolveBackAction } from "@/shared/panel/back-decision";
 import type { SheetSnap } from "@/shared/panel/sheet-snap";
 import { usePanelState } from "@/shared/panel/use-panel-state";
 import { colors, spacing } from "@/shared/theme";
+import { useDebouncedValue } from "@/shared/time/use-debounced-value";
 
 const SHEET_COLLAPSED_HEIGHT = 120;
 const SHEET_HALF_RATIO = 0.5;
-
-interface MapContent {
-  stops: StopSummaryDto[];
-  vehicles: VehicleDto[];
-}
-
-/** What the map draws for the active panel. Search keeps showing the nearby content behind it. */
-function selectMapContent(
-  panelKind: Panel["kind"],
-  nearbyStops: NearbyStopDto[],
-  stop: StopSummaryDto | undefined,
-  routeVehicles: VehicleDto[] | undefined,
-  vehicleContent: VehicleMapContent,
-  tripStop: StopSummaryDto | undefined,
-): MapContent {
-  switch (panelKind) {
-    case "vehicle":
-      return vehicleContent;
-    case "trip":
-      return { stops: tripStop ? [tripStop] : [], vehicles: [] };
-    case "stop":
-      return { stops: stop ? [stop] : [], vehicles: [] };
-    case "route":
-      return { stops: [], vehicles: routeVehicles ?? [] };
-    case "nearby":
-    case "search":
-      return {
-        stops: nearbyStops.map((item) => item.stop),
-        vehicles: collectApproachingVehicles(nearbyStops),
-      };
-  }
-}
 const RECENTER_BUTTON_SIZE = 48;
 
 /** The single screen: one map plus a bottom panel driven by the panel state machine. */
@@ -80,9 +58,13 @@ export default function HomeScreen() {
   const [searchText, setSearchText] = useState("");
   const [snap, setSnap] = useState<SheetSnap>("half");
   const [highlightedStopId, setHighlightedStopId] = useState<string | undefined>(undefined);
+  const [layersCardOpen, setLayersCardOpen] = useState(false);
+  const mapLayers = useMapLayers();
   const mapRef = useRef<TransitMapHandle>(null);
   const fittedRouteId = useRef<string | undefined>(undefined);
   const vehicleView = useVehicleView(panel, mapRef);
+  const [region, setRegion] = useState<Region | undefined>(undefined);
+  const debouncedRegion = useDebouncedValue(region, AREA_FETCH_DEBOUNCE_MS);
 
   const position = location.status === "available" ? location.position : undefined;
   const stopId = panel.kind === "stop" ? panel.stopId : undefined;
@@ -92,6 +74,16 @@ export default function HomeScreen() {
   const stopArrivals = useStopArrivals(stopId);
   const routeVehicles = useRouteVehicles(routeId);
   const search = useSearch(searchText);
+  const areaStopsEnabled =
+    (panel.kind === "nearby" || panel.kind === "search") && mapLayers.layers.showStops;
+  const areaStops = useAreaStops(debouncedRegion, areaStopsEnabled);
+  const areaVehiclesEnabled =
+    (panel.kind === "nearby" || panel.kind === "search") && mapLayers.layers.showVehicles;
+  const areaVehicles = useAreaVehicles(debouncedRegion, areaVehiclesEnabled);
+  const stopsZoomGateHidden =
+    mapLayers.layers.showStops &&
+    region !== undefined &&
+    !isWithinZoomGate(region, STOPS_ZOOM_GATE_DELTA);
 
   const topOffset = insets.top + spacing.md;
   const sheetHeights: Record<SheetSnap, number> = {
@@ -101,30 +93,52 @@ export default function HomeScreen() {
   };
   // The map and the recenter button never follow the sheet past its half height.
   const panelHeight = Math.min(sheetHeights[snap], sheetHeights.half);
+  // The layers button sits above the recenter button; its card opens just above the button.
+  const layersButtonBottom = panelHeight + spacing.lg + RECENTER_BUTTON_SIZE + spacing.md;
+  const layersCardBottom = layersButtonBottom + LAYERS_BUTTON_SIZE + spacing.sm;
 
   // A new panel opens at half height; search opens full so the results fit.
   useEffect(() => {
     setSnap(panel.kind === "search" ? "full" : "half");
   }, [panel.kind]);
 
-  // Android back walks the panel stack and exits only from Nearby.
+  // Android back: in Nearby with a highlighted stop, clears it first; otherwise walks the stack
+  // and exits only from Nearby with nothing highlighted.
   useEffect(() => {
     const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (!canGoBack) return false;
-      back();
-      return true;
+      const action = resolveBackAction(
+        panel.kind === "nearby" ? "nearby" : "other",
+        highlightedStopId !== undefined,
+        canGoBack,
+      );
+      switch (action) {
+        case "clearHighlightedStop":
+          setHighlightedStopId(undefined);
+          return true;
+        case "goBack":
+          back();
+          return true;
+        case "exitApp":
+          return false;
+      }
     });
     return () => subscription.remove();
-  }, [canGoBack, back]);
+  }, [panel.kind, highlightedStopId, canGoBack, back]);
 
   // Closing the search (back to Nearby) forgets the typed text.
   useEffect(() => {
     if (panel.kind === "nearby") setSearchText("");
   }, [panel.kind]);
 
-  // Nearby: the map follows the user's fix (start and recenter).
+  // The layers card only makes sense over the Nearby panel.
   useEffect(() => {
-    if (panel.kind === "nearby" && position) mapRef.current?.focusOn(position);
+    if (panel.kind !== "nearby") setLayersCardOpen(false);
+  }, [panel.kind]);
+
+  // Nearby: the map follows the user's fix (start and recenter) at the largest Nearby radius.
+  useEffect(() => {
+    if (panel.kind !== "nearby" || !position) return;
+    mapRef.current?.focusOn(position, NEARBY_FOCUS_DELTA);
   }, [panel.kind, position]);
 
   // Stop: center on the stop once its data is known.
@@ -172,13 +186,20 @@ export default function HomeScreen() {
     routeVehicleList,
     vehicleView.mapContent,
     tripStop,
+    mapLayers.layers,
+    highlightedStopId,
+    areaStops?.stops ?? [],
+    areaVehicles?.vehicles ?? [],
   );
   const selectedStopId =
     panel.kind === "vehicle" || panel.kind === "trip"
       ? panel.stopId
       : (stopId ?? highlightedStopId);
+  // Hidden once the stop is no longer in the Nearby data (e.g. it fell out of range).
+  const highlightedStopName = nearby.data?.stops.find((item) => item.stop.id === highlightedStopId)
+    ?.stop.name;
 
-  const openStop = (id: string) => push({ kind: "stop", stopId: id });
+  const openStop = useCallback((id: string) => push({ kind: "stop", stopId: id }), [push]);
   const openRoute = (route: RouteSummaryDto) => push({ kind: "route", route });
   const seeStopArrivals = (id: string) => push({ kind: "stop", stopId: id });
 
@@ -201,19 +222,19 @@ export default function HomeScreen() {
     const [first] = group.arrivals;
     if (first) openArrival(first, group.stop.id);
   };
-  const openApproachingVehicle = (vehicle: VehicleDto) => {
-    const owner = nearby.data?.stops.find((item) =>
-      item.approachingVehicles.some((approaching) => approaching.id === vehicle.id),
-    );
-    if (!owner) return;
-    push({
-      kind: "vehicle",
-      vehicleId: vehicle.id,
-      stopId: owner.stop.id,
-      routeId: vehicle.routeId,
-      directionId: vehicle.directionId,
-    });
-  };
+  /** Opens the Vehicle view for any bus marker in Nearby, Search or Route (E005-T08, §3). */
+  const openVehicle = useCallback(
+    (vehicle: VehicleDto) => {
+      push({
+        kind: "vehicle",
+        vehicleId: vehicle.id,
+        stopId: resolveVehicleStop(vehicle.id, nearby.data?.stops, highlightedStopId),
+        routeId: vehicle.routeId,
+        directionId: vehicle.directionId,
+      });
+    },
+    [nearby.data, highlightedStopId, push],
+  );
   const focusVehicle = (vehicle: VehicleDto) =>
     mapRef.current?.focusOn({ lat: vehicle.lat, lon: vehicle.lon });
 
@@ -228,12 +249,23 @@ export default function HomeScreen() {
         vehicles={mapContent.vehicles}
         onStopPress={openStop}
         routeSegment={panel.kind === "vehicle" ? vehicleView.segment : undefined}
-        onVehiclePress={panel.kind === "nearby" ? openApproachingVehicle : undefined}
+        onVehiclePress={
+          panel.kind === "nearby" || panel.kind === "search" || panel.kind === "route"
+            ? openVehicle
+            : undefined
+        }
         onUserPan={panel.kind === "vehicle" ? vehicleView.onUserPan : undefined}
+        onRegionChangeComplete={setRegion}
       />
 
       <View style={[styles.topOverlay, { top: topOffset }]}>
         {panel.kind === "nearby" ? <SearchBar onPress={() => push({ kind: "search" })} /> : null}
+        {panel.kind === "nearby" && highlightedStopName !== undefined ? (
+          <MyStopChip
+            stopName={highlightedStopName}
+            onClear={() => setHighlightedStopId(undefined)}
+          />
+        ) : null}
         {panel.kind === "search" ? (
           <SearchInput value={searchText} onChangeText={setSearchText} onClose={back} />
         ) : null}
@@ -250,6 +282,12 @@ export default function HomeScreen() {
         ) : null}
       </View>
 
+      {panel.kind === "nearby" && stopsZoomGateHidden ? (
+        <View style={[styles.zoomHint, { top: topOffset + SEARCH_BAR_HEIGHT + spacing.sm }]}>
+          <ZoomHint />
+        </View>
+      ) : null}
+
       {panel.kind === "nearby" ? (
         <Pressable
           onPress={recenter}
@@ -260,6 +298,21 @@ export default function HomeScreen() {
           <Text style={styles.recenterIcon}>◎</Text>
         </Pressable>
       ) : null}
+
+      {panel.kind === "nearby" ? (
+        <View style={[styles.layersButton, { bottom: layersButtonBottom }]}>
+          <LayersButton onPress={() => setLayersCardOpen((open) => !open)} />
+        </View>
+      ) : null}
+
+      <LayersCard
+        visible={panel.kind === "nearby" && layersCardOpen}
+        layers={mapLayers.layers}
+        style={{ right: spacing.lg, bottom: layersCardBottom }}
+        onClose={() => setLayersCardOpen(false)}
+        onChangeShowVehicles={mapLayers.setShowVehicles}
+        onChangeShowStops={mapLayers.setShowStops}
+      />
 
       <BottomSheet snap={snap} heights={sheetHeights} onSnapChange={setSnap}>
         {panel.kind === "nearby" ? (
@@ -314,7 +367,9 @@ export default function HomeScreen() {
             error={vehicleView.detail.error}
             isInitialLoading={vehicleView.detail.isInitialLoading}
             stopId={panel.stopId}
-            onSeeStopArrivals={() => seeStopArrivals(panel.stopId)}
+            onSeeStopArrivals={() => {
+              if (panel.stopId !== undefined) seeStopArrivals(panel.stopId);
+            }}
             onRetry={vehicleView.detail.refetch}
           />
         ) : null}
@@ -357,6 +412,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.surface,
     elevation: 4,
+  },
+  layersButton: {
+    position: "absolute",
+    right: spacing.lg,
+  },
+  zoomHint: {
+    position: "absolute",
+    left: spacing.lg,
+    right: spacing.lg,
+    alignItems: "center",
   },
   recenterIcon: {
     color: colors.ink,

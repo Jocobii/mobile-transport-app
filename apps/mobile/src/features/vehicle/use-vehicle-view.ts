@@ -3,10 +3,11 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 import type { RouteSegment, TransitMapHandle } from "@/features/map/TransitMap";
 import { routeColors } from "@/shared/format/route-colors";
 import type { Panel } from "@/shared/panel/panel-state";
-import { fallbackSegment, segmentToStop } from "./segment-to-stop";
+import { fallbackSegment, resolveSegmentTarget, segmentToStop } from "./segment-to-stop";
 import { stopsUntil } from "./stops-until";
 import { useRouteShape } from "./use-route-shape";
 import { useVehicleDetail } from "./use-vehicle-detail";
+import { buildVehicleMapContent } from "./vehicle-map-content";
 
 export interface VehicleMapContent {
   stops: StopSummaryDto[];
@@ -15,8 +16,10 @@ export interface VehicleMapContent {
 
 /**
  * Everything the Vehicle panel needs on the map: the polled vehicle, the segment of route up to
- * the user's stop, the one-time fit and the follow mode (the map keeps the bus centered until the
- * user pans; `follow()` resumes it).
+ * the target stop, the one-time fit and the follow mode (the map keeps the bus centered until the
+ * user pans; `follow()` resumes it). With no stop context (E005-T08, "Vehicle view without a
+ * stop") the segment instead runs to the last upcoming stop, and the first fit centers the bus
+ * alone.
  */
 export function useVehicleView(panel: Panel, mapRef: RefObject<TransitMapHandle | null>) {
   const vehiclePanel = panel.kind === "vehicle" ? panel : undefined;
@@ -30,6 +33,8 @@ export function useVehicleView(panel: Panel, mapRef: RefObject<TransitMapHandle 
   const until =
     data && vehiclePanel ? stopsUntil(data.upcomingStops, vehiclePanel.stopId) : undefined;
   const targetStop = until?.target?.stop;
+  const segmentTarget = data && until ? resolveSegmentTarget(data.upcomingStops, until) : undefined;
+
   const busLat = data?.vehicle.lat;
   const busLon = data?.vehicle.lon;
   const vehicleId = vehiclePanel?.vehicleId;
@@ -39,7 +44,7 @@ export function useVehicleView(panel: Panel, mapRef: RefObject<TransitMapHandle 
     if (vehicleId !== undefined) setFollowing(true);
   }, [vehicleId]);
 
-  // Fit the bus and the user's stop once per opened vehicle.
+  // Fit the bus and its target stop once per opened vehicle (bus only when there is no stop).
   useEffect(() => {
     if (vehicleId === undefined) {
       fittedVehicleId.current = undefined;
@@ -66,20 +71,17 @@ export function useVehicleView(panel: Panel, mapRef: RefObject<TransitMapHandle 
   }, [vehicleId, following, busLat, busLon, mapRef]);
 
   let segment: RouteSegment | undefined;
-  if (data && until?.target) {
+  if (data && segmentTarget) {
     const bus = { lat: data.vehicle.lat, lon: data.vehicle.lon };
     segment = {
       coordinates: shape
-        ? segmentToStop(shape, bus, until.target.stop)
-        : fallbackSegment(bus, data.upcomingStops, until.remaining),
+        ? segmentToStop(shape, bus, segmentTarget.stop)
+        : fallbackSegment(bus, data.upcomingStops, segmentTarget.remaining),
       color: routeColors(data.vehicle.routeColor, data.vehicle.routeTextColor).background,
     };
   }
 
-  const mapContent: VehicleMapContent = {
-    stops: targetStop ? [targetStop] : [],
-    vehicles: data ? [data.vehicle] : [],
-  };
+  const mapContent = buildVehicleMapContent(data?.vehicle, data?.upcomingStops ?? []);
 
   return {
     detail,

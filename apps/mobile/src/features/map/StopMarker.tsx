@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { Marker } from "react-native-maps";
 import { colors, fontSizes, spacing } from "@/shared/theme";
 
-const NORMAL_SIZE = 14;
 const SELECTED_SIZE = 22;
 const LABEL_OFFSET = SELECTED_SIZE / 2 + spacing.xs;
+
+const STOP_DOT_IMAGE = require("../../../assets/map/stop-dot.png") as number;
 
 interface StopMarkerProps {
   id: string;
@@ -28,13 +29,37 @@ function useSettledView(): boolean {
 }
 
 /**
- * Small neutral circle; the selected stop grows and shows its name beside it.
- * The parent keys it by id and `selected`, so it remounts when its look changes.
+ * Non-selected stops render as a native bitmap (`Marker image`, no view snapshot) so panning stays
+ * smooth with many stops on screen. The selected stop keeps the custom view and shows its name.
+ * Memoized: the parent keeps `onPress` stable so unrelated re-renders do not remount every stop.
  */
-export function StopMarker({ id, name, lat, lon, selected, onPress }: StopMarkerProps) {
+export const StopMarker = memo(function StopMarker({
+  id,
+  name,
+  lat,
+  lon,
+  selected,
+  onPress,
+}: StopMarkerProps) {
   const { t } = useTranslation();
   const tracksViewChanges = useSettledView();
   const coordinate = { latitude: lat, longitude: lon };
+  const label = t("map.stopMarkerLabel", { name });
+
+  if (!selected) {
+    return (
+      <Marker
+        coordinate={coordinate}
+        image={STOP_DOT_IMAGE}
+        anchor={{ x: 0.5, y: 0.5 }}
+        tracksViewChanges={false}
+        zIndex={1}
+        accessible
+        accessibilityLabel={label}
+        onPress={() => onPress(id)}
+      />
+    );
+  }
 
   return (
     <>
@@ -42,19 +67,15 @@ export function StopMarker({ id, name, lat, lon, selected, onPress }: StopMarker
         coordinate={coordinate}
         anchor={{ x: 0.5, y: 0.5 }}
         tracksViewChanges={tracksViewChanges}
-        zIndex={selected ? 2 : 1}
+        zIndex={2}
         onPress={() => onPress(id)}
       >
-        <View
-          style={selected ? styles.selected : styles.normal}
-          accessible
-          accessibilityLabel={t("map.stopMarkerLabel", { name })}
-        />
+        <View style={styles.selected} accessible accessibilityLabel={label} />
       </Marker>
-      {selected ? <StopLabel name={name} coordinate={coordinate} /> : null}
+      <StopLabel name={name} coordinate={coordinate} />
     </>
   );
-}
+});
 
 interface StopLabelProps {
   name: string;
@@ -82,14 +103,6 @@ function StopLabel({ name, coordinate }: StopLabelProps) {
 }
 
 const styles = StyleSheet.create({
-  normal: {
-    width: NORMAL_SIZE,
-    height: NORMAL_SIZE,
-    borderRadius: NORMAL_SIZE / 2,
-    backgroundColor: colors.surface,
-    borderWidth: 2.5,
-    borderColor: "#6D6C67",
-  },
   selected: {
     width: SELECTED_SIZE,
     height: SELECTED_SIZE,

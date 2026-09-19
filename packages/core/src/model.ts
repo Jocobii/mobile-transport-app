@@ -27,6 +27,14 @@ export interface LatLon {
   lon: number;
 }
 
+/** A geographic bounding box in degrees (`stops/in-area`, `vehicles/in-area`). */
+export interface Bounds {
+  minLat: number;
+  minLon: number;
+  maxLat: number;
+  maxLon: number;
+}
+
 export interface FeedConfig {
   id: FeedId;
   name: string;

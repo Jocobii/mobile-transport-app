@@ -1,7 +1,8 @@
 import type { UpcomingStopDto } from "@transit/contracts";
 import { describe, expect, it } from "vitest";
 import type { Position } from "@/shared/geo/position";
-import { fallbackSegment, segmentToStop } from "./segment-to-stop";
+import { fallbackSegment, resolveSegmentTarget, segmentToStop } from "./segment-to-stop";
+import { stopsUntil } from "./stops-until";
 
 /** Straight west-to-east line, one point every ~0.001 degrees of longitude. */
 const SHAPE: Position[] = [0, 1, 2, 3, 4, 5].map((step) => ({
@@ -50,5 +51,43 @@ describe("fallbackSegment", () => {
     expect(segment).toHaveLength(3);
     expect(segment[0]).toBe(bus);
     expect(segment[2]).toMatchObject({ id: "2" });
+  });
+});
+
+describe("resolveSegmentTarget", () => {
+  const STOPS = ["1", "2", "3"].map(
+    (id, index): UpcomingStopDto => ({
+      stop: { id, code: id, name: id, lat: 44.9, lon: -93.2 + index * 0.01 },
+      stopSequence: index,
+      time: 1000,
+      source: "live",
+      status: "normal",
+    }),
+  );
+
+  it("targets the resolved stop when there is one", () => {
+    const until = stopsUntil(STOPS, "2");
+    expect(resolveSegmentTarget(STOPS, until)).toEqual({
+      stop: expect.objectContaining({ id: "2" }),
+      remaining: 1,
+    });
+  });
+
+  it("targets the last upcoming stop with no stop context (E005-T08)", () => {
+    const until = stopsUntil(STOPS, undefined);
+    expect(resolveSegmentTarget(STOPS, until)).toEqual({
+      stop: expect.objectContaining({ id: "3" }),
+      remaining: 2,
+    });
+  });
+
+  it("has no target with no stop context and no upcoming stops", () => {
+    const until = stopsUntil([], undefined);
+    expect(resolveSegmentTarget([], until)).toBeUndefined();
+  });
+
+  it("has no target once the resolved stop has been passed (unchanged behavior)", () => {
+    const until = stopsUntil(STOPS, "9");
+    expect(resolveSegmentTarget(STOPS, until)).toBeUndefined();
   });
 });

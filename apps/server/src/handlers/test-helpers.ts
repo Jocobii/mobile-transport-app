@@ -13,6 +13,8 @@ function notImplemented(name: string) {
 export function fakeTransitService(overrides: Partial<TransitService>): TransitService {
   return {
     getNearby: notImplemented("getNearby"),
+    getStopsInArea: notImplemented("getStopsInArea"),
+    getVehiclesInArea: notImplemented("getVehiclesInArea"),
     search: notImplemented("search"),
     getStopArrivals: notImplemented("getStopArrivals"),
     getRouteDetail: notImplemented("getRouteDetail"),

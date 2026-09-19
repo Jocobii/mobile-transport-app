@@ -36,4 +36,8 @@ describe("stopsUntil", () => {
     expect(result.target?.status).toBe("canceled");
     expect(result.passed).toBe(false);
   });
+
+  it("has no target and is never passed with no stop context (E005-T08)", () => {
+    expect(stopsUntil(STOPS, undefined)).toEqual({ remaining: 0, passed: false });
+  });
 });

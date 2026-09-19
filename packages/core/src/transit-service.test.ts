@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import type {
   FeedConfig,
   Route,
+  RouteId,
   RoutePattern,
   ScheduledStopTime,
   Stop,
+  StopId,
   StopTimePrediction,
   StopWithDistance,
   Trip,
@@ -18,12 +20,17 @@ const SETTINGS: TransitSettings = {
   realtimeCacheTtlSeconds: 20,
   realtimeStaleAfterSeconds: 120,
   feedFetchTimeoutMs: 8000,
-  nearbyDefaultRadiusMeters: 500,
+  nearbyRadiusStepsMeters: [500, 1000, 1500],
+  nearbyMinStops: 3,
   nearbyMinRadiusMeters: 50,
   nearbyMaxRadiusMeters: 2000,
   nearbyMaxStops: 10,
   nearbyFallbackMaxDistanceMeters: 5000,
   nearbyArrivalsPerStop: 3,
+  areaStopsMaxSpanDegrees: 0.06,
+  areaStopsMaxResults: 250,
+  areaVehiclesMaxSpanDegrees: 0.3,
+  areaVehiclesMaxResults: 150,
   arrivalsWindowMinutes: 90,
   stopArrivalsLimit: 30,
   pastArrivalGraceSeconds: 60,
@@ -81,7 +88,8 @@ const TRIP: Trip = {
 };
 
 interface FakeCatalogOptions {
-  stopsNear?: StopWithDistance[];
+  /** A fixed list, or a function of the searched radius (for adaptive-radius tests). */
+  stopsNear?: StopWithDistance[] | ((radiusMeters: number) => StopWithDistance[]);
   nearestStop?: StopWithDistance | undefined;
   stop?: Stop | undefined;
   routesServingStop?: Route[];
@@ -91,6 +99,12 @@ interface FakeCatalogOptions {
   scheduledAtStop?: ScheduledStopTime[];
   scheduledForTrip?: ScheduledStopTime[];
   catalogVersion?: string | Promise<string>;
+  /** Records every stop id arrivals were computed for, to check the adaptive radius does not
+   * compute arrivals for steps it discards. */
+  arrivalsCalls?: StopId[];
+  stopsInBounds?: { stops: Stop[]; truncated: boolean };
+  /** Records every routeId `getRoute` was called with, to check it is called once per distinct id. */
+  getRouteCalls?: RouteId[];
 }
 
 function fakeCatalog(options: FakeCatalogOptions = {}): CatalogProvider {
@@ -100,15 +114,25 @@ function fakeCatalog(options: FakeCatalogOptions = {}): CatalogProvider {
       return options.catalogVersion;
     },
     getStop: async () => options.stop,
-    findStopsNear: async () => options.stopsNear ?? [],
+    findStopsNear: async (_center, radiusMeters) =>
+      typeof options.stopsNear === "function"
+        ? options.stopsNear(radiusMeters)
+        : (options.stopsNear ?? []),
     findNearestStop: async () => options.nearestStop,
     searchRoutes: async () => [],
     searchStops: async () => [],
-    getRoute: async () => options.route,
+    getRoute: async (routeId) => {
+      options.getRouteCalls?.push(routeId);
+      return options.route;
+    },
+    findStopsInBounds: async () => options.stopsInBounds ?? { stops: [], truncated: false },
     getRoutesServingStop: async () => options.routesServingStop ?? [],
     getRoutePatterns: async () => options.patterns ?? [],
     getTrip: async () => options.trip,
-    getScheduledStopTimesAtStop: async () => options.scheduledAtStop ?? [],
+    getScheduledStopTimesAtStop: async (stopId) => {
+      options.arrivalsCalls?.push(stopId);
+      return options.scheduledAtStop ?? [];
+    },
     getScheduledStopTimesForTrip: async () => options.scheduledForTrip ?? [],
   };
 }
@@ -195,6 +219,278 @@ describe("getNearby (10.11)", () => {
     const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon }, 500);
     expect(result.outsideRadius).toBe(false);
     expect(result.stops).toEqual([]);
+  });
+});
+
+describe("getNearby adaptive radius (EPIC-005, no explicit radius)", () => {
+  const STOPS_AT_500 = [
+    { stop: { ...STOP, id: "s1" }, distanceMeters: 100 },
+    { stop: { ...STOP, id: "s2" }, distanceMeters: 200 },
+    { stop: { ...STOP, id: "s3" }, distanceMeters: 300 },
+  ];
+  const STOPS_AT_1000 = [
+    ...STOPS_AT_500.slice(0, 2),
+    { stop: { ...STOP, id: "s4" }, distanceMeters: 700 },
+    { stop: { ...STOP, id: "s5" }, distanceMeters: 800 },
+  ];
+  const STOPS_AT_1500 = [{ stop: { ...STOP, id: "s1" }, distanceMeters: 100 }];
+
+  it("stops at the first step (500 m) when it already finds >= nearbyMinStops", async () => {
+    const calledRadii: number[] = [];
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: (radiusMeters) => {
+          calledRadii.push(radiusMeters);
+          return STOPS_AT_500;
+        },
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon });
+    expect(result.outsideRadius).toBe(false);
+    expect(result.stops.map((s) => s.stop.id)).toEqual(["s1", "s2", "s3"]);
+    expect(calledRadii).toEqual([500]);
+  });
+
+  it("grows to 1000 m when 500 m finds fewer than nearbyMinStops", async () => {
+    const calledRadii: number[] = [];
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: (radiusMeters) => {
+          calledRadii.push(radiusMeters);
+          if (radiusMeters === 500) return STOPS_AT_500.slice(0, 2);
+          return STOPS_AT_1000;
+        },
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon });
+    expect(result.outsideRadius).toBe(false);
+    expect(result.stops.map((s) => s.stop.id)).toEqual(["s1", "s2", "s4", "s5"]);
+    expect(calledRadii).toEqual([500, 1000]);
+  });
+
+  it("returns 1-2 stops from the last step (1500 m) without falling back", async () => {
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: (radiusMeters) => (radiusMeters === 1500 ? STOPS_AT_1500 : []),
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon });
+    expect(result.outsideRadius).toBe(false);
+    expect(result.stops.map((s) => s.stop.id)).toEqual(["s1"]);
+  });
+
+  it("falls back to the nearest stop when every step finds none", async () => {
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: () => [],
+        nearestStop: { stop: STOP, distanceMeters: 4000 },
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon });
+    expect(result.outsideRadius).toBe(true);
+    expect(result.stops.map((s) => s.stop.id)).toEqual([STOP.id]);
+  });
+
+  it("does not adapt when an explicit radius is given, even if it finds few stops", async () => {
+    const calledRadii: number[] = [];
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: (radiusMeters) => {
+          calledRadii.push(radiusMeters);
+          return radiusMeters === 500 ? STOPS_AT_500.slice(0, 1) : STOPS_AT_500;
+        },
+        nearestStop: { stop: STOP, distanceMeters: 4000 },
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getNearby({ lat: STOP.lat, lon: STOP.lon }, 500);
+    expect(calledRadii).toEqual([500]);
+    expect(result.outsideRadius).toBe(false);
+    expect(result.stops.map((s) => s.stop.id)).toEqual(["s1"]);
+  });
+
+  it("computes arrivals only for the final set of stops, not for discarded steps", async () => {
+    const arrivalsCalls: StopId[] = [];
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsNear: (radiusMeters) =>
+          radiusMeters === 500 ? STOPS_AT_500.slice(0, 2) : STOPS_AT_1000,
+        arrivalsCalls,
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    await service.getNearby({ lat: STOP.lat, lon: STOP.lon });
+    expect(arrivalsCalls.sort()).toEqual(["s1", "s2", "s4", "s5"].sort());
+  });
+});
+
+describe("getStopsInArea (EPIC-005)", () => {
+  const BOUNDS = { minLat: 44.9, minLon: -93.3, maxLat: 45.0, maxLon: -93.2 };
+
+  it("returns the stops and truncated flag the catalog reports", async () => {
+    const service = createTransitService({
+      catalog: fakeCatalog({
+        stopsInBounds: { stops: [STOP], truncated: true },
+      }),
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getStopsInArea(BOUNDS);
+    expect(result).toEqual({ stops: [STOP], truncated: true });
+  });
+
+  it("passes the configured max results as the limit", async () => {
+    let capturedLimit: number | undefined;
+    const catalog = fakeCatalog();
+    const service = createTransitService({
+      catalog: {
+        ...catalog,
+        findStopsInBounds: async (_bounds, limit) => {
+          capturedLimit = limit;
+          return { stops: [], truncated: false };
+        },
+      },
+      realtime: [fakeRealtimeProvider(emptySnapshot())],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    await service.getStopsInArea(BOUNDS);
+    expect(capturedLimit).toBe(SETTINGS.areaStopsMaxResults);
+  });
+});
+
+describe("getVehiclesInArea (EPIC-005)", () => {
+  const BOUNDS = { minLat: 44.9, minLon: -93.3, maxLat: 45.0, maxLon: -93.2 };
+  const CENTER_LAT = 44.95;
+  const CENTER_LON = -93.25;
+
+  function areaVehicle(id: string, lat: number, lon: number, routeId = ROUTE.id): Vehicle {
+    return {
+      id,
+      feedId: "metrotransit",
+      lat,
+      lon,
+      routeId,
+      directionId: 0,
+      tripId: `trip-${id}`,
+      headsign: "Downtown",
+      updatedAt: NOW,
+    };
+  }
+
+  it("keeps only vehicles inside the bounds, sorted by distance to the center", async () => {
+    const inside1 = areaVehicle("near", CENTER_LAT + 0.001, CENTER_LON);
+    const inside2 = areaVehicle("far", CENTER_LAT + 0.03, CENTER_LON);
+    const outside = areaVehicle("outside", 46, -93.25);
+    const service = createTransitService({
+      catalog: fakeCatalog({ route: ROUTE }),
+      realtime: [
+        fakeRealtimeProvider({
+          ...emptySnapshot(),
+          vehicles: [outside, inside2, inside1],
+        }),
+      ],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getVehiclesInArea(BOUNDS);
+    expect(result.vehicles.map((v) => v.vehicle.id)).toEqual(["near", "far"]);
+    expect(result.truncated).toBe(false);
+  });
+
+  it("caps at the configured max results and marks truncated", async () => {
+    const settings: TransitSettings = { ...SETTINGS, areaVehiclesMaxResults: 1 };
+    const vehicles = [
+      areaVehicle("a", CENTER_LAT, CENTER_LON),
+      areaVehicle("b", CENTER_LAT + 0.001, CENTER_LON),
+    ];
+    const service = createTransitService({
+      catalog: fakeCatalog({ route: ROUTE }),
+      realtime: [fakeRealtimeProvider({ ...emptySnapshot(), vehicles })],
+      clock: fakeClock(),
+      settings,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getVehiclesInArea(BOUNDS);
+    expect(result.vehicles).toHaveLength(1);
+    expect(result.truncated).toBe(true);
+  });
+
+  it("drops a vehicle whose route is not in the catalog", async () => {
+    const service = createTransitService({
+      catalog: fakeCatalog({ route: undefined }),
+      realtime: [
+        fakeRealtimeProvider({
+          ...emptySnapshot(),
+          vehicles: [areaVehicle("a", CENTER_LAT, CENTER_LON)],
+        }),
+      ],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    const result = await service.getVehiclesInArea(BOUNDS);
+    expect(result.vehicles).toEqual([]);
+  });
+
+  it("resolves each distinct route only once", async () => {
+    const getRouteCalls: RouteId[] = [];
+    const service = createTransitService({
+      catalog: fakeCatalog({ route: ROUTE, getRouteCalls }),
+      realtime: [
+        fakeRealtimeProvider({
+          ...emptySnapshot(),
+          vehicles: [
+            areaVehicle("a", CENTER_LAT, CENTER_LON, ROUTE.id),
+            areaVehicle("b", CENTER_LAT + 0.001, CENTER_LON, ROUTE.id),
+            areaVehicle("c", CENTER_LAT + 0.002, CENTER_LON, ROUTE.id),
+          ],
+        }),
+      ],
+      clock: fakeClock(),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+
+    await service.getVehiclesInArea(BOUNDS);
+    expect(getRouteCalls).toEqual([ROUTE.id]);
   });
 });
 

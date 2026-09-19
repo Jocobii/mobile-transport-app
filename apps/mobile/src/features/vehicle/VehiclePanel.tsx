@@ -15,12 +15,14 @@ import { isVehicleGone } from "./use-vehicle-detail";
 
 const STOPS_AFTER_TARGET = 2;
 const SECONDS_PER_MINUTE = 60;
+/** Vehicle view without a stop (E005-T08): the timeline shows this many upcoming stops. */
+const TIMELINE_STOPS_WITHOUT_TARGET = 10;
 
 interface VehiclePanelProps {
   data: VehicleDetailResponse | undefined;
   error: unknown;
   isInitialLoading: boolean;
-  stopId: string;
+  stopId: string | undefined;
   onSeeStopArrivals: () => void;
   onRetry: () => void;
 }
@@ -43,8 +45,8 @@ export function VehiclePanel({
         <NoticeCard
           tone="neutral"
           message={t("vehicle.gone")}
-          actionLabel={t("vehicle.seeStopArrivals")}
-          onAction={onSeeStopArrivals}
+          actionLabel={stopId !== undefined ? t("vehicle.seeStopArrivals") : undefined}
+          onAction={stopId !== undefined ? onSeeStopArrivals : undefined}
         />
       </View>
     );
@@ -59,7 +61,7 @@ export function VehiclePanel({
 
 interface LiveViewProps {
   data: VehicleDetailResponse;
-  stopId: string;
+  stopId: string | undefined;
   now: number;
   onSeeStopArrivals: () => void;
 }
@@ -71,9 +73,12 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
   const palette = routeColors(vehicle.routeColor, vehicle.routeTextColor);
 
   const targetIndex = target ? upcomingStops.indexOf(target) : -1;
-  const timelineStops: UpcomingStopDto[] = passed
-    ? []
-    : upcomingStops.slice(0, targetIndex + 1 + STOPS_AFTER_TARGET);
+  const timelineStops: UpcomingStopDto[] =
+    stopId === undefined
+      ? upcomingStops.slice(0, TIMELINE_STOPS_WITHOUT_TARGET)
+      : passed
+        ? []
+        : upcomingStops.slice(0, targetIndex + 1 + STOPS_AFTER_TARGET);
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -88,7 +93,7 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
         </Text>
       </View>
 
-      {passed || !target ? (
+      {stopId === undefined ? null : passed || !target ? (
         <NoticeCard
           tone="neutral"
           message={t("vehicle.passed")}

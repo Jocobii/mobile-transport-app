@@ -1,7 +1,7 @@
 import type { VehicleDto } from "@transit/contracts";
 import { type Ref, useImperativeHandle, useRef } from "react";
 import { StyleSheet } from "react-native";
-import MapView, { Polyline, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Polyline, PROVIDER_GOOGLE, type Region } from "react-native-maps";
 import type { Position } from "@/shared/geo/position";
 import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";
@@ -18,7 +18,7 @@ export interface MapStop {
 
 /** Camera commands the screen sends to the map. */
 export interface TransitMapHandle {
-  focusOn: (position: Position) => void;
+  focusOn: (position: Position, delta?: number) => void;
   /** Moves the camera to the position keeping the current zoom (used to follow a vehicle). */
   panTo: (position: Position) => void;
   fitTo: (positions: Position[]) => void;
@@ -45,6 +45,8 @@ interface TransitMapProps {
   onVehiclePress?: ((vehicle: VehicleDto) => void) | undefined;
   /** Fires when the user drags the map (stops follow mode). */
   onUserPan?: (() => void) | undefined;
+  /** Fires once the map settles (never mid-gesture); drives the viewport-area layers. */
+  onRegionChangeComplete?: ((region: Region) => void) | undefined;
 }
 
 /** The single map of the app. It is never unmounted. */
@@ -59,17 +61,18 @@ export function TransitMap({
   routeSegment,
   onVehiclePress,
   onUserPan,
+  onRegionChangeComplete,
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
 
   useImperativeHandle(ref, () => {
-    const focusOn = (position: Position) => {
+    const focusOn = (position: Position, delta: number = FOCUS_DELTA) => {
       mapRef.current?.animateToRegion(
         {
           latitude: position.lat,
           longitude: position.lon,
-          latitudeDelta: FOCUS_DELTA,
-          longitudeDelta: FOCUS_DELTA,
+          latitudeDelta: delta,
+          longitudeDelta: delta,
         },
         400,
       );
@@ -112,6 +115,7 @@ export function TransitMap({
       toolbarEnabled={false}
       customMapStyle={MAP_STYLE}
       onPanDrag={onUserPan}
+      onRegionChangeComplete={onRegionChangeComplete}
     >
       {routeSegment && routeSegment.coordinates.length > 1 ? (
         <Polyline

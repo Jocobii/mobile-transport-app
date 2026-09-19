@@ -116,6 +116,20 @@ export interface NearbyStopsResponse {
   feeds: FeedStatusDto[];
 }
 
+/** GET /api/v1/stops/in-area?bbox=minLon,minLat,maxLon,maxLat */
+export interface StopsInAreaResponse {
+  stops: StopSummaryDto[];
+  /** true when more stops matched than the server limit. */
+  truncated: boolean;
+}
+
+/** GET /api/v1/vehicles/in-area?bbox=minLon,minLat,maxLon,maxLat */
+export interface VehiclesInAreaResponse {
+  vehicles: VehicleDto[];
+  truncated: boolean;
+  feeds: FeedStatusDto[];
+}
+
 /** GET /api/v1/search?q= */
 export interface SearchResponse {
   routes: RouteSummaryDto[];

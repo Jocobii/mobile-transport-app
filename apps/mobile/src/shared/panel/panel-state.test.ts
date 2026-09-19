@@ -103,6 +103,26 @@ describe("panelReducer vehicle and trip panels", () => {
     expect(state.stack).toHaveLength(3);
   });
 
+  it("opens a vehicle with no stop context (E005-T08)", () => {
+    const state = run([{ type: "push", panel: { ...VEHICLE, stopId: undefined } }]);
+    expect(currentPanel(state)).toEqual({ ...VEHICLE, stopId: undefined });
+  });
+
+  it("ignores pushing the same vehicle with no stop again", () => {
+    const once = run([{ type: "push", panel: { ...VEHICLE, stopId: undefined } }]);
+    expect(panelReducer(once, { type: "push", panel: { ...VEHICLE, stopId: undefined } })).toBe(
+      once,
+    );
+  });
+
+  it("pushes the same vehicle when going from no stop to a resolved stop", () => {
+    const state = run([
+      { type: "push", panel: { ...VEHICLE, stopId: undefined } },
+      { type: "push", panel: VEHICLE },
+    ]);
+    expect(state.stack).toHaveLength(3);
+  });
+
   it("treats a trip panel as the same only for the same trip and stop", () => {
     const arrival = {
       tripId: "mvta:t1",

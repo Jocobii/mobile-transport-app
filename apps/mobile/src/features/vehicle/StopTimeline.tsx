@@ -9,7 +9,8 @@ const DOT_SIZE = 14;
 
 interface StopTimelineProps {
   stops: UpcomingStopDto[];
-  targetStopId: string;
+  /** No row is tagged/bolded when there is no stop context (E005-T08). */
+  targetStopId: string | undefined;
   /** Route color (`#RRGGBB`) for the line and dots. */
   lineColor: string;
   now: number;

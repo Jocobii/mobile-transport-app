@@ -21,7 +21,16 @@
   "map": {
     "recenter": "Centrar en mi ubicación",
     "busMarkerLabel": "Camión {{route}} hacia {{headsign}}",
-    "stopMarkerLabel": "Parada {{name}}"
+    "stopMarkerLabel": "Parada {{name}}",
+    "layers": {
+      "button": "Capas del mapa",
+      "title": "Mostrar en el mapa",
+      "vehicles": "Camiones en vivo",
+      "stops": "Paradas"
+    },
+    "zoomInForStops": "Acerca el mapa para ver todas las paradas",
+    "myStop": "Tu parada: {{name}}",
+    "clearMyStop": "Quitar tu parada"
   },
   "nearby": {
     "title": "Cerca de ti",

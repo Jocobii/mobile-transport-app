@@ -1,6 +1,9 @@
 import {
   addDays,
   approachingVehicles,
+  boundsCenter,
+  boundsContain,
+  haversineMeters,
   isValidNormalizedQuery,
   localServiceDate,
   mergeArrivals,
@@ -10,6 +13,7 @@ import {
 } from "./domain";
 import type {
   Arrival,
+  Bounds,
   DirectionId,
   EpochSeconds,
   FeedConfig,
@@ -63,6 +67,24 @@ export interface NearbyResult {
 export interface SearchResult {
   routes: Route[];
   stops: Stop[];
+}
+
+export interface StopsInAreaResult {
+  stops: Stop[];
+  /** true when more stops matched than the server limit. */
+  truncated: boolean;
+}
+
+export interface VehicleInArea {
+  vehicle: Vehicle;
+  route: Route;
+}
+
+export interface VehiclesInAreaResult {
+  vehicles: VehicleInArea[];
+  /** true when more vehicles matched than the server limit. */
+  truncated: boolean;
+  feeds: FeedStatus[];
 }
 
 export interface StopArrivalsResult {
@@ -169,24 +191,53 @@ export function createTransitService(deps: TransitServiceDeps) {
     return mergeArrivals(scheduled, stopPredictions, now, settings);
   }
 
-  async function getNearby(center: LatLon, radiusMeters: number): Promise<NearbyResult> {
-    const [nearStops, combined] = await Promise.all([
-      catalog.findStopsNear(center, radiusMeters, settings.nearbyMaxStops),
-      fetchRealtime(),
-    ]);
+  /** Nearest-stop fallback used when no stop was found within the searched radius. */
+  async function fallbackToNearest(
+    center: LatLon,
+  ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
+    const nearest = await catalog.findNearestStop(center, settings.nearbyFallbackMaxDistanceMeters);
+    return nearest
+      ? { stopsWithDistance: [nearest], outsideRadius: true }
+      : { stopsWithDistance: [], outsideRadius: false };
+  }
 
-    let stopsWithDistance: StopWithDistance[] = nearStops;
-    let outsideRadius = false;
-    if (stopsWithDistance.length === 0) {
-      const nearest = await catalog.findNearestStop(
-        center,
-        settings.nearbyFallbackMaxDistanceMeters,
-      );
-      if (nearest) {
-        stopsWithDistance = [nearest];
-        outsideRadius = true;
+  /** Explicit radius: search once, fall back to the nearest stop when nothing is found. */
+  async function findStopsAtRadius(
+    center: LatLon,
+    radiusMeters: number,
+  ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
+    const found = await catalog.findStopsNear(center, radiusMeters, settings.nearbyMaxStops);
+    if (found.length > 0) return { stopsWithDistance: found, outsideRadius: false };
+    return fallbackToNearest(center);
+  }
+
+  /**
+   * No explicit radius: try each configured step in order, stopping at the first one that
+   * finds at least `nearbyMinStops` stops. If the last step finds 1 or 2, they are returned
+   * as-is (still inside the radius); if it finds none, the nearest-stop fallback applies.
+   */
+  async function findStopsAdaptive(
+    center: LatLon,
+  ): Promise<{ stopsWithDistance: StopWithDistance[]; outsideRadius: boolean }> {
+    let lastFound: StopWithDistance[] = [];
+    for (const step of settings.nearbyRadiusStepsMeters) {
+      lastFound = await catalog.findStopsNear(center, step, settings.nearbyMaxStops);
+      if (lastFound.length >= settings.nearbyMinStops) {
+        return { stopsWithDistance: lastFound, outsideRadius: false };
       }
     }
+    if (lastFound.length > 0) return { stopsWithDistance: lastFound, outsideRadius: false };
+    return fallbackToNearest(center);
+  }
+
+  async function getNearby(center: LatLon, radiusMeters?: number): Promise<NearbyResult> {
+    const [stopSearch, combined] = await Promise.all([
+      radiusMeters !== undefined
+        ? findStopsAtRadius(center, radiusMeters)
+        : findStopsAdaptive(center),
+      fetchRealtime(),
+    ]);
+    const { stopsWithDistance, outsideRadius } = stopSearch;
 
     const now = clock.now();
     const stops = await Promise.all(
@@ -207,6 +258,39 @@ export function createTransitService(deps: TransitServiceDeps) {
     );
 
     return { stops, outsideRadius, feeds: combined.feeds };
+  }
+
+  async function getStopsInArea(bounds: Bounds): Promise<StopsInAreaResult> {
+    return catalog.findStopsInBounds(bounds, settings.areaStopsMaxResults);
+  }
+
+  async function getVehiclesInArea(bounds: Bounds): Promise<VehiclesInAreaResult> {
+    const combined = await fetchRealtime();
+    const center = boundsCenter(bounds);
+    const inArea = combined.vehicles
+      .filter((vehicle) => boundsContain(bounds, vehicle))
+      .sort((a, b) => haversineMeters(center, a) - haversineMeters(center, b));
+    const truncated = inArea.length > settings.areaVehiclesMaxResults;
+    const limited = inArea.slice(0, settings.areaVehiclesMaxResults);
+
+    // One route lookup per distinct route id, not per vehicle.
+    const routeCache = new Map<RouteId, Route | undefined>();
+    async function resolveRoute(routeId: RouteId): Promise<Route | undefined> {
+      if (routeCache.has(routeId)) return routeCache.get(routeId);
+      const route = await catalog.getRoute(routeId);
+      routeCache.set(routeId, route);
+      return route;
+    }
+
+    const vehicles: VehicleInArea[] = [];
+    for (const vehicle of limited) {
+      const route = await resolveRoute(vehicle.routeId);
+      // A vehicle whose route is missing from the catalog cannot be mapped to a DTO; drop it.
+      if (!route) continue;
+      vehicles.push({ vehicle, route });
+    }
+
+    return { vehicles, truncated, feeds: combined.feeds };
   }
 
   async function search(rawQuery: string): Promise<SearchResult> {
@@ -372,6 +456,8 @@ export function createTransitService(deps: TransitServiceDeps) {
 
   return {
     getNearby,
+    getStopsInArea,
+    getVehiclesInArea,
     search,
     getStopArrivals,
     getRouteDetail,
