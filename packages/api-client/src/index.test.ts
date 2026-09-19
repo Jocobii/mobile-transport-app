@@ -44,6 +44,30 @@ describe("createApiClient", () => {
       );
     });
 
+    it("getStopTimetable omits date when not given", async () => {
+      const fetchImpl = fakeFetch({});
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getStopTimetable("56939");
+
+      expect(fetchImpl).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/stops/56939/timetable`,
+        expect.anything(),
+      );
+    });
+
+    it("getStopTimetable includes date and encodes the stop id", async () => {
+      const fetchImpl = fakeFetch({});
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getStopTimetable("a/b", { date: "20260920" });
+
+      expect(fetchImpl).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/stops/a%2Fb/timetable?date=20260920`,
+        expect.anything(),
+      );
+    });
+
     it("search encodes the query", async () => {
       const fetchImpl = fakeFetch({ routes: [], stops: [] });
       const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });

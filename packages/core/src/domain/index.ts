@@ -7,3 +7,4 @@ export * from "./merge-arrivals";
 export * from "./natural-order";
 export * from "./search";
 export * from "./service-date";
+export * from "./timetable";

@@ -3,6 +3,7 @@ import {
   approachingVehicles,
   boundsCenter,
   boundsContain,
+  groupTimetable,
   haversineMeters,
   isValidNormalizedQuery,
   localServiceDate,
@@ -10,6 +11,7 @@ import {
   mergeScheduleWithPredictions,
   normalizeQuery,
   selectRoutePattern,
+  type TimetableGroup,
 } from "./domain";
 import type {
   Arrival,
@@ -22,6 +24,7 @@ import type {
   Route,
   RouteId,
   ScheduledStopTime,
+  ServiceDate,
   Stop,
   StopId,
   StopTimePrediction,
@@ -130,6 +133,17 @@ export interface VehicleDetailResult {
   route: Route;
   upcomingStops: UpcomingStopResult[];
   feeds: FeedStatus[];
+}
+
+export interface StopTimetableResult {
+  stop: Stop;
+  /** Requested (or default) service date. */
+  serviceDate: ServiceDate;
+  /** Today in the stop's feed time zone. */
+  today: ServiceDate;
+  /** Catalog service dates from `today` on, ascending. */
+  availableDates: ServiceDate[];
+  groups: TimetableGroup[];
 }
 
 export interface HealthResult {
@@ -323,6 +337,37 @@ export function createTransitService(deps: TransitServiceDeps) {
     };
   }
 
+  /**
+   * Full-day scheduled timetable of a stop (EPIC-006). Scheduled data only: no realtime,
+   * no merge. Default date = today's calendar date in the stop's first feed time zone.
+   */
+  async function getStopTimetable(
+    stopId: StopId,
+    serviceDate?: ServiceDate,
+  ): Promise<StopTimetableResult | undefined> {
+    const stop = await catalog.getStop(stopId);
+    if (!stop) return undefined;
+
+    const feedId = feedConfigs.find((feed) => stop.feedIds.includes(feed.id))?.id;
+    const timezone = (feedId !== undefined ? timezoneByFeedId.get(feedId) : undefined) ?? "UTC";
+    const today = localServiceDate(clock.now(), timezone);
+    const date = serviceDate ?? today;
+
+    const [stopTimes, routes, catalogDates] = await Promise.all([
+      catalog.getScheduledStopTimesForServiceDate(stopId, date),
+      catalog.getRoutesServingStop(stopId),
+      catalog.getServiceDates(),
+    ]);
+
+    return {
+      stop,
+      serviceDate: date,
+      today,
+      availableDates: catalogDates.filter((catalogDate) => catalogDate >= today),
+      groups: groupTimetable(stopTimes, routes),
+    };
+  }
+
   async function getRouteDetail(
     routeId: RouteId,
     options: { directionId?: DirectionId | undefined; near?: LatLon | undefined },
@@ -460,6 +505,7 @@ export function createTransitService(deps: TransitServiceDeps) {
     getVehiclesInArea,
     search,
     getStopArrivals,
+    getStopTimetable,
     getRouteDetail,
     getRouteVehicles,
     getVehicleDetail,

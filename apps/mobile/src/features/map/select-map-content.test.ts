@@ -250,6 +250,39 @@ describe("selectMapContent", () => {
     expect(result.stops.map((s) => s.id)).toEqual(["s1"]);
   });
 
+  it("draws only the timetable's stop and ignores layers for the timetable panel", () => {
+    const result = selectMapContent(
+      "timetable",
+      [nearbyStop("other", [vehicle("v1")])],
+      stopSummary("s1"),
+      undefined,
+      EMPTY_VEHICLE_CONTENT,
+      undefined,
+      { showVehicles: true, showStops: true },
+      undefined,
+      [stopSummary("area")],
+      [vehicle("v2")],
+    );
+    expect(result.stops.map((s) => s.id)).toEqual(["s1"]);
+    expect(result.vehicles).toEqual([]);
+  });
+
+  it("draws nothing for the timetable panel until its stop is known", () => {
+    const result = selectMapContent(
+      "timetable",
+      [],
+      undefined,
+      undefined,
+      EMPTY_VEHICLE_CONTENT,
+      undefined,
+      DEFAULT_MAP_LAYERS,
+      undefined,
+      [],
+      [],
+    );
+    expect(result).toEqual({ stops: [], vehicles: [] });
+  });
+
   it("ignores layers for the route panel", () => {
     const routeVehicles = [vehicle("v1")];
     const result = selectMapContent(

@@ -41,6 +41,7 @@ per-use-case algorithm.
 | `getRouteDetail(routeId, options)` | Route |
 | `getRouteVehicles(routeId, directionId?)` | Route / Nearby |
 | `getVehicleDetail(vehicleId)` | Vehicle |
+| `getStopTimetable(stopId, serviceDate?)` | Timetable (full-day scheduled departures of a stop, EPIC-006) |
 | `getStopsInArea(bounds)` | Map stops layer (viewport-driven, EPIC-005) |
 | `getVehiclesInArea(bounds)` | Map buses layer (viewport-driven, EPIC-005) |
 | `getHealth()` | Diagnostics / `/api/v1/health` |
@@ -50,6 +51,12 @@ viewport layers — no arrivals, capped and truncation-flagged — distinct from
 adaptive-radius, arrival-bearing list. They use the new `CatalogProvider.findStopsInBounds(bounds)`
 port method (`packages/core/src/ports.ts`), implemented by `SqliteCatalogProvider` with a bounding-box
 query (`packages/gtfs/src/catalog/sqlite-catalog-provider.ts`).
+
+`getStopTimetable` (EPIC-006) is scheduled data only: no realtime call and no merge. It uses two new
+`CatalogProvider` port methods, `getScheduledStopTimesForServiceDate(stopId, serviceDate)` (one SQL query filtered by
+service date; trips that end at the stop are excluded via `stop_sequence`) and `getServiceDates()`. The pure
+`groupTimetable` (`domain/timetable.ts`) groups departures by route, direction and headsign. The default date is today's
+calendar date in the time zone of the stop's first feed.
 
 `TransitServiceDeps` also takes `feeds: FeedConfig[]` (beyond `catalog`, `realtime`, `clock`, `settings`),
 so the service can resolve each feed's IANA time zone when computing a fallback service date for

@@ -6,6 +6,7 @@ import type { TransitSettings } from "@transit/core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildCatalog } from "../static/build-catalog";
 import { createDirectoryGtfsSource } from "../static/gtfs-source";
+import { epochFor } from "../time/gtfs-time";
 import { CatalogUnavailableError, createSqliteCatalogProvider } from "./sqlite-catalog-provider";
 
 const FIXTURES_ROOT = path.resolve(
@@ -146,6 +147,63 @@ describe("SqliteCatalogProvider (real fixtures: metrotransit + mvta)", () => {
     for (let i = 1; i < stopTimes.length; i++) {
       expect((stopTimes[i]?.time ?? 0) >= (stopTimes[i - 1]?.time ?? 0)).toBe(true);
     }
+  });
+
+  it("getServiceDates returns distinct 8-digit dates in ascending order", async () => {
+    const dates = await provider.getServiceDates();
+    expect(dates.length > 0).toBe(true);
+    expect(new Set(dates).size).toBe(dates.length);
+    expect(dates.every((date) => /^\d{8}$/.test(date))).toBe(true);
+    expect([...dates].sort()).toEqual(dates);
+  });
+
+  it("getScheduledStopTimesForServiceDate returns one sorted service day at the stop", async () => {
+    const dates = await provider.getServiceDates();
+    let date: string | undefined;
+    let rows: Awaited<ReturnType<typeof provider.getScheduledStopTimesForServiceDate>> = [];
+    for (const candidate of dates) {
+      rows = await provider.getScheduledStopTimesForServiceDate("56939", candidate);
+      if (rows.length > 0) {
+        date = candidate;
+        break;
+      }
+    }
+    expect(date).toBeDefined();
+    if (date === undefined) return;
+
+    const startOfDay = epochFor(date, 0, "America/Chicago");
+    for (const row of rows) {
+      expect(row.stopId).toBe("56939");
+      expect(row.serviceDate).toBe(date);
+      expect(row.time >= startOfDay).toBe(true);
+    }
+    for (let i = 1; i < rows.length; i++) {
+      expect((rows[i]?.time ?? 0) >= (rows[i - 1]?.time ?? 0)).toBe(true);
+    }
+  });
+
+  it("getScheduledStopTimesForServiceDate excludes trips that end at the stop", async () => {
+    const dates = await provider.getServiceDates();
+    let checked = 0;
+    for (const date of dates) {
+      const rows = await provider.getScheduledStopTimesForServiceDate("56939", date);
+      for (const row of rows.slice(0, 20)) {
+        const trip = await provider.getScheduledStopTimesForTrip(row.tripId, date);
+        const lastSequence = Math.max(...trip.map((stopTime) => stopTime.stopSequence));
+        expect(row.stopSequence < lastSequence).toBe(true);
+        checked += 1;
+      }
+      if (checked >= 20) break;
+    }
+    expect(checked > 0).toBe(true);
+  });
+
+  it("getScheduledStopTimesForServiceDate returns nothing for an unknown stop or a date without service", async () => {
+    const dates = await provider.getServiceDates();
+    expect(
+      await provider.getScheduledStopTimesForServiceDate("no-such-stop", dates[0] ?? ""),
+    ).toEqual([]);
+    expect(await provider.getScheduledStopTimesForServiceDate("56939", "19000101")).toEqual([]);
   });
 
   it("getTrip resolves a known trip and returns undefined for an unknown one", async () => {

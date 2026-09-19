@@ -6,6 +6,7 @@ import {
   parsePathId,
   parseRadius,
   parseSearchQuery,
+  parseServiceDateParam,
 } from "./params";
 
 const RADIUS_SETTINGS = {
@@ -140,5 +141,30 @@ describe("parsePathId", () => {
 
   it("accepts an id at exactly maxLength", () => {
     expect(parsePathId("a".repeat(100), 100).ok).toBe(true);
+  });
+});
+
+describe("parseServiceDateParam", () => {
+  it("is undefined when absent or empty", () => {
+    expect(parseServiceDateParam(null)).toEqual({ ok: true, value: undefined });
+    expect(parseServiceDateParam("")).toEqual({ ok: true, value: undefined });
+  });
+
+  it("accepts a real YYYYMMDD date, including a leap day", () => {
+    expect(parseServiceDateParam("20260919")).toEqual({ ok: true, value: "20260919" });
+    expect(parseServiceDateParam("20280229")).toEqual({ ok: true, value: "20280229" });
+  });
+
+  it("rejects other formats", () => {
+    expect(parseServiceDateParam("2026-09-19").ok).toBe(false);
+    expect(parseServiceDateParam("abc").ok).toBe(false);
+    expect(parseServiceDateParam("2026091").ok).toBe(false);
+    expect(parseServiceDateParam("202609190").ok).toBe(false);
+  });
+
+  it("rejects dates that do not exist", () => {
+    expect(parseServiceDateParam("20261340").ok).toBe(false);
+    expect(parseServiceDateParam("20260231").ok).toBe(false);
+    expect(parseServiceDateParam("20270229").ok).toBe(false);
   });
 });

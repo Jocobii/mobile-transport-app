@@ -17,6 +17,7 @@ export function fakeTransitService(overrides: Partial<TransitService>): TransitS
     getVehiclesInArea: notImplemented("getVehiclesInArea"),
     search: notImplemented("search"),
     getStopArrivals: notImplemented("getStopArrivals"),
+    getStopTimetable: notImplemented("getStopTimetable"),
     getRouteDetail: notImplemented("getRouteDetail"),
     getRouteVehicles: notImplemented("getRouteVehicles"),
     getVehicleDetail: notImplemented("getVehicleDetail"),

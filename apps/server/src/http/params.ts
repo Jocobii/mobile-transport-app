@@ -96,3 +96,23 @@ export function parsePathId(value: string, maxLength: number): ParseResult<strin
   }
   return ok(value);
 }
+
+/**
+ * Optional `date` query parameter: a real calendar date as `YYYYMMDD` (a GTFS service date).
+ * `undefined` when absent so the service can default to today in the stop's time zone.
+ */
+export function parseServiceDateParam(raw: string | null): ParseResult<string | undefined> {
+  if (raw === null || raw === "") return ok(undefined);
+  if (!/^\d{8}$/.test(raw)) return fail("`date` must be a date formatted as YYYYMMDD.");
+
+  const year = Number(raw.slice(0, 4));
+  const month = Number(raw.slice(4, 6));
+  const day = Number(raw.slice(6, 8));
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  const isRealDate =
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day;
+  if (!isRealDate) return fail("`date` must be a real calendar date.");
+  return ok(raw);
+}

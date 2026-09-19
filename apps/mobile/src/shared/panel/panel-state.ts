@@ -3,6 +3,8 @@ import type { ArrivalDto, RouteSummaryDto } from "@transit/contracts";
 export type Panel =
   | { kind: "nearby" }
   | { kind: "stop"; stopId: string }
+  /** Full-day scheduled timetable of a stop (EPIC-006). */
+  | { kind: "timetable"; stopId: string }
   | { kind: "search" }
   /** Carries the summary because the route vehicles endpoint returns no route name. */
   | { kind: "route"; route: RouteSummaryDto }
@@ -43,6 +45,8 @@ function isSamePanel(a: Panel, b: Panel): boolean {
       return a.kind === b.kind;
     case "stop":
       return b.kind === "stop" && a.stopId === b.stopId;
+    case "timetable":
+      return b.kind === "timetable" && a.stopId === b.stopId;
     case "route":
       return b.kind === "route" && a.route.id === b.route.id;
     case "vehicle":

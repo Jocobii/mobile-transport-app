@@ -29,6 +29,8 @@ import { SearchPanel } from "@/features/search/SearchPanel";
 import { useSearch } from "@/features/search/use-search";
 import { StopPanel } from "@/features/stop/StopPanel";
 import { useStopArrivals } from "@/features/stop/use-stop-arrivals";
+import { TimetablePanel } from "@/features/timetable/TimetablePanel";
+import { useTimetableView } from "@/features/timetable/use-timetable-view";
 import { FollowChip } from "@/features/vehicle/FollowChip";
 import { resolveVehicleStop } from "@/features/vehicle/resolve-vehicle-stop";
 import { TripPanel } from "@/features/vehicle/TripPanel";
@@ -68,10 +70,12 @@ export default function HomeScreen() {
 
   const position = location.status === "available" ? location.position : undefined;
   const stopId = panel.kind === "stop" ? panel.stopId : undefined;
+  const timetableStopId = panel.kind === "timetable" ? panel.stopId : undefined;
   const routeId = panel.kind === "route" ? panel.route.id : undefined;
 
   const nearby = useNearby(position, panel.kind === "nearby");
   const stopArrivals = useStopArrivals(stopId);
+  const stopTimetable = useTimetableView(timetableStopId);
   const routeVehicles = useRouteVehicles(routeId);
   const search = useSearch(searchText);
   const areaStopsEnabled =
@@ -97,9 +101,9 @@ export default function HomeScreen() {
   const layersButtonBottom = panelHeight + spacing.lg + RECENTER_BUTTON_SIZE + spacing.md;
   const layersCardBottom = layersButtonBottom + LAYERS_BUTTON_SIZE + spacing.sm;
 
-  // A new panel opens at half height; search opens full so the results fit.
+  // A new panel opens at half height; search and the timetable open full so the content fits.
   useEffect(() => {
-    setSnap(panel.kind === "search" ? "full" : "half");
+    setSnap(panel.kind === "search" || panel.kind === "timetable" ? "full" : "half");
   }, [panel.kind]);
 
   // Android back: in Nearby with a highlighted stop, clears it first; otherwise walks the stack
@@ -141,12 +145,17 @@ export default function HomeScreen() {
     mapRef.current?.focusOn(position, NEARBY_FOCUS_DELTA);
   }, [panel.kind, position]);
 
-  // Stop: center on the stop once its data is known.
-  const stop = stopArrivals.data?.stop;
+  // Stop and Timetable: center on the stop once its data is known (the timetable map behaves
+  // exactly like the Stop panel's).
+  const stop = panel.kind === "timetable" ? stopTimetable.days?.stop : stopArrivals.data?.stop;
   const stopLat = stop?.lat;
   const stopLon = stop?.lon;
   useEffect(() => {
-    if (panel.kind === "stop" && stopLat !== undefined && stopLon !== undefined) {
+    if (
+      (panel.kind === "stop" || panel.kind === "timetable") &&
+      stopLat !== undefined &&
+      stopLon !== undefined
+    ) {
       mapRef.current?.focusOn({ lat: stopLat, lon: stopLon });
     }
   }, [panel.kind, stopLat, stopLon]);
@@ -194,7 +203,7 @@ export default function HomeScreen() {
   const selectedStopId =
     panel.kind === "vehicle" || panel.kind === "trip"
       ? panel.stopId
-      : (stopId ?? highlightedStopId);
+      : (stopId ?? timetableStopId ?? highlightedStopId);
   // Hidden once the stop is no longer in the Nearby data (e.g. it fell out of range).
   const highlightedStopName = nearby.data?.stops.find((item) => item.stop.id === highlightedStopId)
     ?.stop.name;
@@ -242,6 +251,7 @@ export default function HomeScreen() {
     <View style={styles.screen}>
       <TransitMap
         ref={mapRef}
+        resetKey={`${mapLayers.layers.showStops}:${mapLayers.layers.showVehicles}`}
         showsUserLocation={position !== undefined}
         bottomInset={panelHeight}
         stops={mapContent.stops}
@@ -269,7 +279,10 @@ export default function HomeScreen() {
         {panel.kind === "search" ? (
           <SearchInput value={searchText} onChangeText={setSearchText} onClose={back} />
         ) : null}
-        {panel.kind === "stop" || panel.kind === "route" || panel.kind === "trip" ? (
+        {panel.kind === "stop" ||
+        panel.kind === "timetable" ||
+        panel.kind === "route" ||
+        panel.kind === "trip" ? (
           <View style={styles.backButton}>
             <BackButton onPress={back} />
           </View>
@@ -284,7 +297,17 @@ export default function HomeScreen() {
 
       {panel.kind === "nearby" && stopsZoomGateHidden ? (
         <View style={[styles.zoomHint, { top: topOffset + SEARCH_BAR_HEIGHT + spacing.sm }]}>
-          <ZoomHint />
+          <ZoomHint
+            onPress={() => {
+              // Zoom in to the Nearby span around what the user is looking at.
+              if (region) {
+                mapRef.current?.focusOn(
+                  { lat: region.latitude, lon: region.longitude },
+                  NEARBY_FOCUS_DELTA,
+                );
+              }
+            }}
+          />
         </View>
       ) : null}
 
@@ -335,7 +358,19 @@ export default function HomeScreen() {
             lastSuccessAt={stopArrivals.lastSuccessAt}
             userPosition={position}
             onArrivalPress={(arrival) => openArrival(arrival, panel.stopId)}
+            onOpenTimetable={() => push({ kind: "timetable", stopId: panel.stopId })}
             onRetry={stopArrivals.refetch}
+          />
+        ) : null}
+        {panel.kind === "timetable" ? (
+          <TimetablePanel
+            data={stopTimetable.data}
+            days={stopTimetable.days}
+            error={stopTimetable.error}
+            isLoading={stopTimetable.isLoading}
+            selectedDate={stopTimetable.selectedDate}
+            onSelectDate={stopTimetable.selectDate}
+            onRetry={stopTimetable.retry}
           />
         ) : null}
         {panel.kind === "search" ? (

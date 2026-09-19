@@ -53,6 +53,7 @@ export function selectMapContent(
     case "trip":
       return { stops: tripStop ? [tripStop] : [], vehicles: [] };
     case "stop":
+    case "timetable":
       return { stops: stop ? [stop] : [], vehicles: [] };
     case "route":
       return { stops: [], vehicles: routeVehicles ?? [] };

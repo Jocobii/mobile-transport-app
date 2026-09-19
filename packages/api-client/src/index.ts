@@ -10,6 +10,7 @@ import {
   type SearchResponse,
   type StopArrivalsResponse,
   type StopsInAreaResponse,
+  type StopTimetableResponse,
   type VehicleDetailResponse,
   type VehiclesInAreaResponse,
 } from "@transit/contracts";
@@ -82,6 +83,11 @@ export function createApiClient(options: ApiClientOptions) {
 
     getStopArrivals: (stopId: string) =>
       get<StopArrivalsResponse>(`/stops/${encodeURIComponent(stopId)}/arrivals`),
+
+    getStopTimetable: (stopId: string, options: { date?: string } = {}) =>
+      get<StopTimetableResponse>(
+        `/stops/${encodeURIComponent(stopId)}/timetable${buildQuery({ date: options.date })}`,
+      ),
 
     getRouteDetail: (
       routeId: string,

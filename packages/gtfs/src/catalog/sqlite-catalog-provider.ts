@@ -159,6 +159,24 @@ export function createSqliteCatalogProvider(
      WHERE st.stop_id = ? AND t.feed_id = ?`,
   );
 
+  // Why EXISTS: a trip that ends at this stop has no later stop_sequence; nobody boards there,
+  // so it does not belong in a departure timetable (generic GTFS rule, per stop_sequence).
+  const stmtDeparturesAtStopForDate = db.prepare(
+    `SELECT st.stop_sequence AS stopSequence, st.trip_id AS tripId, st.time_seconds AS timeSeconds,
+            t.feed_id AS feedId, t.route_id AS routeId, t.direction_id AS directionId,
+            t.headsign AS headsign
+     FROM stop_times st
+     JOIN trips t ON t.id = st.trip_id
+     JOIN service_dates sd ON sd.service_id = t.service_id
+     WHERE st.stop_id = ? AND sd.service_date = ?
+       AND EXISTS (
+         SELECT 1 FROM stop_times nx WHERE nx.trip_id = st.trip_id AND nx.stop_sequence > st.stop_sequence
+       )`,
+  );
+  const stmtServiceDates = db.prepare(
+    "SELECT DISTINCT service_date FROM service_dates ORDER BY service_date",
+  );
+
   function stopFeedIds(stopId: StopId): string[] {
     const rows = stmtStopFeeds.all(stopId) as Array<{ feed_id: string }>;
     return rows.map((row) => row.feed_id);
@@ -396,6 +414,45 @@ export function createSqliteCatalogProvider(
     return results;
   }
 
+  async function getScheduledStopTimesForServiceDate(
+    stopId: StopId,
+    serviceDate: ServiceDate,
+  ): Promise<ScheduledStopTime[]> {
+    const timezoneByFeed = new Map(feedsCache.map((feed) => [feed.id, feed.timezone]));
+    const rows = stmtDeparturesAtStopForDate.all(stopId, serviceDate) as Array<{
+      stopSequence: number;
+      tripId: string;
+      timeSeconds: number;
+      feedId: string;
+      routeId: string;
+      directionId: number;
+      headsign: string;
+    }>;
+
+    const results: ScheduledStopTime[] = [];
+    for (const row of rows) {
+      const timezone = timezoneByFeed.get(row.feedId);
+      if (timezone === undefined) continue;
+      results.push({
+        tripId: row.tripId,
+        routeId: row.routeId,
+        directionId: row.directionId === 1 ? 1 : 0,
+        headsign: row.headsign,
+        stopId,
+        stopSequence: row.stopSequence,
+        serviceDate,
+        time: epochFor(serviceDate, row.timeSeconds, timezone),
+      });
+    }
+    results.sort((a, b) => a.time - b.time);
+    return results;
+  }
+
+  async function getServiceDates(): Promise<ServiceDate[]> {
+    const rows = stmtServiceDates.all() as Array<{ service_date: string }>;
+    return rows.map((row) => row.service_date);
+  }
+
   async function getScheduledStopTimesForTrip(
     tripId: TripId,
     serviceDate: ServiceDate,
@@ -438,5 +495,7 @@ export function createSqliteCatalogProvider(
     getTrip,
     getScheduledStopTimesAtStop,
     getScheduledStopTimesForTrip,
+    getScheduledStopTimesForServiceDate,
+    getServiceDates,
   };
 }

@@ -33,6 +33,11 @@ export interface RouteSegment {
 
 interface TransitMapProps {
   ref?: Ref<TransitMapHandle>;
+  /**
+   * Remounts the native map when it changes. Android's map stops removing markers after repeated
+   * mass add/remove (layer toggles), so a layer change rebuilds the map at the same camera.
+   */
+  resetKey?: string | undefined;
   showsUserLocation: boolean;
   /** Height covered by the bottom panel; keeps the focused point in the visible area. */
   bottomInset: number;
@@ -52,6 +57,7 @@ interface TransitMapProps {
 /** The single map of the app. It is never unmounted. */
 export function TransitMap({
   ref,
+  resetKey,
   showsUserLocation,
   bottomInset,
   stops,
@@ -64,6 +70,7 @@ export function TransitMap({
   onRegionChangeComplete,
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
+  const lastRegion = useRef<Region | undefined>(undefined);
 
   useImperativeHandle(ref, () => {
     const focusOn = (position: Position, delta: number = FOCUS_DELTA) => {
@@ -100,22 +107,28 @@ export function TransitMap({
 
   return (
     <MapView
+      key={resetKey}
       ref={mapRef}
       style={styles.map}
       provider={PROVIDER_GOOGLE}
-      initialRegion={{
-        latitude: FALLBACK_CENTER.lat,
-        longitude: FALLBACK_CENTER.lon,
-        latitudeDelta: FALLBACK_DELTA,
-        longitudeDelta: FALLBACK_DELTA,
-      }}
+      initialRegion={
+        lastRegion.current ?? {
+          latitude: FALLBACK_CENTER.lat,
+          longitude: FALLBACK_CENTER.lon,
+          latitudeDelta: FALLBACK_DELTA,
+          longitudeDelta: FALLBACK_DELTA,
+        }
+      }
       mapPadding={{ top: 0, right: 0, bottom: bottomInset, left: 0 }}
       showsUserLocation={showsUserLocation}
       showsMyLocationButton={false}
       toolbarEnabled={false}
       customMapStyle={MAP_STYLE}
       onPanDrag={onUserPan}
-      onRegionChangeComplete={onRegionChangeComplete}
+      onRegionChangeComplete={(region) => {
+        lastRegion.current = region;
+        onRegionChangeComplete?.(region);
+      }}
     >
       {routeSegment && routeSegment.coordinates.length > 1 ? (
         <Polyline

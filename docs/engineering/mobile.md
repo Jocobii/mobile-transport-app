@@ -121,3 +121,20 @@ src/api/            api client instance and configuration
 - **Clearing "my stop"** (`MyStopChip`, `shared/panel/back-decision.ts`): shown under the search bar in Nearby while
   a stop is highlighted, hidden once it falls out of the Nearby data. Android back clears it before it ever walks
   the panel stack (pure `resolveBackAction`, tested for every `nearby | other panel` × `stop set | not set` case).
+
+## Stop timetable (EPIC-006)
+
+- **Panel `timetable`** (`Panel { kind: "timetable"; stopId }`, `features/timetable/`): opened from the Stop panel's
+  "Ver horario del día" button (visible whenever the stop data is loaded, also when there are no arrivals). Opens at
+  full sheet height like Search; the map behaves as in the Stop panel (`select-map-content.ts` treats `timetable` like
+  `stop`); back returns to the Stop panel (`resolveBackAction` needs no change: it is an "other" panel).
+- **Data**: `useStopTimetable` fetches `stops/{id}/timetable` once per `(stopId, date)` (catalog data, no polling).
+  `useTimetableView` adds the selected day (scoped to the stop) and keeps `days` (stop, today, selectable dates) from
+  the latest response so the header and the day chips stay on screen while another day loads.
+- **Pure logic** (`shared/format/timetable.ts`, no React Native import): `groupTimesByHour` (one row per local date +
+  hour, device time zone, so after-midnight departures land after the evening rows), `findNextDeparture`,
+  `formatServiceDayLabel` (UTC date math, no device time zone).
+- **Rendering**: per route/direction a card with the route badge, headsign and one row per hour (hour label with
+  a. m./p. m., minutes wrapping). Only when the selected day is today: passed times are dimmed and the next time of
+  each group is filled with the route color (never color alone: also bold). The panel says the schedule is scheduled
+  only (`timetable.note`).

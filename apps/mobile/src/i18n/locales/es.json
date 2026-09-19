@@ -53,7 +53,8 @@
     "codeWithDistance": "Parada {{code}} · a {{distance}}",
     "empty": "No hay llegadas en los próximos 90 min",
     "emptyHint": "Puede que el servicio ya haya terminado por hoy.",
-    "tapHint": "Toca una llegada para ver dónde va el camión"
+    "tapHint": "Toca una llegada para ver dónde va el camión",
+    "viewTimetable": "Ver horario del día"
   },
   "route": {
     "vehicleCount_one": "{{count}} camión en vivo",
@@ -100,5 +101,18 @@
     "minutes": "Actualizado hace {{minutes}} min",
     "inlineSeconds": "actualizado hace {{seconds}} s",
     "inlineMinutes": "actualizado hace {{minutes}} min"
+  },
+  "timetable": {
+    "subtitle": "Horario · Parada {{code}}",
+    "hour": "{{hour}} {{period}}",
+    "am": "a. m.",
+    "pm": "p. m.",
+    "note": "Horario programado publicado por la agencia. No incluye retrasos ni cambios en vivo.",
+    "empty": "No hay salidas en esta parada este día.",
+    "emptyHint": "Prueba con otro día.",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "weekdays": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+    "days": "Día del horario"
   }
 }

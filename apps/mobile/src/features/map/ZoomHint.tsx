@@ -1,25 +1,39 @@
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { colors, radii, spacing } from "@/shared/theme";
 
-/** Map overlay chip shown when the stops layer is on but zoomed out past its gate. */
-export function ZoomHint() {
+interface ZoomHintProps {
+  onPress: () => void;
+}
+
+/** Tappable map chip shown when the stops layer is on but zoomed out past its gate. */
+export function ZoomHint({ onPress }: ZoomHintProps) {
   const { t } = useTranslation();
   return (
-    <View style={styles.chip} accessible accessibilityLabel={t("map.zoomInForStops")}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={t("map.zoomInForStops")}
+      style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
+    >
       <Text style={styles.label}>{t("map.zoomInForStops")}</Text>
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   chip: {
     alignSelf: "center",
+    minHeight: 44,
+    justifyContent: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radii.panel,
     backgroundColor: colors.surface,
     elevation: 4,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   label: {
     color: colors.ink,

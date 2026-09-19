@@ -54,6 +54,17 @@ export interface CatalogProvider {
     tripId: TripId,
     serviceDate: ServiceDate,
   ): Promise<ScheduledStopTime[]>;
+  /**
+   * Every scheduled departure at `stopId` whose trip runs on `serviceDate`, ascending by time.
+   * Trips that end at the stop are excluded (nobody boards there). Times may fall on the
+   * next calendar day (GTFS times past 24:00).
+   */
+  getScheduledStopTimesForServiceDate(
+    stopId: StopId,
+    serviceDate: ServiceDate,
+  ): Promise<ScheduledStopTime[]>;
+  /** Distinct service dates covered by the catalog, ascending. */
+  getServiceDates(): Promise<ServiceDate[]>;
 }
 
 export interface RealtimeSnapshot {

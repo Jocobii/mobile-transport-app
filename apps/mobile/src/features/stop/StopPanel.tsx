@@ -1,6 +1,7 @@
 import type { ArrivalDto, StopArrivalsResponse } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActionButton } from "@/shared/components/ActionButton";
 import { FreshnessLabel } from "@/shared/components/FreshnessLabel";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
 import { formatDistance } from "@/shared/format/distance";
@@ -18,6 +19,7 @@ interface StopPanelProps {
   /** Distance is shown only when the user position is known. */
   userPosition: Position | undefined;
   onArrivalPress: (arrival: ArrivalDto) => void;
+  onOpenTimetable: () => void;
   onRetry: () => void;
 }
 
@@ -28,6 +30,7 @@ export function StopPanel({
   lastSuccessAt,
   userPosition,
   onArrivalPress,
+  onOpenTimetable,
   onRetry,
 }: StopPanelProps) {
   const { t } = useTranslation();
@@ -50,6 +53,9 @@ export function StopPanel({
               : t("stop.code", { code: data.stop.code })}
           </Text>
           <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
+          <View style={styles.timetableButton}>
+            <ActionButton label={t("stop.viewTimetable")} onPress={onOpenTimetable} />
+          </View>
           {data.arrivals.length > 0 ? <Text style={styles.hint}>{t("stop.tapHint")}</Text> : null}
         </View>
       ) : null}
@@ -80,6 +86,9 @@ function Separator() {
 }
 
 const styles = StyleSheet.create({
+  timetableButton: {
+    marginTop: spacing.sm,
+  },
   hint: {
     marginTop: spacing.xs,
     color: colors.inkSecondary,

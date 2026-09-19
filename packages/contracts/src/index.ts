@@ -144,6 +144,32 @@ export interface StopArrivalsResponse {
   feeds: FeedStatusDto[];
 }
 
+/** One route + direction + headsign with its scheduled departures for the day. */
+export interface TimetableGroupDto {
+  routeId: string;
+  routeShortName: string;
+  /** `#RRGGBB`, uppercase, or undefined. */
+  routeColor?: string | undefined;
+  /** `#RRGGBB`, uppercase, or undefined. */
+  routeTextColor?: string | undefined;
+  directionId: 0 | 1;
+  headsign: string;
+  /** Scheduled departures, Unix epoch seconds, ascending, unique. */
+  times: number[];
+}
+
+/** GET /api/v1/stops/{stopId}/timetable?date=YYYYMMDD */
+export interface StopTimetableResponse {
+  stop: StopSummaryDto;
+  /** Requested (or default) service date, `YYYYMMDD`. */
+  serviceDate: string;
+  /** Today in the stop's feed time zone, `YYYYMMDD`. */
+  today: string;
+  /** Catalog service dates from `today` on, ascending. Empty when the catalog does not cover today. */
+  availableDates: string[];
+  groups: TimetableGroupDto[];
+}
+
 /** GET /api/v1/routes/{routeId}?directionId=&lat=&lon= */
 export interface RouteDirectionDto {
   directionId: 0 | 1;

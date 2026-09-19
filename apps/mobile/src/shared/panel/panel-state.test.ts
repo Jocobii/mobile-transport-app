@@ -142,4 +142,30 @@ describe("panelReducer vehicle and trip panels", () => {
       panelReducer(once, { type: "push", panel: { kind: "trip", arrival, stopId: "2" } }).stack,
     ).toHaveLength(3);
   });
+
+  it("pushes a timetable panel over its stop and goes back to the stop", () => {
+    const state = run([
+      { type: "push", panel: { kind: "stop", stopId: "56939" } },
+      { type: "push", panel: { kind: "timetable", stopId: "56939" } },
+    ]);
+    expect(currentPanel(state)).toEqual({ kind: "timetable", stopId: "56939" });
+    expect(currentPanel(panelReducer(state, { type: "back" }))).toEqual({
+      kind: "stop",
+      stopId: "56939",
+    });
+  });
+
+  it("treats a timetable and a stop panel of the same stop as different panels", () => {
+    const state = run([
+      { type: "push", panel: { kind: "stop", stopId: "1" } },
+      { type: "push", panel: { kind: "timetable", stopId: "1" } },
+    ]);
+    expect(state.stack).toHaveLength(3);
+  });
+
+  it("ignores pushing the same timetable panel twice", () => {
+    const once = run([{ type: "push", panel: { kind: "timetable", stopId: "1" } }]);
+    const twice = panelReducer(once, { type: "push", panel: { kind: "timetable", stopId: "1" } });
+    expect(twice).toBe(once);
+  });
 });

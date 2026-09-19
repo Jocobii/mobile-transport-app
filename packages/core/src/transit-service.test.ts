@@ -98,6 +98,10 @@ interface FakeCatalogOptions {
   trip?: Trip | undefined;
   scheduledAtStop?: ScheduledStopTime[];
   scheduledForTrip?: ScheduledStopTime[];
+  scheduledForDate?: ScheduledStopTime[];
+  serviceDates?: string[];
+  /** Records every call to the service-date departures query, as `${stopId}@${serviceDate}`. */
+  timetableCalls?: string[];
   catalogVersion?: string | Promise<string>;
   /** Records every stop id arrivals were computed for, to check the adaptive radius does not
    * compute arrivals for steps it discards. */
@@ -134,6 +138,11 @@ function fakeCatalog(options: FakeCatalogOptions = {}): CatalogProvider {
       return options.scheduledAtStop ?? [];
     },
     getScheduledStopTimesForTrip: async () => options.scheduledForTrip ?? [],
+    getScheduledStopTimesForServiceDate: async (stopId, serviceDate) => {
+      options.timetableCalls?.push(`${stopId}@${serviceDate}`);
+      return options.scheduledForDate ?? [];
+    },
+    getServiceDates: async () => options.serviceDates ?? [],
   };
 }
 
@@ -559,6 +568,114 @@ describe("getStopArrivals (10.9)", () => {
     });
 
     expect(await service.getStopArrivals("unknown")).toBeUndefined();
+  });
+});
+
+describe("getStopTimetable (EPIC-006)", () => {
+  function timetableRow(
+    time: number,
+    overrides: Partial<ScheduledStopTime> = {},
+  ): ScheduledStopTime {
+    return {
+      tripId: `metrotransit:t${time}`,
+      routeId: ROUTE.id,
+      directionId: 0,
+      headsign: "Downtown",
+      stopId: STOP.id,
+      stopSequence: 1,
+      serviceDate: "20260919",
+      time,
+      ...overrides,
+    };
+  }
+
+  function timetableService(options: FakeCatalogOptions, now: number = NOW) {
+    const realtime = { ...fakeRealtimeProvider(emptySnapshot()) };
+    let realtimeCalls = 0;
+    realtime.getSnapshot = async () => {
+      realtimeCalls += 1;
+      return emptySnapshot();
+    };
+    const service = createTransitService({
+      catalog: fakeCatalog(options),
+      realtime: [realtime],
+      clock: fakeClock(now),
+      settings: SETTINGS,
+      feeds: FEEDS,
+    });
+    return { service, realtimeCalls: () => realtimeCalls };
+  }
+
+  it("returns undefined for a stop that isn't in the catalog", async () => {
+    const { service } = timetableService({ stop: undefined });
+    expect(await service.getStopTimetable("unknown")).toBeUndefined();
+  });
+
+  it("defaults to today's date in the feed time zone", async () => {
+    // 2026-09-20T03:00:00Z is still 2026-09-19 22:00 in America/Chicago.
+    const now = Date.UTC(2026, 8, 20, 3, 0, 0) / 1000;
+    const timetableCalls: string[] = [];
+    const { service } = timetableService(
+      { stop: STOP, routesServingStop: [ROUTE], timetableCalls },
+      now,
+    );
+
+    const result = await service.getStopTimetable(STOP.id);
+
+    expect(result?.today).toBe("20260919");
+    expect(result?.serviceDate).toBe("20260919");
+    expect(timetableCalls).toEqual([`${STOP.id}@20260919`]);
+  });
+
+  it("uses the requested service date when given", async () => {
+    const timetableCalls: string[] = [];
+    const { service } = timetableService(
+      { stop: STOP, routesServingStop: [ROUTE], timetableCalls },
+      NOW,
+    );
+
+    const result = await service.getStopTimetable(STOP.id, "20260925");
+
+    expect(result?.serviceDate).toBe("20260925");
+    expect(timetableCalls).toEqual([`${STOP.id}@20260925`]);
+  });
+
+  it("offers only catalog dates from today on", async () => {
+    const now = Date.UTC(2026, 8, 19, 17, 0, 0) / 1000;
+    const { service } = timetableService(
+      {
+        stop: STOP,
+        routesServingStop: [ROUTE],
+        serviceDates: ["20260918", "20260919", "20260920", "20260921"],
+      },
+      now,
+    );
+
+    const result = await service.getStopTimetable(STOP.id);
+
+    expect(result?.availableDates).toEqual(["20260919", "20260920", "20260921"]);
+  });
+
+  it("groups the departures and never calls the realtime providers", async () => {
+    const { service, realtimeCalls } = timetableService({
+      stop: STOP,
+      routesServingStop: [ROUTE],
+      scheduledForDate: [timetableRow(300), timetableRow(100), timetableRow(100)],
+    });
+
+    const result = await service.getStopTimetable(STOP.id);
+
+    expect(result?.groups).toHaveLength(1);
+    expect(result?.groups[0]?.times).toEqual([100, 300]);
+    expect(result?.groups[0]?.route.id).toBe(ROUTE.id);
+    expect(realtimeCalls()).toBe(0);
+  });
+
+  it("returns empty groups and dates when the catalog has nothing", async () => {
+    const { service } = timetableService({ stop: STOP });
+    const result = await service.getStopTimetable(STOP.id);
+    expect(result?.groups).toEqual([]);
+    expect(result?.availableDates).toEqual([]);
   });
 });
 

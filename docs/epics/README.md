@@ -12,6 +12,8 @@ Epics are written so an AI coding agent (or a person) can execute them **without
 | [EPIC-003](EPIC-003-mobile-redesign.md) | Mobile redesign v2 (route-first, vehicle view, colors, gestures) | Done |
 | EPIC-004 | Route view (shape, stop list, direction selector) — not written yet | Draft |
 | [EPIC-005](EPIC-005-map-coverage-and-layers.md) | Map coverage and layers (adaptive radius, viewport layers, toggles, free bus exploration) | Done |
+| [EPIC-006](EPIC-006-stop-timetable.md) | Official stop timetable (full-day scheduled departures per stop) | In progress |
+| [EPIC-007](EPIC-007-route-filter.md) | Route filter (only my buses: Nearby, map stops and live buses) | Ready |
 
 Statuses: `Draft` → `Ready` → `In progress` → `Done` (or `Blocked`).
 
