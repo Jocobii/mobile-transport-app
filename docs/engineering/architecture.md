@@ -119,7 +119,7 @@ so the service can resolve each feed's IANA time zone when computing a fallback 
 - `InMemoryCache` (`apps/server/src/infrastructure/in-memory-cache.ts`) is a plain `Map` keyed by cache
   key, storing `{ value, expiresAt }`, driven by the injected `Clock` (never `Date.now()` directly).
 - One cache instance is created in the composition root and shared across every feed's
-  `GtfsRealtimeProvider`, with a `realtimeCacheTtlSeconds: 20` TTL (`TRANSIT_SETTINGS`). Data older than
+  `GtfsRealtimeProvider`, with a `realtimeCacheTtlSeconds: 10` TTL (`TRANSIT_SETTINGS`). Data older than
   `realtimeStaleAfterSeconds: 120` is treated as stale and the merger falls back to schedule.
 - The cache lives only as long as the function instance (no background workers, no shared state across
   instances) — see "Serverless constraints" below. Occasional extra downloads on a cold instance are

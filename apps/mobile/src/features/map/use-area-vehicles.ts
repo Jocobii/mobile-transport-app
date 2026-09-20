@@ -23,7 +23,7 @@ function boundsKey(bounds: ViewportBounds): string {
 }
 
 /**
- * Live vehicles inside the visible map area, polled every 20 s while active (see
+ * Live vehicles inside the visible map area, polled every 10 s while active (see
  * `REFRESH_INTERVAL_MS`). `undefined` while disabled, outside the vehicles zoom gate, or before
  * the first fetch resolves. The fetch area only grows when the region pans outside it (as in
  * `useAreaStops`); polling then keeps refreshing that same area.

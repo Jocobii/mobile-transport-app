@@ -1,5 +1,5 @@
 /** How often the active panel's query is refreshed while the app is in the foreground. */
-export const REFRESH_INTERVAL_MS = 20_000;
+export const REFRESH_INTERVAL_MS = 10_000;
 
 /** Query length limit enforced by the server. */
 export const SEARCH_MAX_LENGTH = 50;

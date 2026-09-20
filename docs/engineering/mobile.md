@@ -16,7 +16,7 @@ src/shared/         cross-feature code:
     format/         pure formatting (arrival status/time, route colors, distance, freshness)
     geo/            position helpers
     panel/          panel state machine (reducer + hook) and sheet snap logic; the map never unmounts
-    polling/        poll controller + use-polled-query (20 s, paused in background)
+    polling/        poll controller + use-polled-query (10 s, paused in background)
     theme.ts        design tokens
 src/i18n/           i18n setup and locale files (es first, en later)
 src/api/            api client instance and configuration
@@ -111,7 +111,7 @@ src/api/            api client instance and configuration
   region (`AREA_FETCH_DEBOUNCE_MS`, `useDebouncedValue`) into `useAreaStops` / `useAreaVehicles`, each gated by its
   own zoom level (`STOPS_ZOOM_GATE_DELTA` ≈ 3.3 km, `VEHICLES_ZOOM_GATE_DELTA` ≈ 16 km — outside it only approaching
   buses show, as before this epic) and capped/expanded/grid-snapped (`AREA_EXPAND_FACTOR`, `AREA_SNAP_GRID_DEGREES`)
-  so panning inside an already-fetched area does not refetch. `useAreaVehicles` also polls every 20 s
+  so panning inside an already-fetched area does not refetch. `useAreaVehicles` also polls every 10 s
   (`REFRESH_INTERVAL_MS`) while active. `ZoomHint` tells the user to zoom in when the stops layer is on but gated
   out.
 - `select-map-content.ts` merges the area layers with the existing ones, deduped by id: area stops merge with

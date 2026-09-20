@@ -5,7 +5,7 @@ import type { TransitSettings } from "@transit/core";
  * Never hard-code these values anywhere else.
  */
 export const TRANSIT_SETTINGS: TransitSettings = {
-  realtimeCacheTtlSeconds: 20,
+  realtimeCacheTtlSeconds: 10,
   realtimeStaleAfterSeconds: 120,
   feedFetchTimeoutMs: 8000,
 
