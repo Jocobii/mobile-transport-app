@@ -44,6 +44,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     [
+      // Kept here (not in the generated `android/`) so `prebuild` does not lose it. Release builds
+      // shrink the code and resources; only the phone's ABI is compiled (faster build, smaller APK).
+      "expo-build-properties",
+      {
+        android: {
+          buildArchs: ["arm64-v8a"],
+          enableMinifyInReleaseBuilds: true,
+          enableShrinkResourcesInReleaseBuilds: true,
+        },
+      },
+    ],
+    [
       "expo-location",
       {
         locationWhenInUsePermission: LOCATION_PERMISSION_TEXT,
