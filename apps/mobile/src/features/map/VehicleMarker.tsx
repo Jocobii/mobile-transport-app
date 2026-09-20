@@ -6,7 +6,7 @@ import { Marker } from "react-native-maps";
 import Svg, { Path, Rect } from "react-native-svg";
 import { routeColors } from "@/shared/format/route-colors";
 import { colors, monospaceFont, spacing } from "@/shared/theme";
-import { markerBearing } from "./vehicle-marker-key";
+import { sameVehicleMarker } from "./vehicle-marker-key";
 
 interface VehicleMarkerProps {
   vehicle: VehicleDto;
@@ -14,23 +14,26 @@ interface VehicleMarkerProps {
 }
 
 const HALO_INSET = 5;
-const ARROW_CIRCLE = 20;
 const MARKER_PADDING = 10;
 const HALO_ALPHA = "40";
 
-export { markerBearing, vehicleMarkerKey } from "./vehicle-marker-key";
+const BEARING_ARROW_IMAGE = require("../../../assets/map/bearing-arrow.png") as number;
+
+export { vehicleMarkerKey } from "./vehicle-marker-key";
 
 /**
- * Pill in the official route colors with a bus glyph and the route number, a faint halo in the
- * route color, and a separate white circle with an arrow rotated by the bearing.
- * The parent keys it with `vehicleMarkerKey`, so it remounts when its look changes and
- * `tracksViewChanges` can be turned off after the first render (a Google Maps performance need).
+ * Pill in the official route colors with a bus glyph and the route number, and a faint halo in
+ * the route color. The parent keys it with `vehicleMarkerKey`, so it is rebuilt only when its look
+ * changes and `tracksViewChanges` can be turned off after the first render (a Google Maps
+ * performance need). The heading is a second, bitmap marker (an arrow that orbits the pill)
+ * rotated natively: a turn changes one number, never a view snapshot.
+ * Memoized by what is drawn, not by object identity: a poll returns new objects every time.
  */
 export const VehicleMarker = memo(function VehicleMarker({ vehicle, onPress }: VehicleMarkerProps) {
   const { t } = useTranslation();
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
-  const bearing = markerBearing(vehicle);
   const palette = routeColors(vehicle.routeColor, vehicle.routeTextColor);
+  const coordinate = { latitude: vehicle.lat, longitude: vehicle.lon };
 
   useEffect(() => {
     const id = setTimeout(() => setTracksViewChanges(false), 500);
@@ -38,38 +41,47 @@ export const VehicleMarker = memo(function VehicleMarker({ vehicle, onPress }: V
   }, []);
 
   return (
-    <Marker
-      coordinate={{ latitude: vehicle.lat, longitude: vehicle.lon }}
-      anchor={{ x: 0.5, y: 0.5 }}
-      tracksViewChanges={tracksViewChanges}
-      onPress={onPress ? () => onPress(vehicle) : undefined}
-    >
-      <View
-        style={styles.container}
-        accessible
-        accessibilityLabel={t("map.busMarkerLabel", {
-          route: vehicle.routeShortName,
-          headsign: vehicle.headsign,
-        })}
+    <>
+      <Marker
+        coordinate={coordinate}
+        anchor={{ x: 0.5, y: 0.5 }}
+        tracksViewChanges={tracksViewChanges}
+        zIndex={4}
+        onPress={onPress ? () => onPress(vehicle) : undefined}
       >
-        <View style={[styles.halo, { backgroundColor: `${palette.background}${HALO_ALPHA}` }]} />
-        <View style={[styles.pill, { backgroundColor: palette.background }]}>
-          <BusGlyph color={palette.text} />
-          <Text style={[styles.label, { color: palette.text }]}>{vehicle.routeShortName}</Text>
-        </View>
-        {bearing !== undefined ? (
-          <View style={styles.arrowCircle}>
-            <View style={{ transform: [{ rotate: `${bearing}deg` }] }}>
-              <Svg width={12} height={12} viewBox="0 0 16 16">
-                <Path d="M8 1.5 13.5 14 8 11 2.5 14Z" fill={palette.background} />
-              </Svg>
-            </View>
+        <View
+          style={styles.container}
+          accessible
+          accessibilityLabel={t("map.busMarkerLabel", {
+            route: vehicle.routeShortName,
+            headsign: vehicle.headsign,
+          })}
+        >
+          <View style={[styles.halo, { backgroundColor: `${palette.background}${HALO_ALPHA}` }]} />
+          <View style={[styles.pill, { backgroundColor: palette.background }]}>
+            <BusGlyph color={palette.text} />
+            <Text style={[styles.label, { color: palette.text }]}>{vehicle.routeShortName}</Text>
           </View>
-        ) : null}
-      </View>
-    </Marker>
+        </View>
+      </Marker>
+      {vehicle.bearing !== undefined ? (
+        <Marker
+          coordinate={coordinate}
+          image={BEARING_ARROW_IMAGE}
+          anchor={{ x: 0.5, y: 0.5 }}
+          rotation={vehicle.bearing}
+          tracksViewChanges={false}
+          tappable={false}
+          zIndex={5}
+        />
+      ) : null}
+    </>
   );
-});
+}, propsEqual);
+
+function propsEqual(previous: VehicleMarkerProps, next: VehicleMarkerProps): boolean {
+  return previous.onPress === next.onPress && sameVehicleMarker(previous.vehicle, next.vehicle);
+}
 
 function BusGlyph({ color }: { color: string }) {
   return (
@@ -111,17 +123,5 @@ const styles = StyleSheet.create({
     fontFamily: monospaceFont,
     fontSize: 13,
     fontWeight: "700",
-  },
-  arrowCircle: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: ARROW_CIRCLE,
-    height: ARROW_CIRCLE,
-    borderRadius: ARROW_CIRCLE / 2,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surface,
-    elevation: 5,
   },
 });

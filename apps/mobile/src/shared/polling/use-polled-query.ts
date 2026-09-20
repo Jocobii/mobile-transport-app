@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, type AppStateStatus } from "react-native";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { REFRESH_INTERVAL_MS } from "../config";
-import { createPollController, type PollController } from "./poll-controller";
+import { PERSIST_META } from "../query/query-config";
 
 export interface PolledQueryOptions {
   intervalMs?: number;
   enabled?: boolean;
-}
-
-interface QueryState<T> {
-  key: string;
-  data: T | undefined;
-  error: unknown;
-  /** Epoch seconds of the last successful response. */
-  lastSuccessAt: number | undefined;
+  /**
+   * Keeps showing the previous key's data while the next one loads. For queries where "the same
+   * thing, moved" (a wider area, another filter) is better than a spinner; never for a different
+   * entity (another stop or vehicle).
+   */
+  keepPreviousData?: boolean;
+  /** Saves the last response to disk and shows it right away on the next app start. */
+  persist?: boolean;
 }
 
 export interface PolledQuery<T> {
@@ -22,79 +22,68 @@ export interface PolledQuery<T> {
   isInitialLoading: boolean;
   /** A request is in flight (poll, refetch or first load). */
   isFetching: boolean;
+  /** Epoch seconds of the last successful response (also when it was restored from disk). */
   lastSuccessAt: number | undefined;
   refetch: () => void;
 }
 
-function emptyState<T>(key: string): QueryState<T> {
-  return { key, data: undefined, error: undefined, lastSuccessAt: undefined };
+interface QueryResultLike<T> {
+  data: T | undefined;
+  error: unknown;
+  isFetching: boolean;
+  /** Epoch milliseconds of the last successful response. */
+  dataUpdatedAt: number;
 }
 
-const nowInSeconds = () => Math.floor(Date.now() / 1000);
+/**
+ * Maps a TanStack Query result to the shape the panels consume. The last data is kept when a
+ * refresh fails; the UI shows an error only when there is no data.
+ */
+export function toPolledQuery<T>(
+  result: QueryResultLike<T>,
+  enabled: boolean,
+  refetch: () => void,
+): PolledQuery<T> {
+  const hasData = result.data !== undefined;
+  return {
+    data: result.data,
+    error: result.error ?? undefined,
+    isInitialLoading: enabled && !hasData && (result.error ?? undefined) === undefined,
+    isFetching: enabled && result.isFetching,
+    lastSuccessAt: hasData ? Math.floor(result.dataUpdatedAt / 1000) : undefined,
+    refetch,
+  };
+}
 
 /**
- * Runs `fetcher` when `key` changes and then every `intervalMs` while the app is active.
- * Keeps the last data when a refresh fails; the UI shows an error only when there is no data.
+ * Loads `fetcher` under `key` and refreshes it every `intervalMs` while the app is in the
+ * foreground. Responses are cached by key: reopening a panel shows its last data at once and
+ * refreshes it when older than the stale time; identical responses keep the same reference.
  */
 export function usePolledQuery<T>(
   key: string,
   fetcher: () => Promise<T>,
-  { intervalMs = REFRESH_INTERVAL_MS, enabled = true }: PolledQueryOptions = {},
+  {
+    intervalMs = REFRESH_INTERVAL_MS,
+    enabled = true,
+    keepPreviousData: keepPrevious = false,
+    persist = false,
+  }: PolledQueryOptions = {},
 ): PolledQuery<T> {
-  const [state, setState] = useState<QueryState<T>>(() => emptyState<T>(key));
-  const [isFetching, setIsFetching] = useState(false);
-  const fetcherRef = useRef(fetcher);
-  const controllerRef = useRef<PollController | undefined>(undefined);
-
-  useEffect(() => {
-    fetcherRef.current = fetcher;
+  const query = useQuery<T>({
+    queryKey: [key],
+    queryFn: fetcher,
+    enabled,
+    refetchInterval: intervalMs,
+    refetchIntervalInBackground: false,
+    ...(keepPrevious ? { placeholderData: keepPreviousData } : {}),
+    ...(persist ? { meta: PERSIST_META } : {}),
   });
 
-  useEffect(() => {
-    if (!enabled) return;
+  const { refetch: refetchQuery } = query;
+  const refetch = useCallback(() => {
+    void refetchQuery();
+  }, [refetchQuery]);
 
-    const controller = createPollController<T>({
-      fetcher: () => fetcherRef.current(),
-      intervalMs,
-      timers: {
-        setTimeout: (callback, delayMs) => setTimeout(callback, delayMs),
-        clearTimeout: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
-      },
-      now: nowInSeconds,
-      onFetchingChange: setIsFetching,
-      onSuccess: (data, at) => setState({ key, data, error: undefined, lastSuccessAt: at }),
-      onError: (error) =>
-        setState((previous) => ({
-          ...(previous.key === key ? previous : emptyState<T>(key)),
-          error,
-        })),
-    });
-    controllerRef.current = controller;
-
-    const applyAppState = (status: AppStateStatus) => {
-      if (status === "active") controller.resume();
-      else controller.pause();
-    };
-    applyAppState(AppState.currentState);
-    const subscription = AppState.addEventListener("change", applyAppState);
-
-    return () => {
-      subscription.remove();
-      controller.stop();
-      controllerRef.current = undefined;
-      setIsFetching(false);
-    };
-  }, [key, enabled, intervalMs]);
-
-  const refetch = useCallback(() => controllerRef.current?.refetch(), []);
-
-  const current = state.key === key ? state : emptyState<T>(key);
-  return {
-    data: current.data,
-    error: current.error,
-    isInitialLoading: enabled && current.data === undefined && current.error === undefined,
-    isFetching: enabled && isFetching,
-    lastSuccessAt: current.lastSuccessAt,
-    refetch,
-  };
+  return toPolledQuery(query, enabled, refetch);
 }

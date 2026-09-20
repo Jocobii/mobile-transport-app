@@ -5,7 +5,7 @@ import {
   type RouteFilter,
 } from "./route-filter";
 
-/** AsyncStorage key for the persisted route filter (E007-T02). */
+/** Storage key for the persisted route filter (E007-T02). */
 export const ROUTE_FILTER_STORAGE_KEY = "route-filter";
 
 function parseStoredRoute(value: unknown): FilterRoute | undefined {

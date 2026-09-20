@@ -1,7 +1,6 @@
 import type { VehicleDto } from "@transit/contracts";
 import { describe, expect, it } from "vitest";
-import { BEARING_STEP_DEGREES } from "./map-config";
-import { markerBearing, vehicleMarkerKey } from "./vehicle-marker-key";
+import { sameVehicleMarker, vehicleMarkerKey } from "./vehicle-marker-key";
 
 function vehicle(overrides: Partial<VehicleDto> = {}): VehicleDto {
   return {
@@ -19,9 +18,13 @@ function vehicle(overrides: Partial<VehicleDto> = {}): VehicleDto {
 }
 
 describe("vehicleMarkerKey", () => {
-  it("stays the same when only position or update time change", () => {
-    const before = vehicleMarkerKey(vehicle({ lat: 44.9, lon: -93.2, updatedAt: 1000 }));
-    const after = vehicleMarkerKey(vehicle({ lat: 44.95, lon: -93.25, updatedAt: 2000 }));
+  it("stays the same when only position, bearing or update time change", () => {
+    const before = vehicleMarkerKey(
+      vehicle({ lat: 44.9, lon: -93.2, bearing: 0, updatedAt: 1000 }),
+    );
+    const after = vehicleMarkerKey(
+      vehicle({ lat: 44.95, lon: -93.25, bearing: 135, updatedAt: 2000 }),
+    );
     expect(after).toBe(before);
   });
 
@@ -31,27 +34,29 @@ describe("vehicleMarkerKey", () => {
     expect(after).not.toBe(before);
   });
 
-  it("changes when the rounded bearing changes", () => {
-    const before = vehicleMarkerKey(vehicle({ bearing: 0 }));
-    const after = vehicleMarkerKey(vehicle({ bearing: BEARING_STEP_DEGREES * 2 }));
-    expect(after).not.toBe(before);
-  });
-
-  it("stays the same for a bearing change smaller than the marker step", () => {
-    const before = vehicleMarkerKey(vehicle({ bearing: 0 }));
-    const after = vehicleMarkerKey(vehicle({ bearing: BEARING_STEP_DEGREES / 4 }));
-    expect(after).toBe(before);
+  it("changes when the route number changes", () => {
+    expect(vehicleMarkerKey(vehicle({ routeShortName: "68" }))).not.toBe(
+      vehicleMarkerKey(vehicle()),
+    );
   });
 });
 
-describe("markerBearing", () => {
-  it("is undefined when the vehicle reports no bearing", () => {
-    expect(markerBearing(vehicle({ bearing: undefined }))).toBeUndefined();
+describe("sameVehicleMarker", () => {
+  it("is true for a new object with the same drawn values", () => {
+    expect(sameVehicleMarker(vehicle({ updatedAt: 1000 }), vehicle({ updatedAt: 2000 }))).toBe(
+      true,
+    );
   });
 
-  it("rounds to the nearest marker step", () => {
-    expect(markerBearing(vehicle({ bearing: BEARING_STEP_DEGREES * 1.4 }))).toBe(
-      BEARING_STEP_DEGREES,
-    );
+  it.each([
+    ["lat", { lat: 44.91 }],
+    ["lon", { lon: -93.21 }],
+    ["bearing", { bearing: 90 }],
+    ["route number", { routeShortName: "68" }],
+    ["route color", { routeColor: "#FFFFFF" }],
+    ["text color", { routeTextColor: "#000000" }],
+    ["headsign", { headsign: "Downtown" }],
+  ] satisfies [string, Partial<VehicleDto>][])("is false when the %s changes", (_name, change) => {
+    expect(sameVehicleMarker(vehicle(), vehicle(change))).toBe(false);
   });
 });

@@ -54,7 +54,8 @@ export function useAreaVehicles(
       if (!fetchArea) return Promise.reject(new Error("No fetch area"));
       return apiClient.getVehiclesInArea(fetchArea);
     },
-    { enabled: active && fetchArea !== undefined },
+    // A grown area keeps the previous buses on screen until its own response arrives.
+    { enabled: active && fetchArea !== undefined, keepPreviousData: true },
   );
 
   return active ? query.data : undefined;

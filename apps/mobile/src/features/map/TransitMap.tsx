@@ -54,6 +54,8 @@ interface TransitMapProps {
   onRegionChangeComplete?: ((region: Region) => void) | undefined;
   /** Fires when the user taps empty map (taps on markers are not reported). */
   onMapPress?: (() => void) | undefined;
+  /** Fires once the native map has loaded (again after a `resetKey` remount). */
+  onMapReady?: (() => void) | undefined;
 }
 
 /** The single map of the app. It is never unmounted. */
@@ -71,6 +73,7 @@ export function TransitMap({
   onUserPan,
   onRegionChangeComplete,
   onMapPress,
+  onMapReady,
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
   const lastRegion = useRef<Region | undefined>(undefined);
@@ -127,6 +130,7 @@ export function TransitMap({
       showsMyLocationButton={false}
       toolbarEnabled={false}
       customMapStyle={MAP_STYLE}
+      onMapReady={onMapReady}
       onPanDrag={onUserPan}
       onPress={(event) => {
         // Android reports a marker tap here too, flagged with this action.

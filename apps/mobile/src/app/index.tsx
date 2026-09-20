@@ -48,6 +48,7 @@ import { resolveBackAction } from "@/shared/panel/back-decision";
 import type { SheetSnap } from "@/shared/panel/sheet-snap";
 import { resolveStopTap } from "@/shared/panel/stop-tap";
 import { usePanelState } from "@/shared/panel/use-panel-state";
+import { hideSplash } from "@/shared/splash";
 import { colors, spacing } from "@/shared/theme";
 import { useDebouncedValue } from "@/shared/time/use-debounced-value";
 
@@ -275,18 +276,20 @@ export default function HomeScreen() {
     if (first) openArrival(first, group.stop.id);
   };
   /** Opens the Vehicle view for any bus marker in Nearby, Search or Route (E005-T08, §3). */
-  const openVehicle = useCallback(
-    (vehicle: VehicleDto) => {
-      push({
-        kind: "vehicle",
-        vehicleId: vehicle.id,
-        stopId: resolveVehicleStop(vehicle.id, nearby.data?.stops, highlightedStopId),
-        routeId: vehicle.routeId,
-        directionId: vehicle.directionId,
-      });
-    },
-    [nearby.data, highlightedStopId, push],
-  );
+  const openVehicleNow = (vehicle: VehicleDto) => {
+    push({
+      kind: "vehicle",
+      vehicleId: vehicle.id,
+      stopId: resolveVehicleStop(vehicle.id, nearby.data?.stops, highlightedStopId),
+      routeId: vehicle.routeId,
+      directionId: vehicle.directionId,
+    });
+  };
+  // Stable identity (reads the latest closure through a ref): the memoized bus markers must not
+  // re-render every time Nearby data or the highlighted stop changes.
+  const openVehicleRef = useRef(openVehicleNow);
+  openVehicleRef.current = openVehicleNow;
+  const openVehicle = useCallback((vehicle: VehicleDto) => openVehicleRef.current(vehicle), []);
   /** Opens the search panel in route-picker mode (from the layers card). */
   const startPickingRoutes = () => {
     setLayersCardOpen(false);
@@ -319,6 +322,7 @@ export default function HomeScreen() {
         }
         onUserPan={panel.kind === "vehicle" ? vehicleView.onUserPan : undefined}
         onRegionChangeComplete={setRegion}
+        onMapReady={hideSplash}
         onMapPress={() => {
           setSnap("collapsed");
           setLayersCardOpen(false);

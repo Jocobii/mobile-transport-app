@@ -1,6 +1,6 @@
 import { DEFAULT_MAP_LAYERS, type MapLayers } from "./map-layers";
 
-/** AsyncStorage key for the persisted layer toggles (E005-T06). */
+/** Storage key for the persisted layer toggles (E005-T06). */
 export const MAP_LAYERS_STORAGE_KEY = "map-layers";
 
 /**

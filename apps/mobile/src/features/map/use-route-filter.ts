@@ -1,8 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { readStored, writeStored } from "@/shared/storage/storage";
 import {
   activeRouteIds,
-  DEFAULT_ROUTE_FILTER,
   type FilterRoute,
   type RouteFilter,
   removeRoute as removeRouteFrom,
@@ -21,32 +20,22 @@ export interface UseRouteFilterResult {
 }
 
 /**
- * The "only my buses" route filter. Loaded once from `AsyncStorage` on mount and saved on every
- * change, so it survives an app restart. Storage calls never throw: a failed load keeps the
- * defaults and a failed save is silently dropped.
+ * The "only my buses" route filter. Read synchronously from storage for the first render (no
+ * default-then-restored flip, so no second fetch with a different filter) and saved on every
+ * change, so it survives an app restart.
  */
 export function useRouteFilter(): UseRouteFilterResult {
-  const [filter, setFilter] = useState<RouteFilter>(DEFAULT_ROUTE_FILTER);
+  const [filter, setFilter] = useState<RouteFilter>(() =>
+    parseStoredRouteFilter(readStored(ROUTE_FILTER_STORAGE_KEY) ?? null),
+  );
   const skipNextSave = useRef(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    AsyncStorage.getItem(ROUTE_FILTER_STORAGE_KEY)
-      .then((raw) => {
-        if (!cancelled) setFilter(parseStoredRouteFilter(raw));
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (skipNextSave.current) {
       skipNextSave.current = false;
       return;
     }
-    AsyncStorage.setItem(ROUTE_FILTER_STORAGE_KEY, JSON.stringify(filter)).catch(() => undefined);
+    writeStored(ROUTE_FILTER_STORAGE_KEY, JSON.stringify(filter));
   }, [filter]);
 
   const toggleRoute = useCallback(

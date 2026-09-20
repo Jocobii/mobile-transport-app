@@ -16,3 +16,8 @@ export function distanceMeters(from: Position, to: Position): number {
     Math.cos(toRadians(from.lat)) * Math.cos(toRadians(to.lat)) * Math.sin(deltaLon / 2) ** 2;
   return 2 * EARTH_RADIUS_METERS * Math.asin(Math.sqrt(a));
 }
+
+/** True when `to` is at least `thresholdMeters` away from `from`. */
+export function hasMovedAtLeast(from: Position, to: Position, thresholdMeters: number): boolean {
+  return distanceMeters(from, to) >= thresholdMeters;
+}

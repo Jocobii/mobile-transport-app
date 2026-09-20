@@ -11,9 +11,6 @@ export const FOCUS_DELTA = 0.012;
  * so it stays inside the stops zoom gate and stops and buses show right at start. */
 export const NEARBY_FOCUS_DELTA = 0.027;
 
-/** Arrow rotation and marker bitmaps refresh in steps of this many degrees. */
-export const BEARING_STEP_DEGREES = 15;
-
 /** Padding used when fitting the map to a set of vehicles. */
 export const FIT_PADDING = { top: 120, right: 60, bottom: 60, left: 60 };
 
