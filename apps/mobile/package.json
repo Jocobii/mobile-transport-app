@@ -6,9 +6,11 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "release:android": "npx expo run:android --variant release",
+    "adb:reverse": "adb reverse tcp:3000 tcp:3000 && adb reverse tcp:8081 tcp:8081",
+    "android": "(pnpm adb:reverse || true) && expo run:android",
+    "release:android": "EXPO_PUBLIC_API_URL=https://mobile-transport-app.vercel.app expo run:android --variant release",
     "ios": "expo run:ios",
+    "release:ios": "EXPO_PUBLIC_API_URL=https://mobile-transport-app.vercel.app expo run:ios --configuration Release --device",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
