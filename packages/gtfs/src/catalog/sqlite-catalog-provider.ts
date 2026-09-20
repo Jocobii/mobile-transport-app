@@ -18,12 +18,27 @@ import type {
 } from "@transit/core";
 import { boundingBox, boundsCenter, haversineMeters, VARIANT_SUFFIX_PATTERN } from "@transit/core";
 import { addDays, epochFor, localServiceDate } from "../time/gtfs-time";
+import { createLruCache } from "./lru-cache";
 
 export class CatalogUnavailableError extends Error {
   constructor(message: string, options?: { cause?: unknown }) {
     super(message, options);
     this.name = "CatalogUnavailableError";
   }
+}
+
+/**
+ * The realtime normalizer looks up every live trip on every rebuild (a few hundred to a thousand
+ * lookups). The catalog never changes while it is open, so those rows are kept in memory: every
+ * trip (small rows, bounded by the feed) and the stop times of the most recently used trips.
+ */
+const TRIP_CACHE_MAX_ENTRIES = 50_000;
+const STOP_TIMES_CACHE_MAX_TRIPS = 2_000;
+
+interface StopTimeRow {
+  stop_sequence: number;
+  stop_id: string;
+  time_seconds: number;
 }
 
 export interface SqliteCatalogProviderOptions {
@@ -400,8 +415,20 @@ export function createSqliteCatalogProvider(
     });
   }
 
-  async function getTrip(tripId: TripId): Promise<Trip | undefined> {
+  // `null` remembers an unknown trip, so a feed entry missing from the catalog costs one query.
+  const tripCache = createLruCache<TripId, Row | null>(TRIP_CACHE_MAX_ENTRIES);
+  const stopTimesCache = createLruCache<TripId, StopTimeRow[]>(STOP_TIMES_CACHE_MAX_TRIPS);
+
+  function getTripRow(tripId: TripId): Row | undefined {
+    const cached = tripCache.get(tripId);
+    if (cached !== undefined) return cached ?? undefined;
     const row = stmtGetTrip.get(tripId) as Row | undefined;
+    tripCache.set(tripId, row ?? null);
+    return row;
+  }
+
+  async function getTrip(tripId: TripId): Promise<Trip | undefined> {
+    const row = getTripRow(tripId);
     return row ? toTrip(row) : undefined;
   }
 
@@ -491,17 +518,17 @@ export function createSqliteCatalogProvider(
     tripId: TripId,
     serviceDate: ServiceDate,
   ): Promise<ScheduledStopTime[]> {
-    const tripRow = stmtGetTrip.get(tripId) as Row | undefined;
+    const tripRow = getTripRow(tripId);
     if (!tripRow) return [];
 
     const feed = feedsCache.find((f) => f.id === tripRow.feed_id);
     if (!feed) return [];
 
-    const rows = stmtStopTimesForTrip.all(tripId) as Array<{
-      stop_sequence: number;
-      stop_id: string;
-      time_seconds: number;
-    }>;
+    let rows = stopTimesCache.get(tripId);
+    if (!rows) {
+      rows = stmtStopTimesForTrip.all(tripId) as unknown as StopTimeRow[];
+      stopTimesCache.set(tripId, rows);
+    }
 
     return rows.map((row) => ({
       tripId,

@@ -7,20 +7,19 @@ import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { formatArrivalTime } from "@/shared/format/arrival-time";
 import { colors, fontSizes, monospaceFont, radii, spacing, statusTimeColors } from "@/shared/theme";
+import { shallowEqual, useClockSelect } from "@/shared/time/use-clock-select";
 
 interface StopArrivalRowProps {
   arrival: ArrivalDto;
-  now: number;
   onPress?: ((arrival: ArrivalDto) => void) | undefined;
 }
 
 /** Tappable arrival card of the stop panel: the time is the biggest element. */
-export function StopArrivalRow({ arrival, now, onPress }: StopArrivalRowProps) {
+export function StopArrivalRow({ arrival, onPress }: StopArrivalRowProps) {
   const { t } = useTranslation();
-  const time = formatArrivalTime(arrival, now, {
-    now: t("arrival.now"),
-    minutesUnit: t("arrival.minutes"),
-  });
+  const labels = { now: t("arrival.now"), minutesUnit: t("arrival.minutes") };
+  // Re-renders only when the shown time changes (about once a minute), not every second.
+  const time = useClockSelect((now) => formatArrivalTime(arrival, now, labels), shallowEqual);
   const status = formatArrivalStatus(arrival);
   const hasLiveVehicle = arrival.source === "live" && arrival.vehicleId !== undefined;
   const actionLabel = hasLiveVehicle ? t("arrival.viewLive") : t("arrival.viewTrip");

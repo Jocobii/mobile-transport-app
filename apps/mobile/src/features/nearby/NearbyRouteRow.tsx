@@ -4,28 +4,40 @@ import { ChevronIcon } from "@/shared/components/icons/ChevronIcon";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
-import { formatArrivalTime } from "@/shared/format/arrival-time";
+import { type ArrivalTimeText, formatArrivalTime } from "@/shared/format/arrival-time";
 import { formatDistance } from "@/shared/format/distance";
 import { colors, fontSizes, monospaceFont, radii, spacing, statusTimeColors } from "@/shared/theme";
+import { shallowEqual, useClockSelect } from "@/shared/time/use-clock-select";
 import type { NearbyRouteGroup } from "./group-nearby-by-route";
 
 interface NearbyRouteRowProps {
   group: NearbyRouteGroup;
-  now: number;
   highlighted: boolean;
   onPress: (group: NearbyRouteGroup) => void;
 }
 
+function sameText(a: ArrivalTimeText | undefined, b: ArrivalTimeText | undefined): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return shallowEqual(a, b);
+}
+
 /** One route + destination: full destination, status, boarding stop and the next two times. */
-export function NearbyRouteRow({ group, now, highlighted, onPress }: NearbyRouteRowProps) {
+export function NearbyRouteRow({ group, highlighted, onPress }: NearbyRouteRowProps) {
   const { t } = useTranslation();
   const [first, second] = group.arrivals;
-  if (!first) return null;
-
   const labels = { now: t("arrival.now"), minutesUnit: t("arrival.minutes") };
-  const time = formatArrivalTime(first, now, labels);
+  // Re-renders only when a shown time changes (about once a minute), not every second.
+  const times = useClockSelect(
+    (now) => ({
+      time: first ? formatArrivalTime(first, now, labels) : undefined,
+      next: second ? formatArrivalTime(second, now, labels) : undefined,
+    }),
+    (a, b) => sameText(a.time, b.time) && sameText(a.next, b.next),
+  );
+  if (!first || !times.time) return null;
+
+  const { time, next } = times;
   const status = formatArrivalStatus(first);
-  const next = second ? formatArrivalTime(second, now, labels) : undefined;
 
   return (
     <Pressable

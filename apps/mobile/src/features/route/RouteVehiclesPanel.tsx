@@ -8,7 +8,7 @@ import { RouteBadge } from "@/shared/components/RouteBadge";
 import { SheetFlatList } from "@/shared/components/SheetLists";
 import { formatFreshness, secondsSince } from "@/shared/format/freshness";
 import { colors, fontSizes, spacing } from "@/shared/theme";
-import { useNow } from "@/shared/time/use-now";
+import { useClockSelect } from "@/shared/time/use-clock-select";
 
 interface RouteVehiclesPanelProps {
   route: RouteSummaryDto;
@@ -32,8 +32,6 @@ export function RouteVehiclesPanel({
   onRetry,
 }: RouteVehiclesPanelProps) {
   const { t } = useTranslation();
-  const now = useNow();
-
   return (
     <View style={styles.container}>
       <PanelHeader
@@ -55,16 +53,14 @@ export function RouteVehiclesPanel({
         onClose={onClose}
       />
       <View style={styles.header}>
-        <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
+        <FreshnessLabel lastSuccessAt={lastSuccessAt} />
       </View>
 
       {data ? (
         <SheetFlatList
           data={data.vehicles}
           keyExtractor={(vehicle) => vehicle.id}
-          renderItem={({ item }) => (
-            <VehicleRow vehicle={item} now={now} onPress={onVehiclePress} />
-          )}
+          renderItem={({ item }) => <VehicleRow vehicle={item} onPress={onVehiclePress} />}
           ListEmptyComponent={<EmptyState title={t("route.empty")} />}
           contentContainerStyle={styles.list}
         />
@@ -79,15 +75,16 @@ export function RouteVehiclesPanel({
 
 function VehicleRow({
   vehicle,
-  now,
   onPress,
 }: {
   vehicle: VehicleDto;
-  now: number;
   onPress: (vehicle: VehicleDto) => void;
 }) {
   const { t } = useTranslation();
-  const age = formatFreshness(secondsSince(vehicle.updatedAt, now), "inline");
+  const age = useClockSelect(
+    (now) => formatFreshness(secondsSince(vehicle.updatedAt, now), "inline"),
+    (a, b) => a.key === b.key && JSON.stringify(a.params) === JSON.stringify(b.params),
+  );
   const destination = vehicle.headsign
     ? t("route.towards", { headsign: vehicle.headsign })
     : t("route.noHeadsign");

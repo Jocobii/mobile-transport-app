@@ -8,7 +8,6 @@ import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelS
 import { SheetFlatList } from "@/shared/components/SheetLists";
 import { formatDistance } from "@/shared/format/distance";
 import { colors, fontSizes, spacing } from "@/shared/theme";
-import { useNow } from "@/shared/time/use-now";
 import { groupNearbyByRoute, type NearbyRouteGroup } from "./group-nearby-by-route";
 import { NearbyRouteRow } from "./NearbyRouteRow";
 import { nearbyEmptyKey } from "./nearby-empty";
@@ -42,7 +41,6 @@ export function NearbyPanel({
   onRetry,
 }: NearbyPanelProps) {
   const { t } = useTranslation();
-  const now = useNow();
   const groups = useMemo(() => (data ? groupNearbyByRoute(data) : []), [data]);
 
   return (
@@ -54,7 +52,6 @@ export function NearbyPanel({
       <View style={styles.header}>
         <FreshnessLabel
           lastSuccessAt={lastSuccessAt}
-          now={now}
           onRefresh={onRetry}
           refreshing={isRefreshing}
         />
@@ -65,7 +62,6 @@ export function NearbyPanel({
         error={error}
         isInitialLoading={isInitialLoading}
         locationUnavailable={locationUnavailable}
-        now={now}
         highlightedStopId={highlightedStopId}
         routeFilterActive={routeFilterActive}
         onRoutePress={onRoutePress}
@@ -103,7 +99,6 @@ interface BodyProps {
   error: unknown;
   isInitialLoading: boolean;
   locationUnavailable: boolean;
-  now: number;
   highlightedStopId: string | undefined;
   routeFilterActive: boolean;
   onRoutePress: (group: NearbyRouteGroup) => void;
@@ -116,7 +111,6 @@ function Body({
   error,
   isInitialLoading,
   locationUnavailable,
-  now,
   highlightedStopId,
   routeFilterActive,
   onRoutePress,
@@ -134,7 +128,6 @@ function Body({
         renderItem={({ item }) => (
           <NearbyRouteRow
             group={item}
-            now={now}
             highlighted={item.stop.id === highlightedStopId}
             onPress={onRoutePress}
           />

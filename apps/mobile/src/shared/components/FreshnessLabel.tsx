@@ -2,23 +2,27 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { formatFreshness, secondsSince } from "@/shared/format/freshness";
 import { colors } from "@/shared/theme";
+import { useClockSelect } from "@/shared/time/use-clock-select";
 import { RefreshIcon } from "./icons/RefreshIcon";
 
 interface FreshnessLabelProps {
   /** Epoch seconds of the last successful response; nothing is shown before the first one. */
   lastSuccessAt: number | undefined;
-  now: number;
   /** Makes the label a button that refreshes now ("Actualizado hace X s · Actualizar"). */
   onRefresh?: () => void;
   /** A refresh is running: the label reads "Actualizando…" and cannot be pressed again. */
   refreshing?: boolean;
 }
 
-export function FreshnessLabel({ lastSuccessAt, now, onRefresh, refreshing }: FreshnessLabelProps) {
+/** Ticks on its own, so the list around it does not re-render every second. */
+export function FreshnessLabel({ lastSuccessAt, onRefresh, refreshing }: FreshnessLabelProps) {
   const { t } = useTranslation();
-  if (lastSuccessAt === undefined) return null;
+  const elapsed = useClockSelect((now) =>
+    lastSuccessAt === undefined ? undefined : secondsSince(lastSuccessAt, now),
+  );
+  if (elapsed === undefined) return null;
 
-  const label = formatFreshness(secondsSince(lastSuccessAt, now));
+  const label = formatFreshness(elapsed);
   const freshness = <Text style={styles.text}>{t(label.key, label.params)}</Text>;
   if (!onRefresh) return freshness;
 

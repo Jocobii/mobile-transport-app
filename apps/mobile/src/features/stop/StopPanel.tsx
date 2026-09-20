@@ -9,7 +9,6 @@ import { SheetFlatList } from "@/shared/components/SheetLists";
 import { formatDistance } from "@/shared/format/distance";
 import { distanceMeters, type Position } from "@/shared/geo/position";
 import { colors, spacing } from "@/shared/theme";
-import { useNow } from "@/shared/time/use-now";
 import { EmptyStopInfo } from "./EmptyStopInfo";
 import { StopArrivalRow } from "./StopArrivalRow";
 import type { NextScheduledDeparture } from "./use-next-scheduled-departure";
@@ -44,7 +43,6 @@ export function StopPanel({
   onRetry,
 }: StopPanelProps) {
   const { t } = useTranslation();
-  const now = useNow();
 
   return (
     <View style={styles.container}>
@@ -66,7 +64,6 @@ export function StopPanel({
         <View style={styles.header}>
           <FreshnessLabel
             lastSuccessAt={lastSuccessAt}
-            now={now}
             onRefresh={onRetry}
             refreshing={isRefreshing}
           />
@@ -83,9 +80,7 @@ export function StopPanel({
         <SheetFlatList
           data={data.arrivals}
           keyExtractor={(arrival, index) => `${arrival.tripId}:${index}`}
-          renderItem={({ item }) => (
-            <StopArrivalRow arrival={item} now={now} onPress={onArrivalPress} />
-          )}
+          renderItem={({ item }) => <StopArrivalRow arrival={item} onPress={onArrivalPress} />}
           ItemSeparatorComponent={Separator}
           ListEmptyComponent={
             <EmptyStopInfo nextDeparture={nextDeparture} onOpenTimetable={onOpenTimetable} />

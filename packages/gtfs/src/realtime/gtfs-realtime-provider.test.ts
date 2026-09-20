@@ -14,6 +14,9 @@ function encodeMessage(timestamp: number): Uint8Array {
   return FeedMessage.encode(message).finish();
 }
 
+/** Lets a background refresh started without `await` run to completion. */
+const flushBackgroundWork = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
 class FakeClock implements Clock {
   current = 1000;
   now() {
@@ -138,7 +141,63 @@ describe("createGtfsRealtimeProvider", () => {
     await provider.getSnapshot();
     clock.current += SETTINGS.realtimeCacheTtlSeconds + 1;
     await provider.getSnapshot();
+    await flushBackgroundWork();
     expect(fetchCount).toBe(4);
+  });
+
+  it("answers at once with the last good snapshot after the TTL and refreshes in the background", async () => {
+    const clock = new FakeClock();
+    const cache = new FakeCache(clock);
+    const releases: Array<() => void> = [];
+    let slow = false;
+    const fetchImpl = (async () => {
+      if (slow) await new Promise<void>((resolve) => releases.push(resolve));
+      return new Response(encodeMessage(clock.now()), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    const provider = createGtfsRealtimeProvider({
+      feed: FEED,
+      catalog: CATALOG,
+      cache,
+      clock,
+      settings: SETTINGS,
+      fetchImpl,
+    });
+
+    const first = await provider.getSnapshot();
+    clock.current += SETTINGS.realtimeCacheTtlSeconds + 1;
+    slow = true;
+
+    // The feeds are stuck, yet the call resolves with the previous snapshot.
+    const stale = await provider.getSnapshot();
+    expect(stale.status.dataTimestamp).toBe(first.status.dataTimestamp);
+
+    for (const release of releases) release();
+    await flushBackgroundWork();
+    const fresh = await provider.getSnapshot();
+    expect(fresh.status.dataTimestamp).toBe(clock.current);
+  });
+
+  it("waits for the feeds when the last good snapshot is too old to serve", async () => {
+    const clock = new FakeClock();
+    const cache = new FakeCache(clock);
+    const fetchImpl = (async () =>
+      new Response(encodeMessage(clock.now()), { status: 200 })) as unknown as typeof fetch;
+
+    const provider = createGtfsRealtimeProvider({
+      feed: FEED,
+      catalog: CATALOG,
+      cache,
+      clock,
+      settings: SETTINGS,
+      fetchImpl,
+    });
+
+    const first = await provider.getSnapshot();
+    clock.current += SETTINGS.realtimeStaleAfterSeconds + 1;
+    const next = await provider.getSnapshot();
+    expect(next.status.dataTimestamp).toBe(clock.current);
+    expect(next.status.dataTimestamp).not.toBe(first.status.dataTimestamp);
   });
 
   it("shares one in-flight fetch per URL across concurrent calls (single-flight)", async () => {

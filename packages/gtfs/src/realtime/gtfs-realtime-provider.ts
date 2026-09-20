@@ -140,10 +140,8 @@ export function createGtfsRealtimeProvider(
     return snapshot;
   }
 
-  async function getSnapshot(): Promise<RealtimeSnapshot> {
-    const cached = await cache.get<RealtimeSnapshot>(cacheKey);
-    if (cached) return cached;
-
+  /** Rebuilds the snapshot and caches it. Concurrent callers share the same rebuild. */
+  function refresh(): Promise<RealtimeSnapshot> {
     if (inFlight) return inFlight;
 
     inFlight = (async () => {
@@ -157,6 +155,24 @@ export function createGtfsRealtimeProvider(
     })();
 
     return inFlight;
+  }
+
+  /**
+   * Stale-while-revalidate: once the cache entry expires, a request is answered at once with the
+   * last good snapshot (as long as it is not stale by `realtimeStaleAfterSeconds`, and its own
+   * `dataTimestamp` tells the client how old it is) while a rebuild runs in the background. Only
+   * the first request of an instance, or one after a long gap, waits for the feeds.
+   */
+  async function getSnapshot(): Promise<RealtimeSnapshot> {
+    const cached = await cache.get<RealtimeSnapshot>(cacheKey);
+    if (cached) return cached;
+
+    if (lastGoodSnapshot && !isStale(lastGoodSnapshot.status, clock.now(), settings)) {
+      refresh().catch(() => undefined);
+      return lastGoodSnapshot;
+    }
+
+    return refresh();
   }
 
   return {

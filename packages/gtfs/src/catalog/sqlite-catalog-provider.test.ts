@@ -6,7 +6,7 @@ import type { TransitSettings } from "@transit/core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildCatalog } from "../static/build-catalog";
 import { createDirectoryGtfsSource } from "../static/gtfs-source";
-import { epochFor } from "../time/gtfs-time";
+import { addDays, epochFor } from "../time/gtfs-time";
 import { CatalogUnavailableError, createSqliteCatalogProvider } from "./sqlite-catalog-provider";
 
 const FIXTURES_ROOT = path.resolve(
@@ -282,6 +282,31 @@ describe("SqliteCatalogProvider (real fixtures: metrotransit + mvta)", () => {
 
     const unknown = await provider.getTrip("nope:9999999");
     expect(unknown).toBeUndefined();
+  });
+
+  it("answers repeated trip lookups with the same data, known or unknown", async () => {
+    const stopTimes = await provider.getScheduledStopTimesAtStop("56939", NOW - 3600, NOW + 3600);
+    const tripId = stopTimes[0]?.tripId as string;
+    expect(await provider.getTrip(tripId)).toEqual(await provider.getTrip(tripId));
+    expect(await provider.getTrip("nope:9999999")).toBeUndefined();
+    expect(await provider.getTrip("nope:9999999")).toBeUndefined();
+  });
+
+  it("keeps trip stop times independent of the service date they were first read with", async () => {
+    const stopTimes = await provider.getScheduledStopTimesAtStop("56939", NOW - 3600, NOW + 3600);
+    const first = stopTimes[0];
+    if (!first) throw new Error("fixture has no stop times near NOW");
+
+    const original = await provider.getScheduledStopTimesForTrip(first.tripId, first.serviceDate);
+    const nextDay = await provider.getScheduledStopTimesForTrip(
+      first.tripId,
+      addDays(first.serviceDate, 1),
+    );
+    const again = await provider.getScheduledStopTimesForTrip(first.tripId, first.serviceDate);
+
+    expect(nextDay.map((row) => row.stopId)).toEqual(original.map((row) => row.stopId));
+    expect(nextDay[0]?.time).not.toBe(original[0]?.time);
+    expect(again).toEqual(original);
   });
 });
 
