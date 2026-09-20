@@ -2,7 +2,6 @@ import type { ArrivalDto, RouteSummaryDto, VehicleDto } from "@transit/contracts
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BackHandler, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
-import type { Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LAYERS_BUTTON_SIZE, LayersButton } from "@/features/map/LayersButton";
 import { LayersCard } from "@/features/map/LayersCard";
@@ -11,6 +10,7 @@ import {
   NEARBY_FOCUS_DELTA,
   STOPS_ZOOM_GATE_DELTA,
 } from "@/features/map/map-config";
+import { regionStore } from "@/features/map/region-store";
 import { toFilterRoute } from "@/features/map/route-filter";
 import { selectMapContent } from "@/features/map/select-map-content";
 import { TransitMap, type TransitMapHandle } from "@/features/map/TransitMap";
@@ -18,9 +18,9 @@ import { useAreaStops } from "@/features/map/use-area-stops";
 import { useAreaVehicles } from "@/features/map/use-area-vehicles";
 import { useFilteredVehicles } from "@/features/map/use-filtered-vehicles";
 import { useMapLayers } from "@/features/map/use-map-layers";
+import { useDebouncedRegion, useZoomedOutPastGate } from "@/features/map/use-map-region";
 import { useRouteFilter } from "@/features/map/use-route-filter";
 import { useUserLocation } from "@/features/map/use-user-location";
-import { isWithinZoomGate } from "@/features/map/viewport";
 import { ZoomHint } from "@/features/map/ZoomHint";
 import type { NearbyRouteGroup } from "@/features/nearby/group-nearby-by-route";
 import { MyStopChip } from "@/features/nearby/MyStopChip";
@@ -50,7 +50,6 @@ import { resolveStopTap } from "@/shared/panel/stop-tap";
 import { usePanelState } from "@/shared/panel/use-panel-state";
 import { hideSplash } from "@/shared/splash";
 import { colors, spacing } from "@/shared/theme";
-import { useDebouncedValue } from "@/shared/time/use-debounced-value";
 
 const SHEET_COLLAPSED_HEIGHT = 120;
 const SHEET_HALF_RATIO = 0.5;
@@ -73,8 +72,9 @@ export default function HomeScreen() {
   const mapRef = useRef<TransitMapHandle>(null);
   const fittedRouteId = useRef<string | undefined>(undefined);
   const vehicleView = useVehicleView(panel, mapRef);
-  const [region, setRegion] = useState<Region | undefined>(undefined);
-  const debouncedRegion = useDebouncedValue(region, AREA_FETCH_DEBOUNCE_MS);
+  // The raw region lives in `regionStore`: panning re-renders this screen once per gesture
+  // (the debounced area), not on every map event.
+  const debouncedRegion = useDebouncedRegion(AREA_FETCH_DEBOUNCE_MS);
 
   const position = location.status === "available" ? location.position : undefined;
   const stopId = panel.kind === "stop" ? panel.stopId : undefined;
@@ -106,10 +106,10 @@ export default function HomeScreen() {
   );
   const layerVehicles =
     routeFilter.routeIds !== undefined ? (filteredVehicles ?? []) : (areaVehicles?.vehicles ?? []);
-  const stopsZoomGateHidden =
-    mapLayers.layers.showStops &&
-    region !== undefined &&
-    !isWithinZoomGate(region, STOPS_ZOOM_GATE_DELTA);
+  const stopsZoomGateHidden = useZoomedOutPastGate(
+    mapLayers.layers.showStops,
+    STOPS_ZOOM_GATE_DELTA,
+  );
 
   const topOffset = insets.top + spacing.md;
   const sheetHeights: Record<SheetSnap, number> = {
@@ -321,7 +321,7 @@ export default function HomeScreen() {
             : undefined
         }
         onUserPan={panel.kind === "vehicle" ? vehicleView.onUserPan : undefined}
-        onRegionChangeComplete={setRegion}
+        onRegionChangeComplete={regionStore.set}
         onMapReady={hideSplash}
         onMapPress={() => {
           setSnap("collapsed");
@@ -353,6 +353,7 @@ export default function HomeScreen() {
           <ZoomHint
             onPress={() => {
               // Zoom in to the Nearby span around what the user is looking at.
+              const region = regionStore.get();
               if (region) {
                 mapRef.current?.focusOn(
                   { lat: region.latitude, lon: region.longitude },
