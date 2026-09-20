@@ -6,6 +6,8 @@ export const colors = {
   muted: "#5f5e5a",
   line: "#e0ded7",
   surface: "#ffffff",
+  /** Quiet fill for grouped content (timetable summary and time cells). */
+  subtle: "#f4f3ef",
   map: "#e4e2dc",
   highlight: "#1a56db",
 } as const;

@@ -52,6 +52,8 @@ interface TransitMapProps {
   onUserPan?: (() => void) | undefined;
   /** Fires once the map settles (never mid-gesture); drives the viewport-area layers. */
   onRegionChangeComplete?: ((region: Region) => void) | undefined;
+  /** Fires when the user taps empty map (taps on markers are not reported). */
+  onMapPress?: (() => void) | undefined;
 }
 
 /** The single map of the app. It is never unmounted. */
@@ -68,6 +70,7 @@ export function TransitMap({
   onVehiclePress,
   onUserPan,
   onRegionChangeComplete,
+  onMapPress,
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
   const lastRegion = useRef<Region | undefined>(undefined);
@@ -125,6 +128,11 @@ export function TransitMap({
       toolbarEnabled={false}
       customMapStyle={MAP_STYLE}
       onPanDrag={onUserPan}
+      onPress={(event) => {
+        // Android reports a marker tap here too, flagged with this action.
+        if (event.nativeEvent.action === "marker-press") return;
+        onMapPress?.();
+      }}
       onRegionChangeComplete={(region) => {
         lastRegion.current = region;
         onRegionChangeComplete?.(region);

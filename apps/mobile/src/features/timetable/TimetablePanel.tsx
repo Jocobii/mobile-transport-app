@@ -1,8 +1,14 @@
 import type { StopTimetableResponse } from "@transit/contracts";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { scheduleOnRN } from "react-native-worklets";
+import { PanelHeader } from "@/shared/components/PanelHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
-import { colors, fontSizes, spacing } from "@/shared/theme";
+import { SheetFlatList } from "@/shared/components/SheetLists";
+import { stepServiceDate } from "@/shared/format/timetable";
+import { colors, spacing } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
 import { DaySelector } from "./DaySelector";
 import { TimetableGroupView } from "./TimetableGroupView";
@@ -18,8 +24,14 @@ interface TimetablePanelProps {
   /** The day being requested; undefined = the server default (today). */
   selectedDate: string | undefined;
   onSelectDate: (date: string) => void;
+  onClose: () => void;
   onRetry: () => void;
 }
+
+/** Horizontal travel (dp) that starts a day swipe, the vertical travel that cancels it, and the distance that commits it. */
+const SWIPE_ACTIVE_OFFSET = 24;
+const SWIPE_FAIL_OFFSET = 12;
+const SWIPE_MIN_DISTANCE = 60;
 
 /** Full-day scheduled timetable of a stop: scheduled data only, no live information. */
 export function TimetablePanel({
@@ -29,15 +41,40 @@ export function TimetablePanel({
   isLoading,
   selectedDate,
   onSelectDate,
+  onClose,
   onRetry,
 }: TimetablePanelProps) {
   const { t } = useTranslation();
   const now = useNow();
 
+  // Swipe left = next day, right = previous; nothing happens at the ends of the catalog.
+  const availableDates = days?.availableDates;
+  const currentDate = selectedDate ?? data?.serviceDate ?? days?.today;
+  const changeDay = useCallback(
+    (direction: "next" | "previous") => {
+      if (availableDates === undefined || currentDate === undefined) return;
+      const target = stepServiceDate(availableDates, currentDate, direction);
+      if (target !== undefined) onSelectDate(target);
+    },
+    [availableDates, currentDate, onSelectDate],
+  );
+  const swipeGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-SWIPE_ACTIVE_OFFSET, SWIPE_ACTIVE_OFFSET])
+        .failOffsetY([-SWIPE_FAIL_OFFSET, SWIPE_FAIL_OFFSET])
+        .onEnd((event) => {
+          if (Math.abs(event.translationX) <= SWIPE_MIN_DISTANCE) return;
+          scheduleOnRN(changeDay, event.translationX < 0 ? "next" : "previous");
+        }),
+    [changeDay],
+  );
+
   // First load (no stop info yet): only the loading or error state.
   if (days === undefined) {
     return (
       <View style={styles.container}>
+        <PanelHeader title={null} onClose={onClose} />
         {error !== undefined ? (
           <ErrorState onRetry={onRetry} />
         ) : isLoading ? (
@@ -51,12 +88,11 @@ export function TimetablePanel({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={2}>
-          {days.stop.name}
-        </Text>
-        <Text style={styles.subtitle}>{t("timetable.subtitle", { code: days.stop.code })}</Text>
-      </View>
+      <PanelHeader
+        title={days.stop.name}
+        subtitle={t("timetable.subtitle", { code: days.stop.code })}
+        onClose={onClose}
+      />
 
       <DaySelector
         availableDates={days.availableDates}
@@ -65,23 +101,29 @@ export function TimetablePanel({
         onSelect={onSelectDate}
       />
 
-      {data !== undefined ? (
-        <FlatList
-          data={data.groups}
-          keyExtractor={(group) => `${group.routeId}:${group.directionId}:${group.headsign}`}
-          renderItem={({ item }) => <TimetableGroupView group={item} now={now} isToday={isToday} />}
-          ItemSeparatorComponent={Separator}
-          ListEmptyComponent={
-            <EmptyState title={t("timetable.empty")} hint={t("timetable.emptyHint")} />
-          }
-          ListFooterComponent={<Text style={styles.note}>{t("timetable.note")}</Text>}
-          contentContainerStyle={styles.list}
-        />
-      ) : error !== undefined ? (
-        <ErrorState onRetry={onRetry} />
-      ) : isLoading ? (
-        <LoadingState />
-      ) : null}
+      <GestureDetector gesture={swipeGesture}>
+        <View style={styles.swipeArea} collapsable={false}>
+          {data !== undefined ? (
+            <SheetFlatList
+              data={data.groups}
+              keyExtractor={(group) => `${group.routeId}:${group.directionId}:${group.headsign}`}
+              renderItem={({ item }) => (
+                <TimetableGroupView group={item} now={now} isToday={isToday} />
+              )}
+              ItemSeparatorComponent={Separator}
+              ListEmptyComponent={
+                <EmptyState title={t("timetable.empty")} hint={t("timetable.emptyHint")} />
+              }
+              ListFooterComponent={<Text style={styles.note}>{t("timetable.note")}</Text>}
+              contentContainerStyle={styles.list}
+            />
+          ) : error !== undefined ? (
+            <ErrorState onRetry={onRetry} />
+          ) : isLoading ? (
+            <LoadingState />
+          ) : null}
+        </View>
+      </GestureDetector>
     </View>
   );
 }
@@ -94,17 +136,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    marginBottom: spacing.sm,
-  },
-  title: {
-    color: colors.ink,
-    fontSize: fontSizes.title,
-    fontWeight: "700",
-  },
-  subtitle: {
-    color: colors.inkSecondary,
-    fontSize: fontSizes.body,
+  swipeArea: {
+    flex: 1,
   },
   separator: {
     height: spacing.sm,

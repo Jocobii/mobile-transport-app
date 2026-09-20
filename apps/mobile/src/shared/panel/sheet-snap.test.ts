@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { resolveSnap, type SnapOffsets, stepSnap, tapSnap } from "./sheet-snap";
+import {
+  resolveSnap,
+  type SnapOffsets,
+  shouldSheetTakeDrag,
+  stepSnap,
+  tapSnap,
+} from "./sheet-snap";
 
 const OFFSETS: SnapOffsets = { full: 0, half: 300, collapsed: 600 };
 
@@ -47,5 +53,27 @@ describe("stepSnap", () => {
     expect(stepSnap("full", "down")).toBe("half");
     expect(stepSnap("half", "down")).toBe("collapsed");
     expect(stepSnap("collapsed", "down")).toBe("collapsed");
+  });
+});
+
+describe("shouldSheetTakeDrag", () => {
+  it("takes a downward drag when the list is at the top", () => {
+    expect(shouldSheetTakeDrag(0, 12)).toBe(true);
+  });
+
+  it("treats a negative offset (overscroll) as the top", () => {
+    expect(shouldSheetTakeDrag(-4, 12)).toBe(true);
+  });
+
+  it("leaves a downward drag to the list while it is scrolled", () => {
+    expect(shouldSheetTakeDrag(80, 12)).toBe(false);
+  });
+
+  it("leaves an upward drag to the list even at the top", () => {
+    expect(shouldSheetTakeDrag(0, -12)).toBe(false);
+  });
+
+  it("does not take a drag that has not moved", () => {
+    expect(shouldSheetTakeDrag(0, 0)).toBe(false);
   });
 });

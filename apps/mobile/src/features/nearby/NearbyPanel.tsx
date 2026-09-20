@@ -1,11 +1,12 @@
 import type { NearbyStopsResponse } from "@transit/contracts";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { FreshnessLabel } from "@/shared/components/FreshnessLabel";
+import { PanelHeader } from "@/shared/components/PanelHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
+import { SheetFlatList } from "@/shared/components/SheetLists";
 import { formatDistance } from "@/shared/format/distance";
-import { usePullToRefresh } from "@/shared/polling/use-pull-to-refresh";
 import { colors, fontSizes, spacing } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
 import { groupNearbyByRoute, type NearbyRouteGroup } from "./group-nearby-by-route";
@@ -18,6 +19,7 @@ interface NearbyPanelProps {
   data: NearbyStopsResponse | undefined;
   error: unknown;
   isInitialLoading: boolean;
+  isRefreshing: boolean;
   lastSuccessAt: number | undefined;
   locationUnavailable: boolean;
   highlightedStopId: string | undefined;
@@ -31,6 +33,7 @@ export function NearbyPanel({
   data,
   error,
   isInitialLoading,
+  isRefreshing,
   lastSuccessAt,
   locationUnavailable,
   highlightedStopId,
@@ -41,14 +44,20 @@ export function NearbyPanel({
   const { t } = useTranslation();
   const now = useNow();
   const groups = useMemo(() => (data ? groupNearbyByRoute(data) : []), [data]);
-  const { refreshing, onRefresh } = usePullToRefresh(onRetry, lastSuccessAt);
 
   return (
     <View style={styles.container}>
+      <PanelHeader
+        title={t("nearby.title")}
+        subtitle={groups.length > 0 ? <Subtitle groups={groups} /> : undefined}
+      />
       <View style={styles.header}>
-        <Text style={styles.title}>{t("nearby.title")}</Text>
-        {groups.length > 0 ? <Subtitle groups={groups} /> : null}
-        <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
+        <FreshnessLabel
+          lastSuccessAt={lastSuccessAt}
+          now={now}
+          onRefresh={onRetry}
+          refreshing={isRefreshing}
+        />
       </View>
       <Body
         data={data}
@@ -59,8 +68,6 @@ export function NearbyPanel({
         now={now}
         highlightedStopId={highlightedStopId}
         routeFilterActive={routeFilterActive}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
         onRoutePress={onRoutePress}
         onRetry={onRetry}
       />
@@ -99,8 +106,6 @@ interface BodyProps {
   now: number;
   highlightedStopId: string | undefined;
   routeFilterActive: boolean;
-  refreshing: boolean;
-  onRefresh: () => void;
   onRoutePress: (group: NearbyRouteGroup) => void;
   onRetry: () => void;
 }
@@ -114,8 +119,6 @@ function Body({
   now,
   highlightedStopId,
   routeFilterActive,
-  refreshing,
-  onRefresh,
   onRoutePress,
   onRetry,
 }: BodyProps) {
@@ -125,7 +128,7 @@ function Body({
   if (data) {
     const emptyKey = nearbyEmptyKey(data.stops.length, routeFilterActive);
     return (
-      <FlatList
+      <SheetFlatList
         data={groups}
         keyExtractor={(group) => group.key}
         renderItem={({ item }) => (
@@ -146,7 +149,6 @@ function Body({
             hint={routeFilterActive ? t("nearby.emptyFilteredHint") : undefined}
           />
         }
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={styles.list}
       />
     );
@@ -166,11 +168,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: spacing.sm,
-  },
-  title: {
-    color: colors.ink,
-    fontSize: fontSizes.title,
-    fontWeight: "700",
   },
   subtitle: {
     color: colors.inkSecondary,

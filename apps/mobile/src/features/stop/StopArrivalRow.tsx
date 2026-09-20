@@ -1,7 +1,7 @@
 import type { ArrivalDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ChevronIcon } from "@/shared/components/ChevronIcon";
+import { ChevronIcon } from "@/shared/components/icons/ChevronIcon";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";

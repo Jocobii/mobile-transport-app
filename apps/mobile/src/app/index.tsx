@@ -1,7 +1,7 @@
 import type { ArrivalDto, RouteSummaryDto, VehicleDto } from "@transit/contracts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BackHandler, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { BackHandler, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 import type { Region } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LAYERS_BUTTON_SIZE, LayersButton } from "@/features/map/LayersButton";
@@ -31,6 +31,7 @@ import { useRouteVehicles } from "@/features/route/use-route-vehicles";
 import { SearchPanel } from "@/features/search/SearchPanel";
 import { useSearch } from "@/features/search/use-search";
 import { StopPanel } from "@/features/stop/StopPanel";
+import { useNextScheduledDeparture } from "@/features/stop/use-next-scheduled-departure";
 import { useStopArrivals } from "@/features/stop/use-stop-arrivals";
 import { TimetablePanel } from "@/features/timetable/TimetablePanel";
 import { useTimetableView } from "@/features/timetable/use-timetable-view";
@@ -39,12 +40,13 @@ import { resolveVehicleStop } from "@/features/vehicle/resolve-vehicle-stop";
 import { TripPanel } from "@/features/vehicle/TripPanel";
 import { useVehicleView } from "@/features/vehicle/use-vehicle-view";
 import { VehiclePanel } from "@/features/vehicle/VehiclePanel";
-import { BackButton } from "@/shared/components/BackButton";
 import { BottomSheet } from "@/shared/components/BottomSheet";
+import { RecenterIcon } from "@/shared/components/icons/RecenterIcon";
 import { SEARCH_BAR_HEIGHT, SearchBar } from "@/shared/components/SearchBar";
 import { SearchInput } from "@/shared/components/SearchInput";
 import { resolveBackAction } from "@/shared/panel/back-decision";
 import type { SheetSnap } from "@/shared/panel/sheet-snap";
+import { resolveStopTap } from "@/shared/panel/stop-tap";
 import { usePanelState } from "@/shared/panel/use-panel-state";
 import { colors, spacing } from "@/shared/theme";
 import { useDebouncedValue } from "@/shared/time/use-debounced-value";
@@ -80,6 +82,10 @@ export default function HomeScreen() {
 
   const nearby = useNearby(position, panel.kind === "nearby", routeFilter.routeIds);
   const stopArrivals = useStopArrivals(stopId);
+  const nextDeparture = useNextScheduledDeparture(
+    stopId,
+    stopArrivals.data !== undefined && stopArrivals.data.arrivals.length === 0,
+  );
   const stopTimetable = useTimetableView(timetableStopId);
   const routeVehicles = useRouteVehicles(routeId);
   const search = useSearch(searchText);
@@ -234,6 +240,18 @@ export default function HomeScreen() {
     ?.stop.name;
 
   const openStop = useCallback((id: string) => push({ kind: "stop", stopId: id }), [push]);
+  /** Map stop markers: tapping the open stop again closes it, like ✕. */
+  // Stable identity (reads the panel through a ref): the memoized stop markers must not
+  // re-render every time the panel changes.
+  const panelRef = useRef(panel);
+  panelRef.current = panel;
+  const toggleStop = useCallback(
+    (id: string) => {
+      if (resolveStopTap(panelRef.current, id) === "close") back();
+      else openStop(id);
+    },
+    [back, openStop],
+  );
   const openRoute = (route: RouteSummaryDto) => push({ kind: "route", route });
   const seeStopArrivals = (id: string) => push({ kind: "stop", stopId: id });
 
@@ -292,7 +310,7 @@ export default function HomeScreen() {
         stops={mapContent.stops}
         selectedStopId={selectedStopId}
         vehicles={mapContent.vehicles}
-        onStopPress={openStop}
+        onStopPress={toggleStop}
         routeSegment={panel.kind === "vehicle" ? vehicleView.segment : undefined}
         onVehiclePress={
           panel.kind === "nearby" || panel.kind === "search" || panel.kind === "route"
@@ -301,10 +319,14 @@ export default function HomeScreen() {
         }
         onUserPan={panel.kind === "vehicle" ? vehicleView.onUserPan : undefined}
         onRegionChangeComplete={setRegion}
+        onMapPress={() => {
+          setSnap("collapsed");
+          setLayersCardOpen(false);
+        }}
       />
 
       <View style={[styles.topOverlay, { top: topOffset }]}>
-        {panel.kind === "nearby" ? <SearchBar onPress={() => push({ kind: "search" })} /> : null}
+        {panel.kind !== "search" ? <SearchBar onPress={() => push({ kind: "search" })} /> : null}
         {panel.kind === "nearby" && highlightedStopName !== undefined ? (
           <MyStopChip
             stopName={highlightedStopName}
@@ -314,21 +336,13 @@ export default function HomeScreen() {
         {panel.kind === "search" ? (
           <SearchInput value={searchText} onChangeText={setSearchText} onClose={back} />
         ) : null}
-        {panel.kind === "stop" ||
-        panel.kind === "timetable" ||
-        panel.kind === "route" ||
-        panel.kind === "trip" ? (
-          <View style={styles.backButton}>
-            <BackButton onPress={back} />
-          </View>
-        ) : null}
-        {panel.kind === "vehicle" ? (
-          <View style={styles.vehicleOverlay}>
-            <BackButton onPress={back} />
-            <FollowChip following={vehicleView.following} onPress={vehicleView.follow} />
-          </View>
-        ) : null}
       </View>
+
+      {panel.kind === "vehicle" ? (
+        <View style={[styles.followChip, { bottom: panelHeight + spacing.lg }]}>
+          <FollowChip following={vehicleView.following} onPress={vehicleView.follow} />
+        </View>
+      ) : null}
 
       {panel.kind === "nearby" && stopsZoomGateHidden ? (
         <View style={[styles.zoomHint, { top: topOffset + SEARCH_BAR_HEIGHT + spacing.sm }]}>
@@ -353,7 +367,7 @@ export default function HomeScreen() {
           accessibilityLabel={t("map.recenter")}
           style={[styles.recenter, { bottom: panelHeight + spacing.lg }]}
         >
-          <Text style={styles.recenterIcon}>◎</Text>
+          <RecenterIcon />
         </Pressable>
       ) : null}
 
@@ -385,6 +399,7 @@ export default function HomeScreen() {
             data={nearby.data}
             error={nearby.error}
             isInitialLoading={nearby.isInitialLoading || location.status === "loading"}
+            isRefreshing={nearby.isFetching}
             lastSuccessAt={nearby.lastSuccessAt}
             locationUnavailable={location.status === "unavailable"}
             highlightedStopId={highlightedStopId}
@@ -398,10 +413,13 @@ export default function HomeScreen() {
             data={stopArrivals.data}
             error={stopArrivals.error}
             isInitialLoading={stopArrivals.isInitialLoading}
+            isRefreshing={stopArrivals.isFetching}
             lastSuccessAt={stopArrivals.lastSuccessAt}
             userPosition={position}
+            nextDeparture={nextDeparture}
             onArrivalPress={(arrival) => openArrival(arrival, panel.stopId)}
             onOpenTimetable={() => push({ kind: "timetable", stopId: panel.stopId })}
+            onClose={back}
             onRetry={stopArrivals.refetch}
           />
         ) : null}
@@ -413,6 +431,7 @@ export default function HomeScreen() {
             isLoading={stopTimetable.isLoading}
             selectedDate={stopTimetable.selectedDate}
             onSelectDate={stopTimetable.selectDate}
+            onClose={back}
             onRetry={stopTimetable.retry}
           />
         ) : null}
@@ -445,6 +464,7 @@ export default function HomeScreen() {
             isInitialLoading={routeVehicles.isInitialLoading}
             lastSuccessAt={routeVehicles.lastSuccessAt}
             onVehiclePress={focusVehicle}
+            onClose={back}
             onRetry={routeVehicles.refetch}
           />
         ) : null}
@@ -457,6 +477,7 @@ export default function HomeScreen() {
             onSeeStopArrivals={() => {
               if (panel.stopId !== undefined) seeStopArrivals(panel.stopId);
             }}
+            onClose={back}
             onRetry={vehicleView.detail.refetch}
           />
         ) : null}
@@ -464,6 +485,7 @@ export default function HomeScreen() {
           <TripPanel
             arrival={panel.arrival}
             onSeeStopArrivals={() => seeStopArrivals(panel.stopId)}
+            onClose={back}
           />
         ) : null}
       </BottomSheet>
@@ -481,13 +503,9 @@ const styles = StyleSheet.create({
     left: spacing.lg,
     right: spacing.lg,
   },
-  backButton: {
-    alignSelf: "flex-start",
-  },
-  vehicleOverlay: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  followChip: {
+    position: "absolute",
+    right: spacing.lg,
   },
   recenter: {
     position: "absolute",
@@ -509,9 +527,5 @@ const styles = StyleSheet.create({
     left: spacing.lg,
     right: spacing.lg,
     alignItems: "center",
-  },
-  recenterIcon: {
-    color: colors.ink,
-    fontSize: 24,
   },
 });

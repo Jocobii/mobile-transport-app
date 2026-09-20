@@ -1,9 +1,11 @@
 import type { UpcomingStopDto, VehicleDetailResponse } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { NoticeCard } from "@/shared/components/NoticeCard";
+import { PanelHeader } from "@/shared/components/PanelHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
 import { RouteBadge } from "@/shared/components/RouteBadge";
+import { SheetScrollView } from "@/shared/components/SheetLists";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { routeColors } from "@/shared/format/route-colors";
@@ -24,6 +26,7 @@ interface VehiclePanelProps {
   isInitialLoading: boolean;
   stopId: string | undefined;
   onSeeStopArrivals: () => void;
+  onClose: () => void;
   onRetry: () => void;
 }
 
@@ -34,29 +37,66 @@ export function VehiclePanel({
   isInitialLoading,
   stopId,
   onSeeStopArrivals,
+  onClose,
   onRetry,
 }: VehiclePanelProps) {
   const { t } = useTranslation();
   const now = useNow();
+  const header = (
+    <PanelHeader
+      title={
+        data ? (
+          <View style={styles.header}>
+            <RouteBadge
+              label={data.vehicle.routeShortName}
+              color={data.vehicle.routeColor}
+              textColor={data.vehicle.routeTextColor}
+            />
+            <Text style={styles.headsign} numberOfLines={2}>
+              {t("vehicle.destination", { headsign: data.vehicle.headsign })}
+            </Text>
+          </View>
+        ) : null
+      }
+      onClose={onClose}
+    />
+  );
 
   if (isVehicleGone(error)) {
     return (
-      <View style={styles.container}>
-        <NoticeCard
-          tone="neutral"
-          message={t("vehicle.gone")}
-          actionLabel={stopId !== undefined ? t("vehicle.seeStopArrivals") : undefined}
-          onAction={stopId !== undefined ? onSeeStopArrivals : undefined}
-        />
+      <View style={styles.root}>
+        {header}
+        <View style={styles.container}>
+          <NoticeCard
+            tone="neutral"
+            message={t("vehicle.gone")}
+            actionLabel={stopId !== undefined ? t("vehicle.seeStopArrivals") : undefined}
+            onAction={stopId !== undefined ? onSeeStopArrivals : undefined}
+          />
+        </View>
       </View>
     );
   }
   if (data) {
-    return <LiveView data={data} stopId={stopId} now={now} onSeeStopArrivals={onSeeStopArrivals} />;
+    return (
+      <View style={styles.root}>
+        {header}
+        <LiveView data={data} stopId={stopId} now={now} onSeeStopArrivals={onSeeStopArrivals} />
+      </View>
+    );
   }
-  if (error !== undefined) return <ErrorState onRetry={onRetry} />;
-  if (isInitialLoading) return <LoadingState />;
-  return <EmptyState title={t("vehicle.gone")} />;
+  return (
+    <View style={styles.root}>
+      {header}
+      {error !== undefined ? (
+        <ErrorState onRetry={onRetry} />
+      ) : isInitialLoading ? (
+        <LoadingState />
+      ) : (
+        <EmptyState title={t("vehicle.gone")} />
+      )}
+    </View>
+  );
 }
 
 interface LiveViewProps {
@@ -81,18 +121,7 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
         : upcomingStops.slice(0, targetIndex + 1 + STOPS_AFTER_TARGET);
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <RouteBadge
-          label={vehicle.routeShortName}
-          color={vehicle.routeColor}
-          textColor={vehicle.routeTextColor}
-        />
-        <Text style={styles.headsign} numberOfLines={2}>
-          {t("vehicle.destination", { headsign: vehicle.headsign })}
-        </Text>
-      </View>
-
+    <SheetScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {stopId === undefined ? null : passed || !target ? (
         <NoticeCard
           tone="neutral"
@@ -124,7 +153,7 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
           now={now}
         />
       ) : null}
-    </ScrollView>
+    </SheetScrollView>
   );
 }
 
@@ -157,6 +186,9 @@ function ArrivalCard({ target, remaining, positionAgeSec, now }: ArrivalCardProp
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     gap: spacing.md,
     paddingBottom: spacing.xl,

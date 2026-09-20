@@ -55,6 +55,7 @@ function setup() {
   const { fetcher, calls } = createControlledFetcher();
   const successes: { data: string; at: number }[] = [];
   const errors: unknown[] = [];
+  const fetching: boolean[] = [];
   const controller = createPollController<string>({
     fetcher,
     intervalMs: INTERVAL_MS,
@@ -62,8 +63,9 @@ function setup() {
     now: () => 1000,
     onSuccess: (data, at) => successes.push({ data, at }),
     onError: (error) => errors.push(error),
+    onFetchingChange: (value) => fetching.push(value),
   });
-  return { fake, calls, successes, errors, controller };
+  return { fake, calls, successes, errors, fetching, controller };
 }
 
 describe("createPollController", () => {
@@ -159,6 +161,48 @@ describe("createPollController", () => {
     await flush();
 
     expect(successes.map((s) => s.data)).toEqual(["new"]);
+  });
+
+  it("reports fetching from the request start until its response is applied", async () => {
+    const { calls, fetching, controller } = setup();
+
+    controller.resume();
+    expect(fetching).toEqual([true]);
+    calls[0]?.resolve("a");
+    await flush();
+
+    expect(fetching).toEqual([true, false]);
+  });
+
+  it("stops reporting fetching after a failed request", async () => {
+    const { calls, fetching, controller } = setup();
+    controller.resume();
+    calls[0]?.reject(new Error("offline"));
+    await flush();
+
+    expect(fetching).toEqual([true, false]);
+  });
+
+  it("keeps reporting fetching while a newer refetch is still in flight", async () => {
+    const { calls, fetching, controller } = setup();
+    controller.resume();
+    controller.refetch();
+
+    calls[0]?.resolve("old");
+    await flush();
+    expect(fetching).toEqual([true]);
+
+    calls[1]?.resolve("new");
+    await flush();
+    expect(fetching).toEqual([true, false]);
+  });
+
+  it("stops reporting fetching when paused with a request in flight", () => {
+    const { fetching, controller } = setup();
+    controller.resume();
+    controller.pause();
+
+    expect(fetching).toEqual([true, false]);
   });
 
   it("does nothing on refetch while paused", () => {

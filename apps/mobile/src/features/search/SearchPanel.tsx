@@ -1,10 +1,11 @@
 import type { RouteSummaryDto, SearchResponse, StopSummaryDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { MAX_FILTER_ROUTES, type RouteFilter } from "@/features/map/route-filter";
-import { ChevronIcon } from "@/shared/components/ChevronIcon";
+import { ChevronIcon } from "@/shared/components/icons/ChevronIcon";
 import { EmptyState, ErrorState } from "@/shared/components/PanelStatus";
 import { RouteBadge } from "@/shared/components/RouteBadge";
+import { SheetSectionList } from "@/shared/components/SheetLists";
 import { colors, fontSizes, radii, spacing } from "@/shared/theme";
 import { RoutePickerBanner } from "./RoutePickerBanner";
 import { pickerRowState } from "./route-picker";
@@ -92,7 +93,7 @@ function SearchResults({
   }
 
   return (
-    <SectionList
+    <SheetSectionList
       sections={sections}
       keyExtractor={(item) =>
         item.kind === "route" ? `route:${item.route.id}` : `stop:${item.stop.id}`

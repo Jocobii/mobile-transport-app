@@ -13,6 +13,8 @@ export interface PollControllerOptions<T> {
   now: () => number;
   onSuccess: (data: T, at: number) => void;
   onError: (error: unknown) => void;
+  /** Called with `true` when a request starts and `false` once the latest one settles or polling pauses. */
+  onFetchingChange?: (fetching: boolean) => void;
 }
 
 export interface PollController {
@@ -32,12 +34,19 @@ export interface PollController {
  * Only the response of the latest request is applied.
  */
 export function createPollController<T>(options: PollControllerOptions<T>): PollController {
-  const { fetcher, intervalMs, timers, now, onSuccess, onError } = options;
+  const { fetcher, intervalMs, timers, now, onSuccess, onError, onFetchingChange } = options;
 
   let timer: TimerHandle | undefined;
   let latestRequestId = 0;
   let paused = true;
   let stopped = false;
+  let fetching = false;
+
+  function setFetching(value: boolean): void {
+    if (fetching === value) return;
+    fetching = value;
+    onFetchingChange?.(value);
+  }
 
   function clearTimer(): void {
     if (timer === undefined) return;
@@ -61,12 +70,15 @@ export function createPollController<T>(options: PollControllerOptions<T>): Poll
     clearTimer();
     latestRequestId += 1;
     const requestId = latestRequestId;
+    setFetching(true);
     try {
       const data = await fetcher();
       if (!isCurrent(requestId)) return;
+      setFetching(false);
       onSuccess(data, now());
     } catch (error) {
       if (!isCurrent(requestId)) return;
+      setFetching(false);
       onError(error);
     }
     scheduleNext();
@@ -81,6 +93,7 @@ export function createPollController<T>(options: PollControllerOptions<T>): Poll
     pause() {
       paused = true;
       clearTimer();
+      setFetching(false);
     },
     refetch() {
       if (stopped || paused) return;

@@ -2,6 +2,7 @@ import type { ArrivalDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { ActionButton } from "@/shared/components/ActionButton";
+import { PanelHeader } from "@/shared/components/PanelHeader";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { StatusChip } from "@/shared/components/StatusChip";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
@@ -12,10 +13,11 @@ import { useNow } from "@/shared/time/use-now";
 interface TripPanelProps {
   arrival: ArrivalDto;
   onSeeStopArrivals: () => void;
+  onClose: () => void;
 }
 
 /** Trip without a live vehicle to follow (scheduled or unlocated): time, status and a way out. */
-export function TripPanel({ arrival, onSeeStopArrivals }: TripPanelProps) {
+export function TripPanel({ arrival, onSeeStopArrivals, onClose }: TripPanelProps) {
   const { t } = useTranslation();
   const now = useNow();
   const time = formatArrivalTime(arrival, now, {
@@ -26,16 +28,21 @@ export function TripPanel({ arrival, onSeeStopArrivals }: TripPanelProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <RouteBadge
-          label={arrival.routeShortName}
-          color={arrival.routeColor}
-          textColor={arrival.routeTextColor}
-        />
-        <Text style={styles.headsign} numberOfLines={2}>
-          {t("vehicle.destination", { headsign: arrival.headsign })}
-        </Text>
-      </View>
+      <PanelHeader
+        title={
+          <View style={styles.header}>
+            <RouteBadge
+              label={arrival.routeShortName}
+              color={arrival.routeColor}
+              textColor={arrival.routeTextColor}
+            />
+            <Text style={styles.headsign} numberOfLines={2}>
+              {t("vehicle.destination", { headsign: arrival.headsign })}
+            </Text>
+          </View>
+        }
+        onClose={onClose}
+      />
       <Text
         style={[
           styles.time,

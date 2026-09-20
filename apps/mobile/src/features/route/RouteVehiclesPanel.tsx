@@ -1,9 +1,11 @@
 import type { RouteSummaryDto, RouteVehiclesResponse, VehicleDto } from "@transit/contracts";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { FreshnessLabel } from "@/shared/components/FreshnessLabel";
+import { PanelHeader } from "@/shared/components/PanelHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelStatus";
 import { RouteBadge } from "@/shared/components/RouteBadge";
+import { SheetFlatList } from "@/shared/components/SheetLists";
 import { formatFreshness, secondsSince } from "@/shared/format/freshness";
 import { colors, fontSizes, spacing } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
@@ -15,6 +17,7 @@ interface RouteVehiclesPanelProps {
   isInitialLoading: boolean;
   lastSuccessAt: number | undefined;
   onVehiclePress: (vehicle: VehicleDto) => void;
+  onClose: () => void;
   onRetry: () => void;
 }
 
@@ -25,6 +28,7 @@ export function RouteVehiclesPanel({
   isInitialLoading,
   lastSuccessAt,
   onVehiclePress,
+  onClose,
   onRetry,
 }: RouteVehiclesPanelProps) {
   const { t } = useTranslation();
@@ -32,23 +36,30 @@ export function RouteVehiclesPanel({
 
   return (
     <View style={styles.container}>
+      <PanelHeader
+        title={
+          <View style={styles.titleRow}>
+            <RouteBadge label={route.shortName} color={route.color} textColor={route.textColor} />
+            <Text style={styles.title} numberOfLines={2}>
+              {route.longName}
+            </Text>
+          </View>
+        }
+        subtitle={
+          data ? (
+            <Text style={styles.subtitle}>
+              {t("route.vehicleCount", { count: data.vehicles.length })}
+            </Text>
+          ) : undefined
+        }
+        onClose={onClose}
+      />
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <RouteBadge label={route.shortName} color={route.color} textColor={route.textColor} />
-          <Text style={styles.title} numberOfLines={2}>
-            {route.longName}
-          </Text>
-        </View>
-        {data ? (
-          <Text style={styles.subtitle}>
-            {t("route.vehicleCount", { count: data.vehicles.length })}
-          </Text>
-        ) : null}
         <FreshnessLabel lastSuccessAt={lastSuccessAt} now={now} />
       </View>
 
       {data ? (
-        <FlatList
+        <SheetFlatList
           data={data.vehicles}
           keyExtractor={(vehicle) => vehicle.id}
           renderItem={({ item }) => (

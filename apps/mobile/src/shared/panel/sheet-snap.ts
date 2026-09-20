@@ -34,3 +34,12 @@ export function tapSnap(snap: SheetSnap): SheetSnap {
   if (snap === "collapsed") return "half";
   return snap === "half" ? "full" : "half";
 }
+
+/**
+ * Whether a drag that started on scrollable content moves the sheet instead of the list: only a
+ * downward movement while the list is at its top. Upward movement always scrolls the list.
+ */
+export function shouldSheetTakeDrag(scrollY: number, translationY: number): boolean {
+  "worklet";
+  return scrollY <= 0 && translationY > 0;
+}

@@ -1,6 +1,6 @@
 {
   "common": {
-    "back": "Atrás",
+    "close": "Cerrar",
     "retry": "Reintentar",
     "error": "No pudimos cargar la información."
   },
@@ -61,8 +61,11 @@
   "stop": {
     "code": "Parada {{code}}",
     "codeWithDistance": "Parada {{code}} · a {{distance}}",
-    "empty": "No hay llegadas en los próximos 90 min",
-    "emptyHint": "Puede que el servicio ya haya terminado por hoy.",
+    "emptyTitle": "Sin llegadas en los próximos 90 min",
+    "nextScheduled": "Próxima salida programada: {{time}}",
+    "servedBy": "Pasan por aquí:",
+    "noUpcomingService": "No encontramos salidas programadas en los próximos días.",
+    "openTimetable": "Ver horario",
     "tapHint": "Toca una llegada para ver dónde va el camión",
     "viewTimetable": "Ver horario del día"
   },
@@ -110,11 +113,13 @@
     "seconds": "Actualizado hace {{seconds}} s",
     "minutes": "Actualizado hace {{minutes}} min",
     "inlineSeconds": "actualizado hace {{seconds}} s",
-    "inlineMinutes": "actualizado hace {{minutes}} min"
+    "inlineMinutes": "actualizado hace {{minutes}} min",
+    "refresh": "Actualizar",
+    "refreshing": "Actualizando…",
+    "refreshLabel": "Actualizar ahora"
   },
   "timetable": {
     "subtitle": "Horario · Parada {{code}}",
-    "hour": "{{hour}} {{period}}",
     "am": "a. m.",
     "pm": "p. m.",
     "note": "Horario programado publicado por la agencia. No incluye retrasos ni cambios en vivo.",
@@ -123,7 +128,32 @@
     "today": "Hoy",
     "tomorrow": "Mañana",
     "weekdays": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
-    "days": "Día del horario"
+    "days": "Día del horario",
+    "swipeHint": "Desliza para cambiar de día",
+    "clock": "{{time}} {{period}}",
+    "next": "Próxima salida",
+    "nextA11y": "{{time}}, próxima salida",
+    "countdown": {
+      "now": "ahora",
+      "minutes": "en {{minutes}} min",
+      "hours": "en {{hours}} h",
+      "hoursMinutes": "en {{hours}} h {{minutes}} min"
+    },
+    "noMoreToday": "Ya no hay más salidas hoy",
+    "departures_one": "{{count}} salida",
+    "departures_other": "{{count}} salidas",
+    "headway": "cada ~{{minutes}} min",
+    "firstLast": "Primera {{first}} · Última {{last}}",
+    "showPassed_one": "Ver {{count}} salida anterior",
+    "showPassed_other": "Ver {{count}} salidas anteriores",
+    "hidePassed": "Ocultar salidas anteriores",
+    "parts": {
+      "earlyMorning": "Madrugada",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "night": "Noche",
+      "afterMidnight": "Después de medianoche"
+    }
   },
   "routePicker": {
     "title": "Elige las rutas que usarás",

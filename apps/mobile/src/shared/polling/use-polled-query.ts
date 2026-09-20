@@ -20,6 +20,8 @@ export interface PolledQuery<T> {
   data: T | undefined;
   error: unknown;
   isInitialLoading: boolean;
+  /** A request is in flight (poll, refetch or first load). */
+  isFetching: boolean;
   lastSuccessAt: number | undefined;
   refetch: () => void;
 }
@@ -40,6 +42,7 @@ export function usePolledQuery<T>(
   { intervalMs = REFRESH_INTERVAL_MS, enabled = true }: PolledQueryOptions = {},
 ): PolledQuery<T> {
   const [state, setState] = useState<QueryState<T>>(() => emptyState<T>(key));
+  const [isFetching, setIsFetching] = useState(false);
   const fetcherRef = useRef(fetcher);
   const controllerRef = useRef<PollController | undefined>(undefined);
 
@@ -58,6 +61,7 @@ export function usePolledQuery<T>(
         clearTimeout: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
       },
       now: nowInSeconds,
+      onFetchingChange: setIsFetching,
       onSuccess: (data, at) => setState({ key, data, error: undefined, lastSuccessAt: at }),
       onError: (error) =>
         setState((previous) => ({
@@ -78,6 +82,7 @@ export function usePolledQuery<T>(
       subscription.remove();
       controller.stop();
       controllerRef.current = undefined;
+      setIsFetching(false);
     };
   }, [key, enabled, intervalMs]);
 
@@ -88,6 +93,7 @@ export function usePolledQuery<T>(
     data: current.data,
     error: current.error,
     isInitialLoading: enabled && current.data === undefined && current.error === undefined,
+    isFetching: enabled && isFetching,
     lastSuccessAt: current.lastSuccessAt,
     refetch,
   };

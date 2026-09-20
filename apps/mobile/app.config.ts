@@ -26,7 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
-    predictiveBackGestureEnabled: false,
+    predictiveBackGestureEnabled: true,
     package: APP_ID,
   },
   web: {

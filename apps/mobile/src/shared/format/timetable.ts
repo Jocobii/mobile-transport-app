@@ -1,47 +1,115 @@
 /** Pure timetable helpers (no React Native import, so Vitest can load them). */
 
-export interface HourRowMinute {
-  /** Epoch seconds of the departure. */
-  time: number;
-  /** Two-digit minutes, e.g. `05`. */
+/** A departure clock in the device time zone: `text` is `h:mm` (12-hour), no period. */
+export interface ClockTime {
   text: string;
+  period: "am" | "pm";
 }
 
-export interface HourRow {
-  /** Unique per local date + hour; safe as a list key. */
-  key: string;
-  /** 1-12. */
-  hour12: number;
-  period: "am" | "pm";
-  minutes: HourRowMinute[];
+/** `6:23` + `am`, in the device time zone (like the arrival clocks). */
+export function formatClockTime(time: number): ClockTime {
+  const date = new Date(time * 1000);
+  const hour = date.getHours();
+  return {
+    text: `${hour % 12 || 12}:${String(date.getMinutes()).padStart(2, "0")}`,
+    period: hour < 12 ? "am" : "pm",
+  };
+}
+
+export type DayPart = "earlyMorning" | "morning" | "afternoon" | "night" | "afterMidnight";
+
+export interface DayPartSection {
+  part: DayPart;
+  /** Ascending epoch seconds. */
+  times: number[];
+}
+
+/** Local hour boundaries: early morning < 5 ≤ morning < 12 ≤ afternoon < 19 ≤ night. */
+function dayPartOfHour(hour: number): Exclude<DayPart, "afterMidnight"> {
+  if (hour < 5) return "earlyMorning";
+  if (hour < 12) return "morning";
+  if (hour < 19) return "afternoon";
+  return "night";
+}
+
+function localDayKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
 /**
- * Groups ascending departures into one row per local hour (device time zone, like the arrival
- * clocks). A new row starts when the local calendar date or hour changes, so after-midnight
- * departures of the same service day land in later rows ("12 a. m.", "1 a. m.") after the evening.
+ * Splits one service day's ascending departures into consecutive day-part sections (device time
+ * zone). Departures on a later local calendar date than the first one (GTFS times past 24:00) go
+ * to "afterMidnight", so they are never mixed with the morning of the same service day.
  */
-export function groupTimesByHour(times: readonly number[]): HourRow[] {
-  const rows: HourRow[] = [];
+export function groupTimesByDayPart(times: readonly number[]): DayPartSection[] {
+  const sections: DayPartSection[] = [];
+  const first = times[0];
+  if (first === undefined) return sections;
+  const firstDay = localDayKey(new Date(first * 1000));
+
   for (const time of times) {
     const date = new Date(time * 1000);
-    const hour = date.getHours();
-    const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${hour}`;
-    const minute = { time, text: String(date.getMinutes()).padStart(2, "0") };
-
-    const last = rows[rows.length - 1];
-    if (last && last.key === key) {
-      last.minutes.push(minute);
+    const part = localDayKey(date) === firstDay ? dayPartOfHour(date.getHours()) : "afterMidnight";
+    const last = sections[sections.length - 1];
+    if (last && last.part === part) {
+      last.times.push(time);
     } else {
-      rows.push({
-        key,
-        hour12: hour % 12 || 12,
-        period: hour < 12 ? "am" : "pm",
-        minutes: [minute],
-      });
+      sections.push({ part, times: [time] });
     }
   }
-  return rows;
+  return sections;
+}
+
+/** Minimum departures before a typical headway is shown (fewer is not a pattern). */
+const MIN_TIMES_FOR_HEADWAY = 4;
+
+/**
+ * Typical minutes between departures: the median gap, rounded to 5 min from 10 min up (to 1 min
+ * below). `undefined` with fewer than 4 departures.
+ */
+export function typicalHeadwayMinutes(times: readonly number[]): number | undefined {
+  if (times.length < MIN_TIMES_FOR_HEADWAY) return undefined;
+  const gaps: number[] = [];
+  for (let index = 1; index < times.length; index += 1) {
+    const current = times[index];
+    const previous = times[index - 1];
+    if (current !== undefined && previous !== undefined) gaps.push((current - previous) / 60);
+  }
+  gaps.sort((a, b) => a - b);
+  const middle = Math.floor(gaps.length / 2);
+  const median =
+    gaps.length % 2 === 0
+      ? ((gaps[middle - 1] ?? 0) + (gaps[middle] ?? 0)) / 2
+      : (gaps[middle] ?? 0);
+  if (median < 10) return Math.max(1, Math.round(median));
+  return Math.round(median / 5) * 5;
+}
+
+export interface CountdownLabel {
+  key: "now" | "minutes" | "hours" | "hoursMinutes";
+  params: { minutes?: number; hours?: number };
+}
+
+/** "ahora" under a minute, then minutes, then hours (+ minutes when not a whole hour). */
+export function formatCountdown(seconds: number): CountdownLabel {
+  const totalMinutes = Math.floor(seconds / 60);
+  if (totalMinutes < 1) return { key: "now", params: {} };
+  if (totalMinutes < 60) return { key: "minutes", params: { minutes: totalMinutes } };
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return minutes === 0
+    ? { key: "hours", params: { hours } }
+    : { key: "hoursMinutes", params: { hours, minutes } };
+}
+
+/** Departures before `now` and the rest (from the next one on). */
+export function splitPassedTimes(
+  times: readonly number[],
+  now: number,
+): { passed: number[]; upcoming: number[] } {
+  const index = times.findIndex((time) => time >= now);
+  if (index === -1) return { passed: [...times], upcoming: [] };
+  return { passed: times.slice(0, index), upcoming: times.slice(index) };
 }
 
 /** The first departure at or after `now`, or `undefined` when all have passed. */
@@ -85,4 +153,18 @@ export function formatServiceDayLabel(
   if (serviceDate === nextServiceDate(today)) return labels.tomorrow;
   const weekday = labels.weekdays[utcDate(serviceDate).getUTCDay()] ?? "";
   return `${weekday} ${Number(serviceDate.slice(6, 8))}`;
+}
+
+/**
+ * The neighbouring day in `availableDates` (ascending). `undefined` at either end or when
+ * `current` is not one of the dates.
+ */
+export function stepServiceDate(
+  availableDates: readonly string[],
+  current: string,
+  direction: "next" | "previous",
+): string | undefined {
+  const index = availableDates.indexOf(current);
+  if (index === -1) return undefined;
+  return availableDates[direction === "next" ? index + 1 : index - 1];
 }

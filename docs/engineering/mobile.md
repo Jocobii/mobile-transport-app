@@ -74,8 +74,9 @@ src/api/            api client instance and configuration
 
 - In-house `shared/components/BottomSheet.tsx` (`react-native-gesture-handler` + `react-native-reanimated`),
   not `@gorhom/bottom-sheet`. Three snap points: collapsed (120 dp), half (50 %, default), full (below the search bar).
-- Only the handle drags, so lists keep scrolling; the content area is sized to the current snap height.
-- Snap logic is pure and tested (`shared/panel/sheet-snap.ts`). Search opens full; other panels open at half.
+- The handle, every panel header (`PanelHeader` wraps its content in `SheetDragArea`) and the top of a list drag the
+  sheet; the content area is sized to the current snap height.
+- Snap logic is pure and tested (`shared/panel/sheet-snap.ts`, including `shouldSheetTakeDrag`). Search opens full; other panels open at half.
 - The map padding and the recenter button follow the sheet only up to the half height.
 
 ## Vehicle view
@@ -131,10 +132,37 @@ src/api/            api client instance and configuration
 - **Data**: `useStopTimetable` fetches `stops/{id}/timetable` once per `(stopId, date)` (catalog data, no polling).
   `useTimetableView` adds the selected day (scoped to the stop) and keeps `days` (stop, today, selectable dates) from
   the latest response so the header and the day chips stay on screen while another day loads.
-- **Pure logic** (`shared/format/timetable.ts`, no React Native import): `groupTimesByHour` (one row per local date +
-  hour, device time zone, so after-midnight departures land after the evening rows), `findNextDeparture`,
-  `formatServiceDayLabel` (UTC date math, no device time zone).
-- **Rendering**: per route/direction a card with the route badge, headsign and one row per hour (hour label with
-  a. m./p. m., minutes wrapping). Only when the selected day is today: passed times are dimmed and the next time of
-  each group is filled with the route color (never color alone: also bold). The panel says the schedule is scheduled
-  only (`timetable.note`).
+- **Pure logic** (`shared/format/timetable.ts`, no React Native import): `formatClockTime` (`h:mm` + am/pm, device
+  time zone), `groupTimesByDayPart` (early morning < 5 h ≤ morning < 12 h ≤ afternoon < 19 h ≤ night; departures on a
+  later local date than the first one go to "after midnight"), `typicalHeadwayMinutes` (median gap, 5-min rounding from
+  10 min, only with ≥ 4 departures), `formatCountdown`, `splitPassedTimes`, `findNextDeparture`,
+  `formatServiceDayLabel` (UTC date math, no device time zone), `stepServiceDate`.
+- **Rendering** (redesign 2026-09-20): per route/direction a card with the route badge and headsign; today only, a
+  "Próxima salida" box (full clock time + countdown, or "Ya no hay más salidas hoy"); a meta line with count, typical
+  headway, first and last; then full clock times in a 4-column grid under day-part labels. Today, passed departures are
+  hidden behind a "Ver N salidas anteriores" toggle (dimmed when shown); the next one is filled with the route color and
+  bold (never color alone). Times use the system font with `tabular-nums` (no monospace). The panel says the schedule is
+  scheduled only (`timetable.note`). `DaySelector`'s `ScrollView` has `flexShrink: 0` so the chips are not clipped.
+
+## Navigation and gestures (EPIC-008)
+
+- **Panel header** (`shared/components/PanelHeader.tsx`, `CloseButton.tsx`): every panel except Nearby and Search
+  starts with a title (+ subtitle) and a circular ✕ (40 dp circle in a 48 dp target, SVG icon). ✕ pops one level, like
+  Android back. There is no floating back button. Icons live in `shared/components/icons/` (SVG, never text glyphs).
+- **Search bar** is fixed at the top in every panel except Search; from a detail panel it pushes Search on top and closing
+  Search returns there. "Seguir al camión" floats on the right above the sheet, like recenter.
+- **Sheet gestures** (`BottomSheet.tsx`): a context exposes `createDragGesture` (headers; pan only, no tap toggle) and
+  `createContentPanGesture` (lists). Lists use `SheetFlatList` / `SheetSectionList` / `SheetScrollView`
+  (`SheetLists.tsx`): reanimated scroll handler + native gesture simultaneous with the content pan. Only a **downward**
+  drag with the list at its top moves the sheet (`shouldSheetTakeDrag`); upward drags scroll. Lists do not bounce.
+- **No pull-to-refresh.** Data still refreshes every 20 s (`usePolledQuery`, which now exposes `isFetching`); the
+  freshness label in Nearby and Stop is a button ("Actualizado hace X s · Actualizar" / "Actualizando…").
+- **Tap map** (`TransitMap.onMapPress`, marker taps ignored via `action === "marker-press"`) collapses the sheet and closes
+  the Layers card; it does not pop panels or clear "my stop".
+- **Empty stop** (`features/stop/`): with no arrivals, `useNextScheduledDeparture` requests today's timetable and, if
+  nothing is left, the next available day's (max 2 requests, no polling). Pure `pickNextDeparture`, `routesOf`,
+  `summarizeEmptyStop`, `dateAfter` in `next-scheduled-departure.ts`. On error only the plain title shows.
+- **Timetable day swipe**: horizontal pan (`activeOffsetX` 24, `failOffsetY` 12, commit > 60 dp) calls pure
+  `stepServiceDate`; `DaySelector` scrolls the selected chip into view.
+- **Predictive back**: `predictiveBackGestureEnabled: true` (`app.config.ts`); in-app back still goes through
+  `resolveBackAction`.

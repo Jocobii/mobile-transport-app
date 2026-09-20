@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { formatServiceDayLabel } from "@/shared/format/timetable";
@@ -14,6 +15,16 @@ interface DaySelectorProps {
 /** Horizontal day chips (≥ 44 dp). Hidden when there is only one day to choose from. */
 export function DaySelector({ availableDates, today, selectedDate, onSelect }: DaySelectorProps) {
   const { t } = useTranslation();
+  const scrollRef = useRef<ScrollView>(null);
+  const chipX = useRef<Record<string, number>>({});
+
+  // Keeps the selected chip visible when the day changes by swiping.
+  useEffect(() => {
+    const x = chipX.current[selectedDate];
+    if (x !== undefined)
+      scrollRef.current?.scrollTo({ x: Math.max(0, x - spacing.lg), animated: true });
+  }, [selectedDate]);
+
   if (availableDates.length <= 1) return null;
 
   const weekdays = t("timetable.weekdays", { returnObjects: true });
@@ -25,9 +36,11 @@ export function DaySelector({ availableDates, today, selectedDate, onSelect }: D
 
   return (
     <ScrollView
+      ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
       accessibilityLabel={t("timetable.days")}
+      accessibilityHint={t("timetable.swipeHint")}
       contentContainerStyle={styles.row}
       style={styles.scroll}
     >
@@ -37,6 +50,9 @@ export function DaySelector({ availableDates, today, selectedDate, onSelect }: D
         return (
           <Pressable
             key={date}
+            onLayout={(event) => {
+              chipX.current[date] = event.nativeEvent.layout.x;
+            }}
             onPress={() => onSelect(date)}
             accessibilityRole="button"
             accessibilityLabel={label}
@@ -53,11 +69,14 @@ export function DaySelector({ availableDates, today, selectedDate, onSelect }: D
 
 const styles = StyleSheet.create({
   scroll: {
+    // ScrollView shrinks by default; inside the panel column that clipped the chips' bottom edge.
     flexGrow: 0,
-    marginBottom: spacing.sm,
+    flexShrink: 0,
+    marginBottom: spacing.md,
   },
   row: {
     gap: spacing.sm,
+    paddingVertical: 2,
   },
   chip: {
     minHeight: 44,
