@@ -1,5 +1,5 @@
 import type { StopTimetableResponse } from "@transit/contracts";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -9,9 +9,10 @@ import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelS
 import { SheetFlatList } from "@/shared/components/SheetLists";
 import { stepServiceDate } from "@/shared/format/timetable";
 import { colors, spacing } from "@/shared/theme";
-import { useNow } from "@/shared/time/use-now";
+import { useClockSelect } from "@/shared/time/use-clock-select";
 import { DaySelector } from "./DaySelector";
-import { TimetableGroupView } from "./TimetableGroupView";
+import { TimetableRowView } from "./TimetableRowView";
+import { buildTimetableRows, type TimetableRow } from "./timetable-rows";
 import type { TimetableDays } from "./use-timetable-view";
 
 interface TimetablePanelProps {
@@ -32,6 +33,7 @@ interface TimetablePanelProps {
 const SWIPE_ACTIVE_OFFSET = 24;
 const SWIPE_FAIL_OFFSET = 12;
 const SWIPE_MIN_DISTANCE = 60;
+const SECONDS_PER_MINUTE = 60;
 
 /** Full-day scheduled timetable of a stop: scheduled data only, no live information. */
 export function TimetablePanel({
@@ -45,7 +47,19 @@ export function TimetablePanel({
   onRetry,
 }: TimetablePanelProps) {
   const { t } = useTranslation();
-  const now = useNow();
+  // Rows change with the minute, not with every second: the next departure and the passed ones
+  // only move when a minute ends. The countdown ticks inside its own box.
+  const nowMinute = useClockSelect(
+    (now) => Math.floor(now / SECONDS_PER_MINUTE) * SECONDS_PER_MINUTE,
+  );
+  const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(() => new Set());
+  const toggleGroup = useCallback((groupKey: string) => {
+    setExpandedGroups((current) => {
+      const next = new Set(current);
+      if (!next.delete(groupKey)) next.add(groupKey);
+      return next;
+    });
+  }, []);
 
   // Swipe left = next day, right = previous; nothing happens at the ends of the catalog.
   const availableDates = days?.availableDates;
@@ -70,6 +84,26 @@ export function TimetablePanel({
     [changeDay],
   );
 
+  const isToday = data !== undefined && data.serviceDate === data.today;
+  const rows = useMemo(
+    () =>
+      data === undefined
+        ? []
+        : buildTimetableRows({
+            groups: data.groups,
+            now: nowMinute,
+            isToday,
+            expanded: expandedGroups,
+          }),
+    [data, nowMinute, isToday, expandedGroups],
+  );
+  const renderRow = useCallback(
+    ({ item }: { item: TimetableRow }) => (
+      <TimetableRowView row={item} onToggleGroup={toggleGroup} />
+    ),
+    [toggleGroup],
+  );
+
   // First load (no stop info yet): only the loading or error state.
   if (days === undefined) {
     return (
@@ -83,8 +117,6 @@ export function TimetablePanel({
       </View>
     );
   }
-
-  const isToday = data !== undefined && data.serviceDate === data.today;
 
   return (
     <View style={styles.container}>
@@ -105,12 +137,10 @@ export function TimetablePanel({
         <View style={styles.swipeArea} collapsable={false}>
           {data !== undefined ? (
             <SheetFlatList
-              data={data.groups}
-              keyExtractor={(group) => `${group.routeId}:${group.directionId}:${group.headsign}`}
-              renderItem={({ item }) => (
-                <TimetableGroupView group={item} now={now} isToday={isToday} />
-              )}
-              ItemSeparatorComponent={Separator}
+              data={rows}
+              keyExtractor={(row) => row.key}
+              renderItem={renderRow}
+              initialNumToRender={14}
               ListEmptyComponent={
                 <EmptyState title={t("timetable.empty")} hint={t("timetable.emptyHint")} />
               }
@@ -128,19 +158,12 @@ export function TimetablePanel({
   );
 }
 
-function Separator() {
-  return <View style={styles.separator} />;
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   swipeArea: {
     flex: 1,
-  },
-  separator: {
-    height: spacing.sm,
   },
   list: {
     paddingBottom: spacing.xl,
