@@ -7,6 +7,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelS
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { SheetScrollView } from "@/shared/components/SheetLists";
 import { StatusChip } from "@/shared/components/StatusChip";
+import { VEHICLE_POSITION_WARN_AFTER_SECONDS } from "@/shared/config";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
 import { routeColors } from "@/shared/format/route-colors";
 import { colors, fontSizes, radii, spacing, statusColors } from "@/shared/theme";
@@ -170,6 +171,14 @@ function ArrivalCard({ target, remaining, positionAgeSec, now }: ArrivalCardProp
   const { fg, bg } = statusColors[status.status];
   const minutes = Math.floor((target.time - now) / SECONDS_PER_MINUTE);
 
+  /**
+   * The vehicle's GPS position can lag behind the arrival prediction (they come from different
+   * parts of the GTFS-realtime feed). Flagging this here is purely a display choice — the server
+   * still serves the vehicle up to `realtimeStaleAfterSeconds` (120 s); this never hides it.
+   */
+  const isPositionStale = positionAgeSec > VEHICLE_POSITION_WARN_AFTER_SECONDS;
+  const positionAgeColor = isPositionStale ? statusColors.attention.fg : colors.inkSecondary;
+
   return (
     <View style={[styles.card, { backgroundColor: bg }]}>
       <Text style={[styles.arrives, { color: fg }]}>
@@ -179,7 +188,11 @@ function ArrivalCard({ target, remaining, positionAgeSec, now }: ArrivalCardProp
       <Text style={styles.meta}>
         {t("vehicle.stopsLeft", { count: remaining })}
         {" · "}
-        {t("vehicle.positionAge", { seconds: Math.round(positionAgeSec) })}
+        <Text style={{ color: positionAgeColor }}>
+          {t(isPositionStale ? "vehicle.positionAgeStale" : "vehicle.positionAge", {
+            seconds: Math.round(positionAgeSec),
+          })}
+        </Text>
       </Text>
     </View>
   );

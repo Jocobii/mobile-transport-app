@@ -84,6 +84,7 @@
     "stopsLeft_one": "falta {{count}} parada",
     "stopsLeft_other": "faltan {{count}} paradas",
     "positionAge": "posición de hace {{seconds}} s",
+    "positionAgeStale": "posición desactualizada · hace {{seconds}} s",
     "yourStop": "tu parada",
     "follow": "Seguir al camión",
     "following": "Siguiendo al camión",
