@@ -90,7 +90,7 @@ export function VehiclePanel({
     <View style={styles.root}>
       {header}
       {error !== undefined ? (
-        <ErrorState onRetry={onRetry} />
+        <ErrorState error={error} onRetry={onRetry} />
       ) : isInitialLoading ? (
         <LoadingState />
       ) : (

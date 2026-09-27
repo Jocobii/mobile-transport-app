@@ -1,5 +1,4 @@
 import type { TransitModeDto, VehicleDto } from "@transit/contracts";
-import type { VehicleLabelDetail } from "./vehicle-label";
 
 /** How a vehicle is drawn on the map. Rail modes share one shape; they differ by glyph. */
 export type VehicleShape = "round" | "square";
@@ -25,15 +24,4 @@ export function isRailMode(mode: TransitModeDto): boolean {
  */
 export function vehicleShape(mode: TransitModeDto): VehicleShape {
   return isRailMode(mode) ? "square" : "round";
-}
-
-/**
- * Trains keep their route name one zoom tier further out than buses: there are few of them, they
- * are the backbone of the network, and they don't crowd the map the way buses do.
- */
-export function labelDetailForMode(
-  detail: VehicleLabelDetail,
-  mode: TransitModeDto,
-): VehicleLabelDetail {
-  return detail === "none" && isRailMode(mode) ? "number" : detail;
 }

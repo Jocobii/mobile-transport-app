@@ -16,6 +16,7 @@ Epics are written so an AI coding agent (or a person) can execute them **without
 | [EPIC-007](EPIC-007-route-filter.md) | Route filter (only my buses: Nearby, map stops and live buses) | Ready |
 | [EPIC-008](EPIC-008-navigation-and-gestures.md) | Navigation and gestures (panel header with close, draggable sheet, useful empty stop) | In progress |
 | [EPIC-009](EPIC-009-server-logging.md) | Server logging (errors, requests, live feeds, catalog build) | Ready |
+| [EPIC-010](EPIC-010-shared-use-and-access-control.md) | Shared use (user name, install id, access control, release signing) | In progress |
 
 Statuses: `Draft` → `Ready` → `In progress` → `Done` (or `Blocked`).
 

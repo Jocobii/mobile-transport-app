@@ -13,6 +13,7 @@ const STATUS_BY_ERROR_CODE: Record<ApiErrorCode, number> = {
   catalog_unavailable: 503,
   server_misconfigured: 500,
   internal_error: 500,
+  access_denied: 403,
 };
 
 export function jsonResponse<T>(

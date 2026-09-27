@@ -10,17 +10,11 @@ import { colors, monospaceFont, spacing } from "@/shared/theme";
 import { useClockSelect } from "@/shared/time/use-clock-select";
 import { mapRouteName, type VehicleLabelDetail } from "./vehicle-label";
 import { sameVehicleMarker } from "./vehicle-marker-key";
-import {
-  isRailMode,
-  labelDetailForMode,
-  type VehicleShape,
-  vehicleMode,
-  vehicleShape,
-} from "./vehicle-mode";
+import { isRailMode, type VehicleShape, vehicleMode, vehicleShape } from "./vehicle-mode";
 
 interface VehicleMarkerProps {
   vehicle: VehicleDto;
-  /** How much the label shows at the current zoom (`useVehicleLabelDetail`). */
+  /** How much the label shows, by the free space around the vehicle (`placeVehicleLabels`). */
   labelDetail: VehicleLabelDetail;
   onPress?: ((vehicle: VehicleDto) => void) | undefined;
 }
@@ -64,16 +58,17 @@ export { vehicleMarkerKey } from "./vehicle-marker-key";
  * A vehicle is two markers at the same point. Its transit mode (`vehicleMode`) is shown three
  * redundant ways so it reads at a glance, without relying on color: the puck's **shape** (round
  * for buses, square for trains), its **center** (a dot for buses, a ring for BRT) and the label's
- * **glyph** (bus, rapid bus, light rail, train). Trains also sit above buses and keep their label
- * one zoom tier further out (`labelDetailForMode`). Screen readers hear the mode first.
- * - the **puck**: a circle (square for trains) in the route color with a tip pointing where the bus is heading (a plain
- *   circle when the feed sends no bearing). It is flat on the map and rotated natively with
+ * **glyph** (bus, rapid bus, light rail, train). Trains also sit above buses and get their label
+ * placed first. Screen readers hear the mode first.
+ * - the **puck**: a circle (square for trains) in the route color with a tip pointing where it is heading (plain when
+ *   the feed sends no bearing). It is flat on the map and rotated natively with
  *   `rotation`, so a turn changes one number and never rebuilds its bitmap, and the tip stays
  *   right when the user rotates the map;
  * - the **label**: a pill above the puck that never rotates, so the number always reads upright.
- *   Its detail follows the zoom (`labelDetail`): the full label (bus glyph, number and, when the GPS
- *   report is outdated, a clock with its age) up close, the number alone at mid zoom, and hidden
- *   (opacity 0, kept mounted: mass add/remove of markers is unreliable on Android) far out.
+ *   Its detail comes from the free space around the vehicle (`labelDetail`, see
+ *   `placeVehicleLabels`): the full label (mode glyph, number and, when the GPS report is outdated,
+ *   a clock with its age) when it fits, the number alone when only that fits, and hidden (opacity
+ *   0, kept mounted: mass add/remove of markers is unreliable on Android) in a crowd.
  *   An outdated bus is also drawn slightly lighter, because it is probably further along.
  * Both are view snapshots (`tracksViewChanges` only while their look changes, a Google Maps
  * performance need). Memoized by what is drawn: a poll returns new objects every time.
@@ -89,7 +84,7 @@ export const VehicleMarker = memo(function VehicleMarker({
   const coordinate = { latitude: vehicle.lat, longitude: vehicle.lon };
   const hasBearing = vehicle.bearing !== undefined;
   const mode = vehicleMode(vehicle);
-  const detail = labelDetailForMode(labelDetail, mode);
+  const detail = labelDetail;
   const zIndexBase = isRailMode(mode) ? RAIL_Z_INDEX : BUS_Z_INDEX;
   // Re-renders only when the shown minute changes, not on every clock tick.
   const outdatedMinutes = useClockSelect((now) =>
@@ -103,7 +98,7 @@ export const VehicleMarker = memo(function VehicleMarker({
 
   // Snapshots are bitmaps once `tracksViewChanges` is off, so take new ones whenever what they
   // draw changes: the age label (at most once a minute), the tip appearing/disappearing, or the
-  // label tier (only when the zoom crosses a tier).
+  // label detail (only when the free space around the vehicle changes).
   // biome-ignore lint/correctness/useExhaustiveDependencies: these values change the drawn markers.
   useEffect(() => {
     setTracksViewChanges(true);

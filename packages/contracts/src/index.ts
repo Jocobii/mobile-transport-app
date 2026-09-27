@@ -10,6 +10,12 @@ export const API_VERSION = "v1";
 /** Header used to send the API key. */
 export const API_KEY_HEADER = "x-api-key";
 
+/** Header with the user-typed display name, URI-encoded. */
+export const USER_NAME_HEADER = "x-user-name";
+
+/** Header with the anonymous per-install id (16 lowercase hex chars). */
+export const INSTALL_ID_HEADER = "x-install-id";
+
 /** Stable error codes. Clients may branch on these; never rename a published code. */
 export type ApiErrorCode =
   | "unauthorized"
@@ -17,7 +23,8 @@ export type ApiErrorCode =
   | "not_found"
   | "catalog_unavailable"
   | "server_misconfigured"
-  | "internal_error";
+  | "internal_error"
+  | "access_denied";
 
 export interface ApiErrorBody {
   error: {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { labelDetailForMode, vehicleMode, vehicleShape } from "./vehicle-mode";
+import { vehicleMode, vehicleShape } from "./vehicle-mode";
 
 describe("vehicleMode", () => {
   it("returns the mode the server sent", () => {
@@ -23,22 +23,5 @@ describe("vehicleShape", () => {
     expect(vehicleShape("brt")).toBe("round");
     expect(vehicleShape("lightRail")).toBe("square");
     expect(vehicleShape("rail")).toBe("square");
-  });
-});
-
-describe("labelDetailForMode", () => {
-  it("keeps a train's route name visible when bus labels are hidden", () => {
-    expect(labelDetailForMode("none", "lightRail")).toBe("number");
-    expect(labelDetailForMode("none", "rail")).toBe("number");
-  });
-
-  it("hides bus and BRT labels at the zoom where they are hidden", () => {
-    expect(labelDetailForMode("none", "bus")).toBe("none");
-    expect(labelDetailForMode("none", "brt")).toBe("none");
-  });
-
-  it("does not change the detail when labels are already shown", () => {
-    expect(labelDetailForMode("full", "lightRail")).toBe("full");
-    expect(labelDetailForMode("number", "bus")).toBe("number");
   });
 });

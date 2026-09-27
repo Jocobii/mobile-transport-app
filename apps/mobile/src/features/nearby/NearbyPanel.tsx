@@ -146,7 +146,7 @@ function Body({
       />
     );
   }
-  if (error !== undefined) return <ErrorState onRetry={onRetry} />;
+  if (error !== undefined) return <ErrorState error={error} onRetry={onRetry} />;
   if (isInitialLoading) return <LoadingState message={t("nearby.loading")} />;
   return null;
 }

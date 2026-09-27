@@ -12,6 +12,20 @@ export const colors = {
   highlight: "#1a56db",
 } as const;
 
+/** App icon and brand splash palette (Minnesota night sky, lakes and the Canada goose). */
+export const brandColors = {
+  night: "#0F2B52",
+  skyTop: "#16396A",
+  skyBottom: "#081A33",
+  lake: "#8CCBEB",
+  river: "#5DB2DE",
+  star: "#FFFFFF",
+  pin: "#FFFFFF",
+  gooseNeck: "#15171C",
+  gooseBreast: "#CDBBA0",
+  gooseWing: "#A8937A",
+} as const;
+
 export type ArrivalStatusTone = "ok" | "attention" | "problem" | "neutral";
 
 /** Status color system: only times, status chips and banners use these (never route badges). */

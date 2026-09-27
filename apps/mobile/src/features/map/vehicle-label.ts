@@ -1,19 +1,7 @@
-import {
-  MAP_ROUTE_NAME_MAX_CHARS,
-  VEHICLE_LABEL_FULL_MAX_DELTA,
-  VEHICLE_LABEL_NUMBER_MAX_DELTA,
-} from "./map-config";
+import { MAP_ROUTE_NAME_MAX_CHARS } from "./map-config";
 
-/** How much a bus label shows at the current zoom (see `VEHICLE_LABEL_*_MAX_DELTA`). */
+/** How much a vehicle label shows (decided by `placeVehicleLabels`). */
 export type VehicleLabelDetail = "none" | "number" | "full";
-
-/** Detail for the map's `latitudeDelta`; before the map reports a region, the number only. */
-export function vehicleLabelDetail(latitudeDelta: number | undefined): VehicleLabelDetail {
-  if (latitudeDelta === undefined) return "number";
-  if (latitudeDelta <= VEHICLE_LABEL_FULL_MAX_DELTA) return "full";
-  if (latitudeDelta <= VEHICLE_LABEL_NUMBER_MAX_DELTA) return "number";
-  return "none";
-}
 
 /**
  * Route name as drawn on a map label: routes without a GTFS short name fall back to their long

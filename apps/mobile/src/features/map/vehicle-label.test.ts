@@ -1,29 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  MAP_ROUTE_NAME_MAX_CHARS,
-  VEHICLE_LABEL_FULL_MAX_DELTA,
-  VEHICLE_LABEL_NUMBER_MAX_DELTA,
-} from "./map-config";
-import { mapRouteName, vehicleLabelDetail } from "./vehicle-label";
-
-describe("vehicleLabelDetail", () => {
-  it("shows the full label when zoomed in", () => {
-    expect(vehicleLabelDetail(VEHICLE_LABEL_FULL_MAX_DELTA)).toBe("full");
-  });
-
-  it("shows only the number at mid zoom", () => {
-    expect(vehicleLabelDetail(VEHICLE_LABEL_FULL_MAX_DELTA + 0.001)).toBe("number");
-    expect(vehicleLabelDetail(VEHICLE_LABEL_NUMBER_MAX_DELTA)).toBe("number");
-  });
-
-  it("hides the label when zoomed out", () => {
-    expect(vehicleLabelDetail(VEHICLE_LABEL_NUMBER_MAX_DELTA + 0.001)).toBe("none");
-  });
-
-  it("shows the number before the map reports a region", () => {
-    expect(vehicleLabelDetail(undefined)).toBe("number");
-  });
-});
+import { MAP_ROUTE_NAME_MAX_CHARS } from "./map-config";
+import { mapRouteName } from "./vehicle-label";
 
 describe("mapRouteName", () => {
   it("keeps short names", () => {

@@ -4,6 +4,7 @@ import {
   type ApiErrorBody,
   type ApiErrorCode,
   type HealthResponse,
+  INSTALL_ID_HEADER,
   type NearbyStopsResponse,
   type RouteDetailResponse,
   type RouteVehiclesResponse,
@@ -11,13 +12,21 @@ import {
   type StopArrivalsResponse,
   type StopsInAreaResponse,
   type StopTimetableResponse,
+  USER_NAME_HEADER,
   type VehicleDetailResponse,
   type VehiclesInAreaResponse,
 } from "@transit/contracts";
 
+export interface ClientIdentity {
+  userName: string;
+  installId: string;
+}
+
 export interface ApiClientOptions {
   baseUrl: string;
   apiKey?: string;
+  /** Read on every request so a name saved after startup is picked up. */
+  getIdentity?: () => ClientIdentity | undefined;
   fetchImpl?: typeof fetch;
 }
 
@@ -73,6 +82,11 @@ export function createApiClient(options: ApiClientOptions) {
   async function get<T>(path: string): Promise<T> {
     const headers: Record<string, string> = { accept: "application/json" };
     if (options.apiKey) headers[API_KEY_HEADER] = options.apiKey;
+    const identity = options.getIdentity?.();
+    if (identity) {
+      headers[USER_NAME_HEADER] = encodeURIComponent(identity.userName);
+      headers[INSTALL_ID_HEADER] = identity.installId;
+    }
 
     const response = await fetchImpl(`${root}${path}`, { headers });
     if (!response.ok) {

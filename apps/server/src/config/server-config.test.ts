@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseServerConfig } from "./server-config";
+import { parseIdList, parseServerConfig } from "./server-config";
 
 describe("parseServerConfig", () => {
   it("returns the config when API_KEY is present", () => {
@@ -10,6 +10,8 @@ describe("parseServerConfig", () => {
         cronSecret: undefined,
         catalogDeployHookUrl: undefined,
         catalogPath: undefined,
+        blockedInstallIds: new Set(),
+        allowedInstallIds: undefined,
       },
     });
   });
@@ -33,6 +35,8 @@ describe("parseServerConfig", () => {
         cronSecret: "cron-secret",
         catalogDeployHookUrl: "https://api.vercel.com/v1/integrations/deploy/abc",
         catalogPath: "/tmp/catalog.sqlite",
+        blockedInstallIds: new Set(),
+        allowedInstallIds: undefined,
       },
     });
   });
@@ -46,7 +50,61 @@ describe("parseServerConfig", () => {
         cronSecret: undefined,
         catalogDeployHookUrl: undefined,
         catalogPath: undefined,
+        blockedInstallIds: new Set(),
+        allowedInstallIds: undefined,
       },
     });
+  });
+
+  it("parses BLOCKED_INSTALL_IDS and ALLOWED_INSTALL_IDS into sets", () => {
+    const result = parseServerConfig({
+      API_KEY: "secret",
+      BLOCKED_INSTALL_IDS: "abc123, DEF456",
+      ALLOWED_INSTALL_IDS: "abc123,def456",
+    });
+    expect(result).toEqual({
+      ok: true,
+      config: {
+        apiKey: "secret",
+        cronSecret: undefined,
+        catalogDeployHookUrl: undefined,
+        catalogPath: undefined,
+        blockedInstallIds: new Set(["abc123", "def456"]),
+        allowedInstallIds: new Set(["abc123", "def456"]),
+      },
+    });
+  });
+
+  it("treats an empty ALLOWED_INSTALL_IDS as unset", () => {
+    const result = parseServerConfig({ API_KEY: "secret", ALLOWED_INSTALL_IDS: "  " });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.config.allowedInstallIds).toBeUndefined();
+  });
+});
+
+describe("parseIdList", () => {
+  it("returns an empty set when unset", () => {
+    expect(parseIdList(undefined)).toEqual(new Set());
+  });
+
+  it("returns an empty set when the value is empty or blank", () => {
+    expect(parseIdList("")).toEqual(new Set());
+    expect(parseIdList("   ")).toEqual(new Set());
+  });
+
+  it("trims whitespace around each id", () => {
+    expect(parseIdList(" abc , def ")).toEqual(new Set(["abc", "def"]));
+  });
+
+  it("drops empty entries from stray commas", () => {
+    expect(parseIdList("abc,,def,")).toEqual(new Set(["abc", "def"]));
+  });
+
+  it("deduplicates ids", () => {
+    expect(parseIdList("abc,abc,abc")).toEqual(new Set(["abc"]));
+  });
+
+  it("lowercases ids", () => {
+    expect(parseIdList("ABC,DeF")).toEqual(new Set(["abc", "def"]));
   });
 });

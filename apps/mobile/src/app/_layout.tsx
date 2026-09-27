@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { prewarmServer } from "@/api/prewarm";
+import { IdentityGate } from "@/features/identity/IdentityGate";
+import { BrandSplash } from "@/shared/components/BrandSplash";
 import {
   createQueryClient,
   PERSIST_CACHE_VERSION,
@@ -37,7 +39,10 @@ export default function RootLayout() {
     <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <IdentityGate>
+            <Stack screenOptions={{ headerShown: false }} />
+          </IdentityGate>
+          <BrandSplash />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </PersistQueryClientProvider>

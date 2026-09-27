@@ -110,7 +110,7 @@ export function TimetablePanel({
       <View style={styles.container}>
         <PanelHeader title={null} onClose={onClose} />
         {error !== undefined ? (
-          <ErrorState onRetry={onRetry} />
+          <ErrorState error={error} onRetry={onRetry} />
         ) : isLoading ? (
           <LoadingState />
         ) : null}
@@ -148,7 +148,7 @@ export function TimetablePanel({
               contentContainerStyle={styles.list}
             />
           ) : error !== undefined ? (
-            <ErrorState onRetry={onRetry} />
+            <ErrorState error={error} onRetry={onRetry} />
           ) : isLoading ? (
             <LoadingState />
           ) : null}

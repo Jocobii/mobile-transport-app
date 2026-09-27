@@ -8,6 +8,7 @@ const OK_CRON_CONFIG: ServerConfigResult = {
     apiKey: "secret",
     cronSecret: "cron-secret",
     catalogDeployHookUrl: "https://deploy.example/hook",
+    blockedInstallIds: new Set(),
   },
 };
 
@@ -42,7 +43,10 @@ describe("createRebuildCatalogHandler", () => {
 
   it("returns 500 server_misconfigured when CRON_SECRET or CATALOG_DEPLOY_HOOK_URL is missing", async () => {
     const handler = createRebuildCatalogHandler({
-      readConfig: () => ({ ok: true, config: { apiKey: "secret" } }),
+      readConfig: () => ({
+        ok: true,
+        config: { apiKey: "secret", blockedInstallIds: new Set() },
+      }),
     });
     const response = await handler(cronRequest("cron-secret"));
     expect(response.status).toBe(500);

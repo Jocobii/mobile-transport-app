@@ -88,7 +88,7 @@ export function StopPanel({
           contentContainerStyle={styles.list}
         />
       ) : error !== undefined ? (
-        <ErrorState onRetry={onRetry} />
+        <ErrorState error={error} onRetry={onRetry} />
       ) : isInitialLoading ? (
         <LoadingState />
       ) : null}

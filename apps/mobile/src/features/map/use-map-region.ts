@@ -1,7 +1,9 @@
+import type { VehicleDto } from "@transit/contracts";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Region } from "react-native-maps";
 import { regionStore } from "./region-store";
-import { type VehicleLabelDetail, vehicleLabelDetail } from "./vehicle-label";
+import type { VehicleLabelDetail } from "./vehicle-label";
+import { type MapSize, placeVehicleLabels, sameLabelDetails } from "./vehicle-label-placement";
 import { isWithinZoomGate } from "./viewport";
 
 /** The map region once it has stayed unchanged for `delayMs` (drives the area fetches). */
@@ -34,9 +36,27 @@ export function useZoomedOutPastGate(active: boolean, maxDelta: number): boolean
   });
 }
 
-/** How much bus labels show at the current zoom. Re-renders only when the tier changes. */
-export function useVehicleLabelDetail(): VehicleLabelDetail {
-  return useSyncExternalStore(regionStore.subscribe, () =>
-    vehicleLabelDetail(regionStore.get()?.latitudeDelta),
+/**
+ * How much each vehicle's label shows (`placeVehicleLabels`), recomputed when the map settles or
+ * the vehicles change. Returns the same Map while nothing changed, so a pan that moves no label
+ * re-renders nothing.
+ */
+export function useVehicleLabelDetails(
+  vehicles: readonly VehicleDto[],
+  size: MapSize | undefined,
+): ReadonlyMap<string, VehicleLabelDetail> {
+  const [details, setDetails] = useState(() =>
+    placeVehicleLabels(vehicles, regionStore.get(), size, Date.now() / 1000),
   );
+
+  useEffect(() => {
+    const update = () => {
+      const next = placeVehicleLabels(vehicles, regionStore.get(), size, Date.now() / 1000);
+      setDetails((previous) => (sameLabelDetails(previous, next) ? previous : next));
+    };
+    update();
+    return regionStore.subscribe(update);
+  }, [vehicles, size]);
+
+  return details;
 }

@@ -84,7 +84,7 @@ function SearchResults({
     );
   }
 
-  if (error !== undefined) return <ErrorState onRetry={onRetry} />;
+  if (error !== undefined) return <ErrorState error={error} onRetry={onRetry} />;
   if (isLoading || !data) return <ActivityIndicator style={styles.loading} color={colors.ink} />;
 
   const sections = toSearchSections(data, pickMode !== undefined);

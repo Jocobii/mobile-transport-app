@@ -1,4 +1,5 @@
 import { createApiClient } from "@transit/api-client";
+import { readClientIdentity } from "@/shared/identity/identity";
 
 // Expo only inlines `process.env.EXPO_PUBLIC_*` when the variable is referenced statically.
 const baseUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -9,4 +10,4 @@ if (!baseUrl) {
 }
 
 /** The only place that reads the API environment variables. */
-export const apiClient = createApiClient({ baseUrl, apiKey });
+export const apiClient = createApiClient({ baseUrl, apiKey, getIdentity: readClientIdentity });

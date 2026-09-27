@@ -1,7 +1,10 @@
 import type { TransitService } from "@transit/core";
 import type { ServerConfigResult } from "@/config/server-config";
 
-export const OK_CONFIG: ServerConfigResult = { ok: true, config: { apiKey: "secret" } };
+export const OK_CONFIG: ServerConfigResult = {
+  ok: true,
+  config: { apiKey: "secret", blockedInstallIds: new Set() },
+};
 
 function notImplemented(name: string) {
   return async () => {

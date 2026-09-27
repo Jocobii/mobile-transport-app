@@ -1,5 +1,5 @@
 import type { VehicleDto } from "@transit/contracts";
-import { type Ref, useImperativeHandle, useRef } from "react";
+import { type Ref, useImperativeHandle, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import MapView, { Polyline, PROVIDER_GOOGLE, type Region } from "react-native-maps";
 import type { Position } from "@/shared/geo/position";
@@ -7,8 +7,9 @@ import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";
 import { MAP_STYLE } from "./map-style";
 import { StopMarker } from "./StopMarker";
-import { useVehicleLabelDetail } from "./use-map-region";
+import { useVehicleLabelDetails } from "./use-map-region";
 import { VehicleMarker, vehicleMarkerKey } from "./VehicleMarker";
+import type { MapSize } from "./vehicle-label-placement";
 
 export interface MapStop {
   id: string;
@@ -78,8 +79,9 @@ export function TransitMap({
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
   const lastRegion = useRef<Region | undefined>(undefined);
-  // Changes only when the zoom crosses a label tier, so panning never re-renders the markers.
-  const labelDetail = useVehicleLabelDetail();
+  const [size, setSize] = useState<MapSize | undefined>(undefined);
+  // Label detail per vehicle, by the free space around it (a changed Map only when a label changes).
+  const labelDetails = useVehicleLabelDetails(vehicles, size);
 
   useImperativeHandle(ref, () => {
     const focusOn = (position: Position, delta: number = FOCUS_DELTA) => {
@@ -119,6 +121,12 @@ export function TransitMap({
       key={resetKey}
       ref={mapRef}
       style={styles.map}
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        setSize((previous) =>
+          previous?.width === width && previous.height === height ? previous : { width, height },
+        );
+      }}
       provider={PROVIDER_GOOGLE}
       initialRegion={
         lastRegion.current ?? {
@@ -167,7 +175,7 @@ export function TransitMap({
         <VehicleMarker
           key={vehicleMarkerKey(vehicle)}
           vehicle={vehicle}
-          labelDetail={labelDetail}
+          labelDetail={labelDetails.get(vehicle.id) ?? "none"}
           onPress={onVehiclePress}
         />
       ))}

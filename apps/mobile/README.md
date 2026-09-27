@@ -54,3 +54,51 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Appendix: release signing (EPIC-010)
+
+The release build is signed with a personal upload keystore instead of the public
+`debug.keystore`, so restricting the Google Maps API key to it (see the epic's owner checklist)
+actually protects something. `android/` is generated (CNG, git-ignored); the signing config is
+added by `apps/mobile/plugins/with-release-signing.js`, registered in `app.config.ts`, on every
+prebuild.
+
+### One-time setup
+
+1. Create the keystore (outside the repo; keep it and its passwords somewhere safe — losing it
+   means you can never update the app under the same signature again):
+
+   ```bash
+   keytool -genkeypair -v -keystore ~/keys/transit-release.keystore -alias transit \
+     -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. Add the four properties to `~/.gradle/gradle.properties` (never committed; create the file if
+   it does not exist yet):
+
+   ```properties
+   TRANSIT_UPLOAD_STORE_FILE=/Users/you/keys/transit-release.keystore
+   TRANSIT_UPLOAD_STORE_PASSWORD=<the keystore password>
+   TRANSIT_UPLOAD_KEY_ALIAS=transit
+   TRANSIT_UPLOAD_KEY_PASSWORD=<the key password>
+   ```
+
+   `TRANSIT_UPLOAD_STORE_FILE` must be an absolute path (Gradle resolves a relative one against
+   the Android project directory, not your home directory).
+
+### Building and verifying
+
+```bash
+pnpm --filter @transit/mobile release:android
+```
+
+With all four properties present, this signs the release build with the personal keystore
+instead of falling back to `debug.keystore`. Confirm the signature:
+
+```bash
+keytool -printcert -jarfile <path-to-the-built-apk>
+```
+
+The reported SHA-1 should match `keytool -list -v -keystore ~/keys/transit-release.keystore
+-alias transit`, and must not be the well-known debug SHA-1 (`5E:8F:16:06:…`). Use the new SHA-1
+to restrict the Google Maps API key (owner checklist in `docs/epics/EPIC-010-...md` §7).

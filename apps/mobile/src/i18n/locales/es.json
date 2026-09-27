@@ -4,6 +4,15 @@
     "retry": "Reintentar",
     "error": "No pudimos cargar la información."
   },
+  "welcome": {
+    "title": "¡Hola!",
+    "message": "¿Cómo te llamas? Solo lo uso para saber quién usa la app. Puedes poner el nombre que quieras.",
+    "placeholder": "Tu nombre",
+    "continue": "Continuar"
+  },
+  "errors": {
+    "accessDenied": "El acceso a esta app está desactivado. Pregúntale a quien te la compartió."
+  },
   "agency": {
     "metrotransit": "Metro Transit",
     "mvta": "MVTA"

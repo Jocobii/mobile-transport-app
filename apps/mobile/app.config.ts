@@ -1,4 +1,5 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+import withReleaseSigning from "./plugins/with-release-signing.js";
 
 const APP_ID = "dev.gamoro.transit";
 
@@ -16,12 +17,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: "mobile",
   userInterfaceStyle: "automatic",
   ios: {
-    icon: "./assets/expo.icon",
     bundleIdentifier: APP_ID,
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
+      backgroundColor: "#0F2B52",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -38,9 +38,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "expo-splash-screen",
       {
-        backgroundColor: "#208AEF",
+        backgroundColor: "#0F2B52",
         image: "./assets/images/splash-icon.png",
-        imageWidth: 76,
+        // Pin height = 260 × 616/1024 ≈ 156 dp; keep in sync with NATIVE_SPLASH_PIN_HEIGHT
+        // (src/shared/splash-scene.ts) so the hand-off to BrandSplash is seamless.
+        imageWidth: 260,
       },
     ],
     [
@@ -67,6 +69,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY ?? "",
       },
     ],
+    // @ts-expect-error `ExpoConfig["plugins"]` in @expo/config-types does not include function
+    // config plugins in its type, even though the config loader accepts them at runtime.
+    withReleaseSigning,
   ],
   experiments: {
     typedRoutes: true,

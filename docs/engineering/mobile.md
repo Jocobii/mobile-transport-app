@@ -166,3 +166,13 @@ src/api/            api client instance and configuration
   `stepServiceDate`; `DaySelector` scrolls the selected chip into view.
 - **Predictive back**: `predictiveBackGestureEnabled: true` (`app.config.ts`); in-app back still goes through
   `resolveBackAction`.
+
+## Brand splash
+
+- The native splash (`expo-splash-screen`, night blue `#0F2B52`, `imageWidth: 260`) only shows the pin, because
+  Android 12+ clips the splash icon to a circle. `shared/components/BrandSplash.tsx` takes over on the first frame:
+  it starts identical (same pin, same size — `NATIVE_SPLASH_PIN_HEIGHT`, keep it in sync with `imageWidth`), then
+  reveals the icon scene (sky, river, North Star) while the pin grows (`SPLASH_PIN_GROWTH`), and fades out.
+- `hideSplash()` (map ready, Welcome screen, or the `SPLASH_MAX_MS` fallback) marks `splashGate`; the overlay fades
+  once it has been visible for `BRAND_SPLASH_MIN_MS`. Geometry is pure and tested (`shared/splash-scene.ts`).
+- Colors come from `brandColors` in `shared/theme.ts`. The overlay is decorative and hidden from screen readers.

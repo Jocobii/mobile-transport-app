@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { errorMessageKey } from "@/shared/format/error-message";
 import { colors, fontSizes, radii, spacing } from "@/shared/theme";
 
 interface LoadingStateProps {
@@ -18,14 +19,15 @@ export function LoadingState({ message }: LoadingStateProps) {
 }
 
 interface ErrorStateProps {
+  error?: unknown;
   onRetry: () => void;
 }
 
-export function ErrorState({ onRetry }: ErrorStateProps) {
+export function ErrorState({ error, onRetry }: ErrorStateProps) {
   const { t } = useTranslation();
   return (
     <View style={styles.container}>
-      <Text style={styles.message}>{t("common.error")}</Text>
+      <Text style={styles.message}>{t(errorMessageKey(error))}</Text>
       <Pressable
         onPress={onRetry}
         accessibilityRole="button"

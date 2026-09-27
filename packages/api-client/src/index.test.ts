@@ -1,4 +1,4 @@
-import { API_KEY_HEADER } from "@transit/contracts";
+import { API_KEY_HEADER, INSTALL_ID_HEADER, USER_NAME_HEADER } from "@transit/contracts";
 import { describe, expect, it, vi } from "vitest";
 import { ApiError, createApiClient } from "./index";
 
@@ -307,6 +307,76 @@ describe("createApiClient", () => {
         code: "http_error",
         message: "Bad Gateway",
       });
+    });
+  });
+
+  describe("identity headers", () => {
+    function headersOf(
+      fetchImpl: ReturnType<typeof fakeFetch>,
+      callIndex = 0,
+    ): Record<string, string> {
+      const [, init] = fetchImpl.mock.calls[callIndex] as unknown as [string, RequestInit];
+      return init.headers as Record<string, string>;
+    }
+
+    it("sends no identity headers when getIdentity is not given", async () => {
+      const fetchImpl = fakeFetch({ status: "ok", checkedAt: 0, feeds: [] });
+      const client = createApiClient({ baseUrl: BASE_URL, fetchImpl });
+
+      await client.getHealth();
+
+      const headers = headersOf(fetchImpl);
+      expect(USER_NAME_HEADER in headers).toBe(false);
+      expect(INSTALL_ID_HEADER in headers).toBe(false);
+    });
+
+    it("sends no identity headers when getIdentity returns undefined", async () => {
+      const fetchImpl = fakeFetch({ status: "ok", checkedAt: 0, feeds: [] });
+      const client = createApiClient({
+        baseUrl: BASE_URL,
+        fetchImpl,
+        getIdentity: () => undefined,
+      });
+
+      await client.getHealth();
+
+      const headers = headersOf(fetchImpl);
+      expect(USER_NAME_HEADER in headers).toBe(false);
+      expect(INSTALL_ID_HEADER in headers).toBe(false);
+    });
+
+    it("sends both identity headers, URI-encoding the name", async () => {
+      const fetchImpl = fakeFetch({ status: "ok", checkedAt: 0, feeds: [] });
+      const client = createApiClient({
+        baseUrl: BASE_URL,
+        fetchImpl,
+        getIdentity: () => ({ userName: "José 🚌", installId: "0123456789abcdef" }),
+      });
+
+      await client.getHealth();
+
+      const headers = headersOf(fetchImpl);
+      expect(headers[USER_NAME_HEADER]).toBe(encodeURIComponent("José 🚌"));
+      expect(headers[INSTALL_ID_HEADER]).toBe("0123456789abcdef");
+    });
+
+    it("reads getIdentity again on every request", async () => {
+      const fetchImpl = fakeFetch({ status: "ok", checkedAt: 0, feeds: [] });
+      let identity: { userName: string; installId: string } | undefined;
+      const client = createApiClient({
+        baseUrl: BASE_URL,
+        fetchImpl,
+        getIdentity: () => identity,
+      });
+
+      await client.getHealth();
+      expect(USER_NAME_HEADER in headersOf(fetchImpl, 0)).toBe(false);
+
+      identity = { userName: "Ana", installId: "abcdef0123456789" };
+      await client.getHealth();
+      const secondHeaders = headersOf(fetchImpl, 1);
+      expect(secondHeaders[USER_NAME_HEADER]).toBe("Ana");
+      expect(secondHeaders[INSTALL_ID_HEADER]).toBe("abcdef0123456789");
     });
   });
 });
