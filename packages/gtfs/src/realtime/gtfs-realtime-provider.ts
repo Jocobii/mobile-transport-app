@@ -5,10 +5,12 @@ import type {
   EpochSeconds,
   FeedConfig,
   ProviderCapabilities,
+  RealtimeLagSample,
   RealtimeProvider,
   RealtimeSnapshot,
   TransitSettings,
 } from "@transit/core";
+import { summarizeRealtimeLag } from "@transit/core";
 import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import { downloadStaticFeed } from "../static/download-feed";
 import { normalizeTripUpdates } from "./normalize-trip-updates";
@@ -23,6 +25,11 @@ export interface CreateGtfsRealtimeProviderOptions {
   clock: Clock;
   settings: TransitSettings;
   fetchImpl?: typeof fetch;
+  /**
+   * Called once per fetched snapshot with how old the feed and its vehicle positions were. Only for
+   * measuring lag (the composition root logs it); it never changes the snapshot.
+   */
+  onLagSample?: (sample: RealtimeLagSample) => void;
 }
 
 const CAPABILITIES: ProviderCapabilities = {
@@ -62,7 +69,7 @@ function isStale(
 export function createGtfsRealtimeProvider(
   options: CreateGtfsRealtimeProviderOptions,
 ): RealtimeProvider {
-  const { feed, catalog, cache, clock, settings, fetchImpl } = options;
+  const { feed, catalog, cache, clock, settings, fetchImpl, onLagSample } = options;
   const cacheKey = `realtime:${feed.id}`;
 
   let lastGoodSnapshot: RealtimeSnapshot | undefined;
@@ -118,6 +125,16 @@ export function createGtfsRealtimeProvider(
           tripLookup: catalog,
         })
       : [];
+
+    onLagSample?.(
+      summarizeRealtimeLag({
+        feedId: feed.id,
+        fetchedAt: now,
+        vehicleFeedTimestamp: vehicleResult?.headerTimestamp,
+        tripFeedTimestamp: tripResult?.headerTimestamp,
+        vehicles,
+      }),
+    );
 
     const timestamps = [vehicleResult?.headerTimestamp, tripResult?.headerTimestamp].filter(
       (t): t is EpochSeconds => t !== undefined,

@@ -1,4 +1,11 @@
-import type { Cache, CatalogProvider, Clock, FeedConfig, TransitSettings } from "@transit/core";
+import type {
+  Cache,
+  CatalogProvider,
+  Clock,
+  FeedConfig,
+  RealtimeLagSample,
+  TransitSettings,
+} from "@transit/core";
 import gtfsRealtimeBindings from "gtfs-realtime-bindings";
 import { describe, expect, it } from "vitest";
 import { createGtfsRealtimeProvider } from "./gtfs-realtime-provider";
@@ -223,6 +230,37 @@ describe("createGtfsRealtimeProvider", () => {
     const [a, b] = await Promise.all([provider.getSnapshot(), provider.getSnapshot()]);
     expect(fetchCount).toBe(2);
     expect(a).toBe(b);
+  });
+
+  it("reports one lag sample per fetch, not per cache hit", async () => {
+    const clock = new FakeClock();
+    const cache = new FakeCache(clock);
+    const fetchImpl = (async (url: string) => {
+      const age = url.includes("vp") ? 30 : 12;
+      return new Response(encodeMessage(clock.now() - age), { status: 200 });
+    }) as unknown as typeof fetch;
+    const samples: RealtimeLagSample[] = [];
+
+    const provider = createGtfsRealtimeProvider({
+      feed: FEED,
+      catalog: CATALOG,
+      cache,
+      clock,
+      settings: SETTINGS,
+      fetchImpl,
+      onLagSample: (sample) => samples.push(sample),
+    });
+
+    await provider.getSnapshot();
+    await provider.getSnapshot();
+    expect(samples).toHaveLength(1);
+    expect(samples[0]).toMatchObject({
+      feedId: "metrotransit",
+      fetchedAt: 1000,
+      vehicleFeedAgeSec: 30,
+      tripFeedAgeSec: 12,
+      vehicleCount: 0,
+    });
   });
 
   it("returns the successful part with ok: false on a partial failure", async () => {

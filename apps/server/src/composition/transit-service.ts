@@ -6,6 +6,7 @@ import { FEEDS } from "@/config/feeds";
 import { readServerConfig } from "@/config/server-config";
 import { TRANSIT_SETTINGS } from "@/config/transit-settings";
 import { createInMemoryCache } from "@/infrastructure/in-memory-cache";
+import { logRealtimeLag } from "@/infrastructure/log-realtime-lag";
 import { createSystemClock } from "@/infrastructure/system-clock";
 
 function resolveCatalogPath(): string {
@@ -26,6 +27,7 @@ function buildTransitService(): TransitService {
       cache,
       clock,
       settings: TRANSIT_SETTINGS,
+      onLagSample: logRealtimeLag,
     }),
   );
 

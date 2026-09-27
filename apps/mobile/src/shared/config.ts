@@ -2,11 +2,11 @@
 export const REFRESH_INTERVAL_MS = 10_000;
 
 /**
- * How old a vehicle's GPS position can be before the Vehicle view flags it as outdated
- * (`vehicle.positionAgeStale`). Independent from the server's `realtimeStaleAfterSeconds`
- * (120 s), which decides when a vehicle is dropped from the feed entirely — this only
- * changes how the age label looks; it never hides the vehicle. Starting estimate, not yet
- * measured against real feed behavior (see claude/auditoria-performance.md, S1/F9).
+ * How old a vehicle's GPS position can be before the app flags it as outdated: a clock with the
+ * age on the map marker and the `vehicle.outdatedPosition` notice in the Vehicle view.
+ * Independent from the server's `realtimeStaleAfterSeconds` (120 s), which drops the vehicle from
+ * the feed entirely; this never hides it. Starting estimate, to be tuned with the `realtime.lag`
+ * server logs (see claude/desfase-posicion-camiones.md).
  */
 export const VEHICLE_POSITION_WARN_AFTER_SECONDS = 60;
 

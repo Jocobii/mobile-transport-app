@@ -21,6 +21,8 @@
   "map": {
     "recenter": "Centrar en mi ubicación",
     "busMarkerLabel": "Camión {{route}} hacia {{headsign}}",
+    "busMarkerLabelOutdated": "Camión {{route}} hacia {{headsign}}, última ubicación hace {{minutes}} min",
+    "busMarkerAge": "{{minutes}} min",
     "stopMarkerLabel": "Parada {{name}}",
     "layers": {
       "button": "Capas del mapa",
@@ -84,7 +86,7 @@
     "stopsLeft_one": "falta {{count}} parada",
     "stopsLeft_other": "faltan {{count}} paradas",
     "positionAge": "posición de hace {{seconds}} s",
-    "positionAgeStale": "posición desactualizada · hace {{seconds}} s",
+    "outdatedPosition": "Última ubicación hace {{minutes}} min. El camión puede ir más adelante de lo que ves en el mapa; guíate por las horas de llegada.",
     "yourStop": "tu parada",
     "follow": "Seguir al camión",
     "following": "Siguiendo al camión",

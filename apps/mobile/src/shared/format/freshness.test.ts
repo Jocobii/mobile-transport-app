@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatFreshness, secondsSince } from "./freshness";
+import { VEHICLE_POSITION_WARN_AFTER_SECONDS } from "@/shared/config";
+import {
+  formatFreshness,
+  isPositionOutdated,
+  outdatedPositionMinutes,
+  secondsSince,
+} from "./freshness";
 
 describe("secondsSince", () => {
   it("returns whole elapsed seconds", () => {
@@ -24,5 +30,34 @@ describe("formatFreshness", () => {
   it("uses the inline keys for the inline variant", () => {
     expect(formatFreshness(5, "inline").key).toBe("freshness.inlineSeconds");
     expect(formatFreshness(120, "inline").key).toBe("freshness.inlineMinutes");
+  });
+});
+
+describe("isPositionOutdated", () => {
+  const limit = VEHICLE_POSITION_WARN_AFTER_SECONDS;
+
+  it("is false up to the warning threshold", () => {
+    expect(isPositionOutdated(limit)).toBe(false);
+  });
+
+  it("is true past the warning threshold", () => {
+    expect(isPositionOutdated(limit + 1)).toBe(true);
+  });
+});
+
+describe("outdatedPositionMinutes", () => {
+  const limit = VEHICLE_POSITION_WARN_AFTER_SECONDS;
+
+  it("is undefined while the position is fresh", () => {
+    expect(outdatedPositionMinutes(limit)).toBeUndefined();
+  });
+
+  it("shows at least 1 minute as soon as the position is outdated", () => {
+    expect(outdatedPositionMinutes(limit + 1)).toBeGreaterThanOrEqual(1);
+  });
+
+  it("counts whole minutes", () => {
+    expect(outdatedPositionMinutes(179)).toBe(2);
+    expect(outdatedPositionMinutes(180)).toBe(3);
   });
 });

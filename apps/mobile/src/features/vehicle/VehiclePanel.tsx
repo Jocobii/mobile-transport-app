@@ -7,8 +7,8 @@ import { EmptyState, ErrorState, LoadingState } from "@/shared/components/PanelS
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { SheetScrollView } from "@/shared/components/SheetLists";
 import { StatusChip } from "@/shared/components/StatusChip";
-import { VEHICLE_POSITION_WARN_AFTER_SECONDS } from "@/shared/config";
 import { formatArrivalStatus } from "@/shared/format/arrival-status";
+import { outdatedPositionMinutes } from "@/shared/format/freshness";
 import { routeColors } from "@/shared/format/route-colors";
 import { colors, fontSizes, radii, spacing, statusColors } from "@/shared/theme";
 import { useNow } from "@/shared/time/use-now";
@@ -121,8 +121,17 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
         ? []
         : upcomingStops.slice(0, targetIndex + 1 + STOPS_AFTER_TARGET);
 
+  const positionAgeSec = Math.max(0, now - vehicle.updatedAt);
+  const outdatedMinutes = outdatedPositionMinutes(positionAgeSec);
+
   return (
     <SheetScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      {outdatedMinutes === undefined ? null : (
+        <NoticeCard
+          tone="attention"
+          message={t("vehicle.outdatedPosition", { minutes: outdatedMinutes })}
+        />
+      )}
       {stopId === undefined ? null : passed || !target ? (
         <NoticeCard
           tone="neutral"
@@ -141,7 +150,7 @@ function LiveView({ data, stopId, now, onSeeStopArrivals }: LiveViewProps) {
         <ArrivalCard
           target={target}
           remaining={remaining}
-          positionAgeSec={Math.max(0, now - vehicle.updatedAt)}
+          positionAgeSec={positionAgeSec}
           now={now}
         />
       )}
@@ -171,13 +180,8 @@ function ArrivalCard({ target, remaining, positionAgeSec, now }: ArrivalCardProp
   const { fg, bg } = statusColors[status.status];
   const minutes = Math.floor((target.time - now) / SECONDS_PER_MINUTE);
 
-  /**
-   * The vehicle's GPS position can lag behind the arrival prediction (they come from different
-   * parts of the GTFS-realtime feed). Flagging this here is purely a display choice — the server
-   * still serves the vehicle up to `realtimeStaleAfterSeconds` (120 s); this never hides it.
-   */
-  const isPositionStale = positionAgeSec > VEHICLE_POSITION_WARN_AFTER_SECONDS;
-  const positionAgeColor = isPositionStale ? statusColors.attention.fg : colors.inkSecondary;
+  // An outdated position is explained by the notice at the top of the view (not repeated here).
+  const showPositionAge = outdatedPositionMinutes(positionAgeSec) === undefined;
 
   return (
     <View style={[styles.card, { backgroundColor: bg }]}>
@@ -187,12 +191,9 @@ function ArrivalCard({ target, remaining, positionAgeSec, now }: ArrivalCardProp
       <StatusChip status={status.status} label={t(status.key, status.params)} />
       <Text style={styles.meta}>
         {t("vehicle.stopsLeft", { count: remaining })}
-        {" · "}
-        <Text style={{ color: positionAgeColor }}>
-          {t(isPositionStale ? "vehicle.positionAgeStale" : "vehicle.positionAge", {
-            seconds: Math.round(positionAgeSec),
-          })}
-        </Text>
+        {showPositionAge
+          ? ` · ${t("vehicle.positionAge", { seconds: Math.round(positionAgeSec) })}`
+          : null}
       </Text>
     </View>
   );
