@@ -69,6 +69,59 @@ describe("handleApiRequest", () => {
     expect(await response.json()).toEqual({ echo: "56939" });
   });
 
+  it("logs an http.request line with status and identity for every successful request", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    await handleApiRequest(
+      requestWith({
+        "x-api-key": "secret",
+        [INSTALL_ID_HEADER]: "0123456789abcdef",
+        [USER_NAME_HEADER]: encodeURIComponent("Ana"),
+      }),
+      {},
+      { readConfig: () => OK_CONFIG },
+      async () => Response.json({ ok: true }),
+    );
+
+    expect(log).toHaveBeenCalledTimes(1);
+    const line = log.mock.calls[0]?.[0] as string;
+    expect(line).toContain('"event":"http.request"');
+    expect(line).toContain('"path":"/api/v1/health"');
+    expect(line).toContain('"status":200');
+    expect(line).toContain('"user":"Ana"');
+    expect(line).toContain('"installId":"0123456789abcdef"');
+    expect(line).not.toContain("secret");
+    log.mockRestore();
+  });
+
+  it("logs an http.request line without identity fields when none was sent", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    await handleApiRequest(
+      requestWith({ "x-api-key": "secret" }),
+      {},
+      { readConfig: () => OK_CONFIG },
+      async () => Response.json({ ok: true }),
+    );
+
+    const line = log.mock.calls[0]?.[0] as string;
+    expect(line).not.toContain("user");
+    expect(line).not.toContain("installId");
+    log.mockRestore();
+  });
+
+  it("logs a 401 http.request line when the API key is missing", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    await handleApiRequest(
+      requestWith(),
+      {},
+      { readConfig: () => OK_CONFIG },
+      async () => Response.json({}),
+    );
+
+    const line = log.mock.calls[0]?.[0] as string;
+    expect(line).toContain('"status":401');
+    log.mockRestore();
+  });
+
   it("maps a thrown CatalogUnavailableError to 503 catalog_unavailable", async () => {
     const response = await handleApiRequest(
       requestWith({ "x-api-key": "secret" }),
@@ -81,6 +134,21 @@ describe("handleApiRequest", () => {
     expect(response.status).toBe(503);
     const body = await response.json();
     expect(body.error.code).toBe("catalog_unavailable");
+  });
+
+  it("logs a 503 http.request line when the catalog is unavailable", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    await handleApiRequest(
+      requestWith({ "x-api-key": "secret" }),
+      {},
+      { readConfig: () => OK_CONFIG },
+      async () => {
+        throw new CatalogUnavailableError("missing");
+      },
+    );
+    const line = log.mock.calls[0]?.[0] as string;
+    expect(line).toContain('"status":503');
+    log.mockRestore();
   });
 
   it("maps any other thrown error to 500 internal_error", async () => {
