@@ -8,6 +8,7 @@ const ROUTE: Route = {
   agencyId: "mvta",
   shortName: "436",
   longName: "46th St Station-MSP-Viking Lakes-Eagan",
+  mode: "bus",
   color: "0033A0",
   textColor: "FFFFFF",
   sortOrder: 10,

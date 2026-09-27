@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Region } from "react-native-maps";
 import { regionStore } from "./region-store";
+import { type VehicleLabelDetail, vehicleLabelDetail } from "./vehicle-label";
 import { isWithinZoomGate } from "./viewport";
 
 /** The map region once it has stayed unchanged for `delayMs` (drives the area fetches). */
@@ -31,4 +32,11 @@ export function useZoomedOutPastGate(active: boolean, maxDelta: number): boolean
     const region = regionStore.get();
     return active && region !== undefined && !isWithinZoomGate(region, maxDelta);
   });
+}
+
+/** How much bus labels show at the current zoom. Re-renders only when the tier changes. */
+export function useVehicleLabelDetail(): VehicleLabelDetail {
+  return useSyncExternalStore(regionStore.subscribe, () =>
+    vehicleLabelDetail(regionStore.get()?.latitudeDelta),
+  );
 }

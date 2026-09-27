@@ -26,3 +26,14 @@ export const VEHICLES_ZOOM_GATE_DELTA = 0.15;
 export const AREA_EXPAND_FACTOR = 0.25;
 export const AREA_SNAP_GRID_DEGREES = 0.005;
 export const AREA_FETCH_DEBOUNCE_MS = 400;
+
+/**
+ * Bus label detail by zoom, so downtown doesn't turn into a pile of labels:
+ * `latitudeDelta <= FULL` (~1.6 km tall) shows the full label (bus glyph, number, outdated clock);
+ * `<= NUMBER` (~6.5 km tall) shows the route number only; farther out only the heading puck.
+ */
+export const VEHICLE_LABEL_FULL_MAX_DELTA = 0.015;
+export const VEHICLE_LABEL_NUMBER_MAX_DELTA = 0.06;
+
+/** Longest route name drawn on a map label; longer ones are cut with "…" (full name in panels). */
+export const MAP_ROUTE_NAME_MAX_CHARS = 8;

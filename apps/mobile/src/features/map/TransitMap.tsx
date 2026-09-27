@@ -7,6 +7,7 @@ import { colors } from "@/shared/theme";
 import { FALLBACK_CENTER, FALLBACK_DELTA, FIT_PADDING, FOCUS_DELTA } from "./map-config";
 import { MAP_STYLE } from "./map-style";
 import { StopMarker } from "./StopMarker";
+import { useVehicleLabelDetail } from "./use-map-region";
 import { VehicleMarker, vehicleMarkerKey } from "./VehicleMarker";
 
 export interface MapStop {
@@ -77,6 +78,8 @@ export function TransitMap({
 }: TransitMapProps) {
   const mapRef = useRef<MapView>(null);
   const lastRegion = useRef<Region | undefined>(undefined);
+  // Changes only when the zoom crosses a label tier, so panning never re-renders the markers.
+  const labelDetail = useVehicleLabelDetail();
 
   useImperativeHandle(ref, () => {
     const focusOn = (position: Position, delta: number = FOCUS_DELTA) => {
@@ -161,7 +164,12 @@ export function TransitMap({
         />
       ))}
       {vehicles.map((vehicle) => (
-        <VehicleMarker key={vehicleMarkerKey(vehicle)} vehicle={vehicle} onPress={onVehiclePress} />
+        <VehicleMarker
+          key={vehicleMarkerKey(vehicle)}
+          vehicle={vehicle}
+          labelDetail={labelDetail}
+          onPress={onVehiclePress}
+        />
       ))}
     </MapView>
   );

@@ -5,6 +5,7 @@ import { BackHandler, Pressable, StyleSheet, useWindowDimensions, View } from "r
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LAYERS_BUTTON_SIZE, LayersButton } from "@/features/map/LayersButton";
 import { LayersCard } from "@/features/map/LayersCard";
+import { layersCardMaxHeight } from "@/features/map/layers-card-layout";
 import {
   AREA_FETCH_DEBOUNCE_MS,
   NEARBY_FOCUS_DELTA,
@@ -122,6 +123,12 @@ export default function HomeScreen() {
   // The layers button sits above the recenter button; its card opens just above the button.
   const layersButtonBottom = panelHeight + spacing.lg + RECENTER_BUTTON_SIZE + spacing.md;
   const layersCardBottom = layersButtonBottom + LAYERS_BUTTON_SIZE + spacing.sm;
+  const layersCardMaxHeightDp = layersCardMaxHeight({
+    screenHeight: height,
+    cardBottom: layersCardBottom,
+    searchBarBottom: topOffset + SEARCH_BAR_HEIGHT,
+    gap: spacing.sm,
+  });
 
   // A new panel opens at half height; search and the timetable open full so the content fits.
   useEffect(() => {
@@ -389,7 +396,7 @@ export default function HomeScreen() {
         visible={panel.kind === "nearby" && layersCardOpen}
         layers={mapLayers.layers}
         routeFilter={routeFilter.filter}
-        style={{ right: spacing.lg, bottom: layersCardBottom }}
+        style={{ right: spacing.lg, bottom: layersCardBottom, maxHeight: layersCardMaxHeightDp }}
         onClose={() => setLayersCardOpen(false)}
         onChangeShowVehicles={mapLayers.setShowVehicles}
         onChangeShowStops={mapLayers.setShowStops}

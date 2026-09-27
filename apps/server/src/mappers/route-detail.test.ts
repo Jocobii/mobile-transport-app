@@ -10,6 +10,7 @@ describe("mapRouteDetailResult", () => {
       agencyId: "mvta",
       shortName: "436",
       longName: "46th St Station-MSP-Viking Lakes-Eagan",
+      mode: "bus",
     };
     const stop: Stop = {
       id: "eagan",

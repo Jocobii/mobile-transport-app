@@ -13,6 +13,7 @@ import type {
   StopId,
   StopQueryOptions,
   StopWithDistance,
+  TransitMode,
   Trip,
   TripId,
 } from "@transit/core";
@@ -87,6 +88,8 @@ function toRoute(row: Row): Route {
     color: (row.color as string | null) ?? undefined,
     textColor: (row.text_color as string | null) ?? undefined,
     sortOrder: (row.sort_order as number | null) ?? undefined,
+    // A catalog built before the column existed has no `mode`: draw those routes as buses.
+    mode: (row.mode as TransitMode | undefined) ?? "bus",
   };
 }
 

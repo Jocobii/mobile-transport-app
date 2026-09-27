@@ -75,6 +75,12 @@ export interface ArrivalDto {
   vehicleId?: string | undefined;
 }
 
+/**
+ * How a route runs: `bus`, `brt` (bus rapid transit), `lightRail` or `rail` (commuter/heavy rail).
+ * Clients must treat an unknown future value like `bus`.
+ */
+export type TransitModeDto = "bus" | "brt" | "lightRail" | "rail";
+
 export interface VehicleDto extends LatLonDto {
   id: string;
   label?: string | undefined;
@@ -84,6 +90,8 @@ export interface VehicleDto extends LatLonDto {
   routeColor?: string | undefined;
   /** `#RRGGBB`, uppercase, or undefined. */
   routeTextColor?: string | undefined;
+  /** The route's transit mode; absent from older servers (draw as `bus`). */
+  mode?: TransitModeDto | undefined;
   directionId: 0 | 1;
   headsign: string;
   tripId: string;

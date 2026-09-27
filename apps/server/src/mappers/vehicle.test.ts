@@ -8,6 +8,7 @@ const ROUTE: Route = {
   agencyId: "mvta",
   shortName: "436",
   longName: "46th St Station-MSP-Viking Lakes-Eagan",
+  mode: "bus",
   color: "771473",
   textColor: "ffffff",
 };
@@ -37,6 +38,7 @@ describe("mapVehicle", () => {
       routeShortName: "436",
       routeColor: "#771473",
       routeTextColor: "#FFFFFF",
+      mode: "bus",
       directionId: 1,
       headsign: "Eagan Transit Station",
       tripId: "mvta:t1",
@@ -52,5 +54,9 @@ describe("mapVehicle", () => {
     const dto = mapVehicle(VEHICLE, { ...ROUTE, color: undefined, textColor: undefined });
     expect(dto.routeColor).toBeUndefined();
     expect(dto.routeTextColor).toBeUndefined();
+  });
+
+  it("carries the route's transit mode, so the map can draw trains and BRT apart from buses", () => {
+    expect(mapVehicle(VEHICLE, { ...ROUTE, mode: "lightRail" }).mode).toBe("lightRail");
   });
 });

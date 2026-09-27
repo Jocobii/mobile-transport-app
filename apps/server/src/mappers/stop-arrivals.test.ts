@@ -16,6 +16,7 @@ const ROUTE: Route = {
   agencyId: "metrotransit",
   shortName: "54",
   longName: "MSP - St Paul",
+  mode: "bus",
 };
 
 describe("mapStopArrivalsResult", () => {

@@ -11,6 +11,7 @@ const RESULT: RouteDetailResult = {
     agencyId: "mvta",
     shortName: "436",
     longName: "46th St Station-MSP-Viking Lakes-Eagan",
+    mode: "bus",
   },
   directions: [{ directionId: 0, headsign: "MSP" }],
   selectedDirectionId: 0,

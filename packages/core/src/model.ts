@@ -43,6 +43,12 @@ export interface FeedConfig {
   staticUrl: string;
   vehiclePositionsUrl: string;
   tripUpdatesUrl: string;
+  /**
+   * Routes whose `route_long_name` starts with this text are bus rapid transit. GTFS has no BRT
+   * `route_type` (they are plain buses), so the agency's own naming is the only generic signal.
+   * Rail routes keep their rail mode even when they match.
+   */
+  brtLongNamePrefix?: string | undefined;
 }
 
 export interface Agency {
@@ -50,6 +56,12 @@ export interface Agency {
   feedId: FeedId;
   name: string;
 }
+
+/**
+ * How a route runs, so the UI can tell vehicles apart at a glance. From GTFS `route_type`
+ * (basic and extended values), plus `FeedConfig.brtLongNamePrefix` for bus rapid transit.
+ */
+export type TransitMode = "bus" | "brt" | "lightRail" | "rail";
 
 export interface Route {
   id: RouteId;
@@ -62,6 +74,7 @@ export interface Route {
   color?: string | undefined;
   textColor?: string | undefined;
   sortOrder?: number | undefined;
+  mode: TransitMode;
 }
 
 export interface Stop extends LatLon {

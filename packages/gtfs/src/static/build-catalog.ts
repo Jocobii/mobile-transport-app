@@ -12,6 +12,7 @@ import type {
 import { addDays, localServiceDate, parseGtfsTime } from "../time/gtfs-time";
 import type { GtfsSource } from "./gtfs-source";
 import { simplifyShape } from "./simplify-shape";
+import { transitMode } from "./transit-mode";
 
 export interface BuildCatalogFeedInput {
   config: FeedConfig;
@@ -55,7 +56,8 @@ CREATE TABLE feeds (id TEXT PRIMARY KEY, name TEXT NOT NULL, timezone TEXT NOT N
 CREATE TABLE agencies (id TEXT PRIMARY KEY, feed_id TEXT NOT NULL, name TEXT NOT NULL);
 CREATE TABLE routes (
   id TEXT PRIMARY KEY, feed_id TEXT NOT NULL, agency_id TEXT NOT NULL,
-  short_name TEXT NOT NULL, long_name TEXT NOT NULL, color TEXT, text_color TEXT, sort_order INTEGER
+  short_name TEXT NOT NULL, long_name TEXT NOT NULL, color TEXT, text_color TEXT, sort_order INTEGER,
+  mode TEXT NOT NULL
 );
 CREATE TABLE stops (id TEXT PRIMARY KEY, code TEXT NOT NULL, name TEXT NOT NULL, lat REAL NOT NULL, lon REAL NOT NULL);
 CREATE TABLE stop_feeds (stop_id TEXT NOT NULL, feed_id TEXT NOT NULL, PRIMARY KEY (stop_id, feed_id));
@@ -353,8 +355,8 @@ async function importFeed(
   // --- routes -----------------------------------------------------------------
   const insertRoute = db.prepare(
     "INSERT INTO routes " +
-      "(id, feed_id, agency_id, short_name, long_name, color, text_color, sort_order) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "(id, feed_id, agency_id, short_name, long_name, color, text_color, sort_order, mode) " +
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
   );
   const insertRouteFts = db.prepare(
     "INSERT INTO routes_fts (route_id, short_name, long_name) VALUES (?, ?, ?)",
@@ -374,6 +376,7 @@ async function importFeed(
       row.route_color || null,
       row.route_text_color || null,
       optionalInt(row.route_sort_order) ?? null,
+      transitMode(row.route_type, longName, config.brtLongNamePrefix),
     );
     insertRouteFts.run(routeId, shortName, longName);
   }

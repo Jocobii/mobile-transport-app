@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { StyleProp, ViewStyle } from "react-native";
-import { BackHandler, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { BackHandler, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { ActionButton } from "@/shared/components/ActionButton";
 import { RouteBadge } from "@/shared/components/RouteBadge";
 import { colors, radii, spacing } from "@/shared/theme";
@@ -12,6 +12,7 @@ interface LayersCardProps {
   visible: boolean;
   layers: MapLayers;
   routeFilter: RouteFilter;
+  /** Position and `maxHeight` (see `layersCardMaxHeight`); the content scrolls past it. */
   style?: StyleProp<ViewStyle>;
   onClose: () => void;
   onChangeShowVehicles: (value: boolean) => void;
@@ -62,50 +63,56 @@ export function LayersCard({
         importantForAccessibility="no-hide-descendants"
       />
       <View style={[styles.card, style]}>
-        <Text style={styles.title}>{t("map.layers.title")}</Text>
-        <Row
-          label={t("map.layers.vehicles")}
-          value={layers.showVehicles}
-          onValueChange={onChangeShowVehicles}
-        />
-        <Row
-          label={t("map.layers.stops")}
-          value={layers.showStops}
-          onValueChange={onChangeShowStops}
-        />
-
-        <View style={styles.section}>
-          <Text style={styles.title}>{t("map.layers.routes.title")}</Text>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <Text style={styles.title}>{t("map.layers.title")}</Text>
           <Row
-            label={t("map.layers.routes.filterSwitch")}
-            value={routeFilter.enabled}
-            disabled={!hasRoutes}
-            onValueChange={onChangeFilterEnabled}
+            label={t("map.layers.vehicles")}
+            value={layers.showVehicles}
+            onValueChange={onChangeShowVehicles}
           />
-          {hasRoutes ? (
-            <View style={styles.badges}>
-              {routeFilter.routes.map((route) => (
-                <Pressable
-                  key={route.id}
-                  onPress={() => onRemoveRoute(route.id)}
-                  accessibilityRole="button"
-                  accessibilityLabel={t("map.layers.routes.remove", { name: route.shortName })}
-                  style={styles.badgeButton}
-                >
-                  <RouteBadge
-                    label={route.shortName}
-                    color={route.color}
-                    textColor={route.textColor}
-                  />
-                  <Text style={styles.removeMark}>✕</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyText}>{t("map.layers.routes.empty")}</Text>
-          )}
-          <ActionButton label={t("map.layers.routes.add")} onPress={onAddRoutes} />
-        </View>
+          <Row
+            label={t("map.layers.stops")}
+            value={layers.showStops}
+            onValueChange={onChangeShowStops}
+          />
+
+          <View style={styles.section}>
+            <Text style={styles.title}>{t("map.layers.routes.title")}</Text>
+            <Row
+              label={t("map.layers.routes.filterSwitch")}
+              value={routeFilter.enabled}
+              disabled={!hasRoutes}
+              onValueChange={onChangeFilterEnabled}
+            />
+            {hasRoutes ? (
+              <View style={styles.badges}>
+                {routeFilter.routes.map((route) => (
+                  <Pressable
+                    key={route.id}
+                    onPress={() => onRemoveRoute(route.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("map.layers.routes.remove", { name: route.shortName })}
+                    style={styles.badgeButton}
+                  >
+                    <RouteBadge
+                      label={route.shortName}
+                      color={route.color}
+                      textColor={route.textColor}
+                    />
+                    <Text style={styles.removeMark}>✕</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyText}>{t("map.layers.routes.empty")}</Text>
+            )}
+            <ActionButton label={t("map.layers.routes.add")} onPress={onAddRoutes} />
+          </View>
+        </ScrollView>
       </View>
     </>
   );
@@ -138,13 +145,16 @@ function Row({
 const styles = StyleSheet.create({
   card: {
     position: "absolute",
-    gap: spacing.md,
     minWidth: 240,
     maxWidth: 340,
-    padding: spacing.lg,
     borderRadius: radii.card,
     backgroundColor: colors.surface,
     elevation: 6,
+    overflow: "hidden",
+  },
+  content: {
+    gap: spacing.md,
+    padding: spacing.lg,
   },
   title: {
     fontSize: 15,

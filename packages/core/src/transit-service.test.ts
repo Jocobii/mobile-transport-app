@@ -77,6 +77,7 @@ const ROUTE: Route = {
   agencyId: "metrotransit",
   shortName: "54",
   longName: "MSP - St Paul",
+  mode: "bus",
 };
 
 const TRIP: Trip = {
@@ -864,6 +865,7 @@ describe("route filter on stop queries (EPIC-007)", () => {
     agencyId: "mvta",
     shortName: "436",
     longName: "46th St Station - Eagan",
+    mode: "bus",
   };
 
   function scheduledFor(routeId: RouteId, times: number[]): ScheduledStopTime[] {

@@ -1,7 +1,7 @@
 import type { VehicleDto } from "@transit/contracts";
 
 /**
- * Key that changes whenever the marker's pill changes (vehicle, route, colors). The bearing is not
+ * Key that changes whenever the marker's pill changes (vehicle, route, colors, mode). The bearing is not
  * part of it: the arrow is a separate marker rotated natively, so a turn never rebuilds the pill.
  */
 export function vehicleMarkerKey(vehicle: VehicleDto): string {
@@ -10,6 +10,7 @@ export function vehicleMarkerKey(vehicle: VehicleDto): string {
     vehicle.routeShortName,
     vehicle.routeColor ?? "none",
     vehicle.routeTextColor ?? "none",
+    vehicle.mode ?? "none",
   ].join(":");
 }
 
@@ -26,6 +27,7 @@ export function sameVehicleMarker(a: VehicleDto, b: VehicleDto): boolean {
     a.routeShortName === b.routeShortName &&
     a.routeColor === b.routeColor &&
     a.routeTextColor === b.routeTextColor &&
+    a.mode === b.mode &&
     a.headsign === b.headsign
   );
 }

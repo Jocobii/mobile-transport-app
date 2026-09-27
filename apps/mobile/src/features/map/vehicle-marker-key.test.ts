@@ -41,7 +41,19 @@ describe("vehicleMarkerKey", () => {
   });
 });
 
+describe("vehicleMarkerKey (mode)", () => {
+  it("changes when the transit mode changes, so the shape and glyph are redrawn", () => {
+    expect(vehicleMarkerKey(vehicle({ mode: "lightRail" }))).not.toBe(
+      vehicleMarkerKey(vehicle({ mode: "bus" })),
+    );
+  });
+});
+
 describe("sameVehicleMarker", () => {
+  it("is false when the transit mode changes", () => {
+    expect(sameVehicleMarker(vehicle({ mode: "bus" }), vehicle({ mode: "brt" }))).toBe(false);
+  });
+
   it("is true for a new object with the same drawn values", () => {
     expect(sameVehicleMarker(vehicle({ updatedAt: 1000 }), vehicle({ updatedAt: 2000 }))).toBe(
       true,

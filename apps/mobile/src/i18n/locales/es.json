@@ -20,14 +20,20 @@
   },
   "map": {
     "recenter": "Centrar en mi ubicación",
-    "busMarkerLabel": "Camión {{route}} hacia {{headsign}}",
-    "busMarkerLabelOutdated": "Camión {{route}} hacia {{headsign}}, última ubicación hace {{minutes}} min",
+    "vehicleMarkerLabel": "{{mode}} {{route}} hacia {{headsign}}",
+    "vehicleMarkerLabelOutdated": "{{mode}} {{route}} hacia {{headsign}}, última ubicación hace {{minutes}} min",
+    "vehicleMode": {
+      "bus": "Camión",
+      "brt": "Camión rápido",
+      "lightRail": "Tren ligero",
+      "rail": "Tren"
+    },
     "busMarkerAge": "{{minutes}} min",
     "stopMarkerLabel": "Parada {{name}}",
     "layers": {
       "button": "Capas del mapa",
       "title": "Mostrar en el mapa",
-      "vehicles": "Camiones en vivo",
+      "vehicles": "Vehículos en vivo",
       "stops": "Paradas",
       "routes": {
         "title": "Rutas",

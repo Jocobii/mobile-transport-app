@@ -9,6 +9,7 @@ function route(id: string): Route {
     agencyId: "a",
     shortName: id.split(":")[1] ?? "",
     longName: "",
+    mode: "bus",
   };
 }
 

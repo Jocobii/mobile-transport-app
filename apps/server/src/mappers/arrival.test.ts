@@ -8,6 +8,7 @@ const ROUTE: Route = {
   agencyId: "metrotransit",
   shortName: "54",
   longName: "MSP - St Paul",
+  mode: "bus",
   color: "0033a0",
   textColor: "FFFFFF",
 };

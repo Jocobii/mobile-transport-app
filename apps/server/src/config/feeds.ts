@@ -9,6 +9,8 @@ export const FEEDS: readonly FeedConfig[] = [
     staticUrl: "https://svc.metrotransit.org/mtgtfs/gtfs.zip",
     vehiclePositionsUrl: "https://svc.metrotransit.org/mtgtfs/vehiclepositions.pb",
     tripUpdatesUrl: "https://svc.metrotransit.org/mtgtfs/tripupdates.pb",
+    // METRO BRT lines (A–E, Gold, Orange, Red…) are published as buses, named "METRO <x> Line".
+    brtLongNamePrefix: "METRO ",
   },
   {
     id: "mvta",

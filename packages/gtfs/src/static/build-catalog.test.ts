@@ -116,6 +116,13 @@ describe("buildCatalog (real fixtures: metrotransit + mvta)", () => {
     expect(feeds.map((row) => row.feed_id)).toEqual(["metrotransit", "mvta"]);
   });
 
+  it("stores each route's transit mode from route_type", () => {
+    const route = db.prepare("SELECT mode FROM routes WHERE id = ?").get("mvta:436") as
+      | { mode: string }
+      | undefined;
+    expect(route?.mode).toBe("bus");
+  });
+
   it("stores a trip time >= 24:00:00 as seconds > 86400", () => {
     const overnight = db
       .prepare("SELECT time_seconds FROM stop_times WHERE time_seconds >= 86400 LIMIT 1")

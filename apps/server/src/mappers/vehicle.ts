@@ -12,6 +12,7 @@ export function mapVehicle(vehicle: Vehicle, route: Route): VehicleDto {
     routeShortName: routeShortName(route),
     routeColor: normalizeHexColor(route.color),
     routeTextColor: normalizeHexColor(route.textColor),
+    mode: route.mode,
     directionId: vehicle.directionId,
     headsign: vehicle.headsign,
     tripId: vehicle.tripId,
